@@ -108,6 +108,7 @@ def load_category_to_product_into_database():
                 print(category_id)
             c = c + 1
 
+
 def insert_oberkategorie_subcategory(catid, ocatid):
     try:
         sql = (
@@ -126,6 +127,7 @@ def insert_oberkategorie_subcategory(catid, ocatid):
         print('Error occurred:')
         print(error)
 
+
 def load_category_to_category_into_database():
     with open('produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
         categories = csv.reader(csvfile, delimiter=';')
@@ -135,6 +137,7 @@ def load_category_to_category_into_database():
                 insert_oberkategorie_subcategory(category_id, 1)
             else:
                 insert_oberkategorie_subcategory(category_id, 2)
+
 
 subcats = load_food_subcategories()
 # load_category_to_category_into_database()

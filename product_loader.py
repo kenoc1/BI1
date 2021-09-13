@@ -1,10 +1,6 @@
 import csv
-import time
-from random import random, seed, gauss, randint
-
 import config
 import cx_Oracle
-import names
 
 con = cx_Oracle.connect(user=config.DB_CON_USER, password=config.DB_CON_PW, dsn=config.DB_CON_DSN, encoding="UTF-8")
 print("Database version:", con.version)
