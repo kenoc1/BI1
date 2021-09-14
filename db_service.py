@@ -39,7 +39,7 @@ class DB:
         return self._select_all_dict("RECHNUNG")
 
     def select_all_bons(self):
-        return self._select_all_dict("BONS")
+        return self._select_all_dict("BON")
 
     def select_all_worker_functions(self):
         return self._select_all_dict("FUNKTION")
