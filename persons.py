@@ -136,10 +136,9 @@ def _testing():
     # insert_funktionen()
     # insert_mitarbeiter(800)
     # insert_mitarbeiter_function()
-    insert_kunden(3000)
+    # insert_kunden(3000)
 
 
-if __name__ == '__main__':
-    print("Launching...")
-    db = DB()
-    _testing()
+print("Launching...")
+db = DB()
+_testing()
