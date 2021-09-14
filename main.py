@@ -1,87 +1,145 @@
 import time
-from random import random, seed, gauss, randint
-
+from random import random, seed, gauss, randint, uniform
 import config
 import cx_Oracle
 import names
+import util
+from db_service import DB
 
 con = cx_Oracle.connect(user=config.DB_CON_USER, password=config.DB_CON_PW, dsn=config.DB_CON_DSN, encoding="UTF-8")
 print("Database version:", con.version)
 
 
-def select_table(table_name):
+def insert_funktionen():
+    functions = config.FUNCTIONS
     try:
         with con.cursor() as cursor:
-            # cursor.execute("""select * from ORTSKENNZAHL""")
-            cursor.execute(f"select * from {table_name}")
+            sql = ('Insert into FUNKTION(BEZEICHNUNG)'
+                   'values(:bezeichnung)')
+            for function in functions:
+                cursor.execute(sql, [function])
+                con.commit()
+    except cx_Oracle.Error as error:
+        print('Error occurred:')
+        print(error)
+
+
+def insert_mitarbeiter_function():
+    try:
+        with con.cursor() as cursor:
+            cursor.execute(f"""select Mitarbeiter_Id, GEHALT from MITARBEITER""")
             rows = cursor.fetchall()
             if rows:
                 for row in rows:
                     print(row)
+                    worker_id = row[0]
+                    salary = row[1]
+                    if salary > 12000:
+                        function_id = db.get_id_from_function("Filialleiter*in")
+                    elif salary > 6000:
+                        function_id = db.get_id_from_function("Abteilungsleiter*in")
+                    elif salary > 4000:
+                        mittel = [db.get_id_from_function("Einkäufer"), db.get_id_from_function("Raumpfleger*in"),
+                                  db.get_id_from_function("Consultant")]
+                        function_id = mittel[randint(0, len(mittel) - 1)]
+                    else:
+                        gering = [db.get_id_from_function("Azubi"), db.get_id_from_function("Oberkassierer*in"),
+                                  db.get_id_from_function("Kassierer*in"), db.get_id_from_function("Praktikant*in"),
+                                  db.get_id_from_function("Dualer Student*in"), db.get_id_from_function("Lagerist")]
+                        function_id = gering[randint(0, len(gering) - 1)]
+                    try:
+                        with con.cursor() as cursor2:
+                            sql = ('Insert into ZUWEISUNG_MITARBEITER_FUNKTION(FUNKTIONS_ID, MITARBEITER_ID)'
+                                   'values(:function_id,:worker_id)')
+                            cursor2.execute(sql, [function_id, worker_id])
+                            con.commit()
+                    except cx_Oracle.Error as error:
+                        print('Error occurred in cursor 2:')
+                        print(error)
     except cx_Oracle.Error as error:
         print('Error occurred:')
         print(error)
 
 
-def insert_mitarbeiter(billing_date, amount, customer_id, note):
+def _insert_mitarbeiter_salary():
     try:
-        sql = ('insert into MITARBEITER(VORNAME, NACHNAME, PROVISONSSATZ, ADRESS_ID) '
-               'values(:vname,:lname,:provisionssatz,:adresse_id)')
-        # create a cursor
         with con.cursor() as cursor:
-            # execute the insert statement
-            cursor.execute(sql, [billing_date, amount, customer_id, note])
-            # commit work
-            con.commit()
+            cursor.execute(f"""select Mitarbeiter_Id from MITARBEITER""")
+            rows = cursor.fetchall()
+            if rows:
+                for row in rows:
+                    worker_id = row[0]
+                    try:
+                        with con.cursor() as cursor2:
+                            sql = ('UPDATE MITARBEITER SET "Gehalt" = salary WHERE MITARBEITER_ID = worker_id'
+                                   'values(:salary,:worker_id)')
+                            cursor2.execute(sql, [util.random_salary(), worker_id])
+                    except cx_Oracle.Error as error:
+                        print('Error occurred in cursor 2:')
+                        print(error)
     except cx_Oracle.Error as error:
         print('Error occurred:')
         print(error)
 
 
-def insert_kunde(billing_date, amount, customer_id, note):
-    try:
-        sql = ('insert into KUNDE(VORNAME, NACHNAME, GEBURTSDATUM, RECHNUNGS_ADRESSE_ID, LIEFER_ADRESSE_ID) '
-               'values(:vname,:lname,:birthdate,:rechnungs_adresse_id,:liefer_adresse_id)')
-        # create a cursor
-        with con.cursor() as cursor:
-
-            # execute the insert statement
-            cursor.execute(sql, [billing_date, amount, customer_id, note])
-            # commit work
-            con.commit()
-    except cx_Oracle.Error as error:
-        print('Error occurred:')
-        print(error)
+def insert_mitarbeiter(range_number):
+    print("Inserting Mitarbeiter rows....")
+    address_id_min = db.get_address_id_min()
+    address_id_max = db.get_address_id_max()
+    for n in range(range_number):
+        db.insert_mitarbeiter_row(util.generate_firstname(), util.generate_lastname(), util.random_commission_rate(),
+                                  util.random_salary(), _random_address_id(address_id_min, address_id_max))
 
 
-def __generate_firstname():
-    return names.get_first_name()
+def insert_kunden(range_number):
+    print("Inserting Kunden rows....")
+    address_id_min = db.get_address_id_min()
+    address_id_max = db.get_address_id_max()
+    for n in range(range_number):
+        db.insert_kunde_row(util.generate_firstname(), util.generate_lastname(),
+                            util.random_date('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
+                            _random_address_id(address_id_min, address_id_max),
+                            _random_address_id(address_id_min, address_id_max))
 
 
-def __generate_lastname():
-    return names.get_last_name()
+def _random_address_id(start_address_id, end_address_id):
+    present = False
+    while not present:
+        address_id = randint(start_address_id, end_address_id)
+        present = db.address_present(address_id)
+    return address_id
 
 
-def __random_adress_id():
-    return randint(0, 100)
+def _testing():
+    print("testing....")
+    # _insert_kunden(300)
+    # _insert_mitarbeiter(10)
 
+    # print(_address_present(32717))
+    # address_id_min = _get_address_id_min()
+    # address_id_max = _get_address_id_max()
+    # print(f"Address Min: {address_id_min}")
+    # print(f"Address Max: {address_id_max}")
+    # select_table("ORTSKENNZAHL")
+    # print(f"Commission Rate Random: {_random_commission_rate()}")
+    # print(f"Address Random: {_random_address_id(address_id_min, address_id_max)}")
+    # print(f"Date Random: {_random_date('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random())}")
 
-def _str_time_prop(start, end, time_format, prop):
-    stime = time.mktime(time.strptime(start, time_format))
-    etime = time.mktime(time.strptime(end, time_format))
-
-    ptime = stime + prop * (etime - stime)
-
-    return time.strftime(time_format, time.localtime(ptime))
-
-
-def _random_date(start, end, prop):
-    return _str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
+    # _insert_kunde_row(_generate_firstname(), _generate_lastname(),
+    #                   _random_date('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
+    #                   _random_address_id(address_id_min, address_id_max),
+    #                   _random_address_id(address_id_min, address_id_max))
+    # _insert_mitarbeiter_row(_generate_firstname(), _generate_lastname(), _random_commission_rate(),
+    #                         _random_address_id(address_id_min, address_id_max))
+    # insert_mitarbeiter_function()
+    # _insert_mitarbeiter_salary()
+    # insert_funktionen()
+    # insert_mitarbeiter(800)
+    # insert_mitarbeiter_function()
+    insert_kunden(3000)
 
 
 if __name__ == '__main__':
     print("Launching...")
-    seed(1)
-    select_table("ORTSKENNZAHL")
-    print(__random_adress_id())
-    print(_random_date("1/1/1970 1:30 PM", "1/1/2005 4:50 AM", random()))
+    db = DB()
+    _testing()
