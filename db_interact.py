@@ -1,8 +1,6 @@
-import time
-from random import random, seed, gauss, randint, uniform
-import config
+from random import randint
 import cx_Oracle
-import names
+import config
 
 
 class DB:
@@ -257,12 +255,62 @@ class DB:
 
     def insert_lagereinheit(self, nummer, zeile, spalte, breite, tiefe, hoehe, typ):
         sql = (
-            "insert into LAGER_EINHEIT(REGAL_NUMMER, REGALZEILE,  REGALSPALTE, REGALBREITE, REGALTIEFE, REGALHÖHE, TYP) "
-            "values(:regalnummer, :regalzeile, :regalspalte, :regalbreite, :regaltiefe,:regalhoehe, :typ) ")
+                "insert into LAGER_EINHEIT(REGAL_NUMMER, REGALZEILE,  REGALSPALTE, REGALBREITE, REGALTIEFE, REGALHÖHE, TYP) "
+                "values(:regalnummer, :regalzeile, :regalspalte, :regalbreite, :regaltiefe,:regalhoehe, :typ) " + \
+                "returning LAGERPLATZ_ID into :python_var")
         try:
             # create a cursor
             with self.con.cursor() as cursor:
-                cursor.execute(sql, [nummer, zeile, spalte, breite, tiefe, hoehe, typ])
+
+                newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+                cursor.execute(sql, [nummer, zeile, spalte, breite, tiefe, hoehe, typ, newest_id_wrapper])
+                newest_id = newest_id_wrapper.getvalue()
+                # commit work
+                self.con.commit()
+
+                return int(newest_id[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_products(self):
+        try:
+            with self.con.cursor() as cursor:
+
+                cursor.execute(f"""select * from PRODUKT""")
+                print("Fetching all products from database")
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_categoryid_from_productid(self, productid: int) -> int:
+        try:
+            with self.con.cursor() as cursor:
+                # cursor.execute("""select * from ORTSKENNZAHL""")
+                cursor.execute(
+                    f"select PRODUKTKATEGORIE_ID from ZUWEISUNG_PRODUKT_PRODUKTKATEGORIE WHERE PRODUKT_ID = :id",
+                    id=productid)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product_to_lagereinheit(self, productid: int, lagerid: int):
+        sql = (
+            "insert into ZUWEISUNG_PRODUKT_LAGERPLATZ(PRODUKT_ID, LAGERPLATZ_ID) "
+            "values(:productid, :lagerid) ")
+        try:
+            # create a cursor
+            with self.con.cursor() as cursor:
+                cursor.execute(sql, [productid, lagerid])
+                # commit work
                 self.con.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')

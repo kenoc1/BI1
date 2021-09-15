@@ -64,14 +64,6 @@ def get_product_id_by_name(productname: str):
         print(error)
 
 
-def load_subcategory_csv_into_database():
-    with open('produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
-        categories = csv.reader(csvfile, delimiter=';')
-        for category in categories:
-            if category[4] in ['Food', 'Drink'] or category[2] in ['Electrical']:
-                insert_subcategory(category[1], (16 if category[3] in ['Alcoholic Beverages'] else 0))
-
-
 def get_subcategory_by_excelid(excelid: str) -> str:
     for cat in subcats[1:]:
         num = int(cat[0])
@@ -139,6 +131,13 @@ def load_category_to_category_into_database():
                 insert_oberkategorie_subcategory(category_id, 2)
 
 
-subcats = load_food_subcategories()
+def load_subcategory_csv_into_database():
+    with open('produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
+        categories = csv.reader(csvfile, delimiter=';')
+        for category in categories:
+            if category[4] in ['Food', 'Drink'] or category[2] in ['Elektrisch']:
+                insert_subcategory(category[1], (16 if category[3] in ['Alkoholische Getränke'] else 0))
+
+# subcats = load_food_subcategories()
 # load_category_to_category_into_database()
-load_category_to_product_into_database()
+# load_category_to_product_into_database()
