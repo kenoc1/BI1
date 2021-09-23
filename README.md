@@ -11,3 +11,9 @@ Die Datei db_service.py enthält eine Klasse DB mit der jegliche Kommunikation m
 Die Datei util.py enthält Methoden für umrechnungen sowie für die Erzeugung von Daten.
 
 Das terminal.py ist eine Anwendung die ein Terminal in einer Filiale simuliert.
+
+
+##Installation
+.env Datei mit Secrets erstellen
+
+pip install cx-Oracle names python-dotenv pandas

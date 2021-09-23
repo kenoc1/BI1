@@ -8,14 +8,14 @@ import names
 
 class DB_F2:
     def __init__(self):
-        self.con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
-                                     encoding="UTF-8")
-        print("Database version:", self.con.version)
+        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+                                        encoding="UTF-8")
+        print("Database version:", self.con_f2.version)
 
     # selects
     def select_table(self, table_name: str):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(f"""select * from {table_name}""")
                 rows = cursor.fetchall()
                 if rows:
@@ -46,7 +46,7 @@ class DB_F2:
 
     def _select_all_dict(self, table_name):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(f"""select * from {table_name}""")
                 cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
                 rows = cursor.fetchall()
@@ -60,7 +60,7 @@ class DB_F2:
 
     def select_product_with_description(self, description):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(f"""SELECT * FROM PRODUKT WHERE BEZEICHNUNG Like :description""",
                                description=f"{description}%")
                 cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
@@ -75,7 +75,7 @@ class DB_F2:
 
     def select_product_with_id(self, product_id):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(f"""select * from {config.PRODUCTS_F2} where PRODUKT_ID = :product_id""",
                                product_id=product_id)
                 cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
@@ -90,7 +90,7 @@ class DB_F2:
 
     def select_current_sale_price_with_product_id(self, product_id):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(
                     f"""select * from PREIS where PRODUKT_ID = :product_id and TYP = 'Verkauf' and GUELTIGKEITS_ENDE is null""",
                     product_id=product_id)
@@ -106,7 +106,7 @@ class DB_F2:
 
     def select_current_buying_price_with_product_id(self, product_id):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(
                     f"""select * from PREIS where PRODUKT_ID = :product_id and TYP = 'Einkauf' and GUELTIGKEITS_ENDE is null""",
                     product_id=product_id)
@@ -122,7 +122,7 @@ class DB_F2:
 
     def get_id_from_function(self, function_description):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select * from FUNKTION WHERE BEZEICHNUNG = :function_description""",
                                function_description=function_description)
                 row = cursor.fetchone()
@@ -140,11 +140,11 @@ class DB_F2:
         print("Mitarbeiter: ", [first_name, last_name, commission_rate, salary, address_id])
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 # execute the insert statement
                 cursor.execute(sql, [first_name, last_name, commission_rate, salary, address_id])
                 # commit work
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -155,11 +155,11 @@ class DB_F2:
         print("Kunden: ", [first_name, last_name, birthdate, billing_address, shipping_address])
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 # execute the insert statement
                 cursor.execute(sql, [first_name, last_name, birthdate, billing_address, shipping_address])
                 # commit work
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -174,17 +174,17 @@ class DB_F2:
                 sql = ('insert into BON(VERKAUFS_ID, GEGEBENES_GELD, ZAHLUNGSART, RUECKGELD) '
                        'values(:sale_id,:given_money,:payment_method,:change)')
                 # create a cursor
-                with self.con.cursor() as cursor:
+                with self.con_f2.cursor() as cursor:
                     cursor.execute(sql, [sale_id, given_money, payment_method, (given_money - sale_sum)])
-                    self.con.commit()
+                    self.con_f2.commit()
                 return given_money - sale_sum
             else:
                 sql = ('insert into BON(VERKAUFS_ID, ZAHLUNGSART) '
                        'values(:sale_id,:payment_method)')
                 # create a cursor
-                with self.con.cursor() as cursor:
+                with self.con_f2.cursor() as cursor:
                     cursor.execute(sql, [sale_id, payment_method])
-                    self.con.commit()
+                    self.con_f2.commit()
                 return 0
         except cx_Oracle.Error as error:
             print('Error occurred:')
@@ -195,9 +195,9 @@ class DB_F2:
                "values(:sale_id,to_date(:adjustment_date,'MM/DD/YYYY HH:MI AM'))")
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(sql, [sale_id, adjustment_date])
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -207,9 +207,9 @@ class DB_F2:
                "values(to_date(:delivery_date,'MM/DD/YYYY HH:MI AM'),:sale_id,:delivery_costs)")
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute(sql, [delivery_date, sale_id, delivery_costs])
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -219,9 +219,9 @@ class DB_F2:
                'values(:sale_id,:product_id,:product_count)')
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.executemany(sql, sales)
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -239,9 +239,9 @@ class DB_F2:
         #     print(error)
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.executemany(sql, sales)
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -251,7 +251,7 @@ class DB_F2:
         print("Verkauf: ", [sale_date, worker_id, customer_id, tax_sum, sale_netto_sum, sale_brutto_sum, weight_sum])
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
                 sql = (
                     "insert into VERKAUF(VERKAUFDATUM, MITARBEITER_ID, KUNDEN_ID, UST_SUMME, NETTO_SUMME, BRUTTO_SUMME, GESAMTGEWICHT)"
@@ -263,7 +263,7 @@ class DB_F2:
                                 new_id])
                 added_id = new_id.getvalue()
                 # commit work
-                self.con.commit()
+                self.con_f2.commit()
                 return int(added_id[0])
         except cx_Oracle.Error as error:
             print('Error occurred:')
@@ -273,7 +273,7 @@ class DB_F2:
         print("Einkauf: ", [buying_date, worker_id, supplier_id])
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
                 sql = (
                     "insert into EINKAUF(EINKAUFSDATUM, MITARBEITER_ID, LIEFERANT_ID)"
@@ -284,7 +284,7 @@ class DB_F2:
                                [buying_date, worker_id, supplier_id, new_id])
                 added_id = new_id.getvalue()
                 # commit work
-                self.con.commit()
+                self.con_f2.commit()
                 return int(added_id[0])
         except cx_Oracle.Error as error:
             print('Error occurred:')
@@ -295,9 +295,9 @@ class DB_F2:
                'values(:sale_id,:product_id,:product_count)')
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.executemany(sql, sales)
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -307,9 +307,9 @@ class DB_F2:
                'values(:sale_id,:product_id,:weight)')
         try:
             # create a cursor
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.executemany(sql, sales)
-                self.con.commit()
+                self.con_f2.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -368,7 +368,7 @@ class DB_F2:
     # start - end - IDs ----------------------------------------------------------------------------------------------
     def get_start_customer_id(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MIN(KUNDEN_ID) from KUNDE""")
                 row = cursor.fetchone()
                 if row:
@@ -379,7 +379,7 @@ class DB_F2:
 
     def get_end_customer_id(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MAX(KUNDEN_ID) from KUNDE""")
                 row = cursor.fetchone()
                 if row:
@@ -390,7 +390,7 @@ class DB_F2:
 
     def get_address_id_min(self) -> int:
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MIN(ADRESS_ID) from ADRESSE""")
                 row = cursor.fetchone()
                 if row:
@@ -401,7 +401,7 @@ class DB_F2:
 
     def get_address_id_max(self) -> int:
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MAX(ADRESS_ID) from ADRESSE""")
                 row = cursor.fetchone()
                 if row:
@@ -412,7 +412,7 @@ class DB_F2:
 
     def get_random_seller(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""  SELECT distinct m.MITARBEITER_ID FROM MITARBEITER m, FUNKTION f,
                                     ZUWEISUNG_MITARBEITER_FUNKTION z WHERE f.FUNKTIONS_ID = z.FUNKTIONS_ID   
                                     AND z.MITARBEITER_ID = m.MITARBEITER_ID
@@ -427,7 +427,7 @@ class DB_F2:
 
     def get_random_buyer(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""  SELECT distinct m.MITARBEITER_ID FROM MITARBEITER m, FUNKTION f,
                                     ZUWEISUNG_MITARBEITER_FUNKTION z WHERE f.FUNKTIONS_ID = z.FUNKTIONS_ID   
                                     AND z.MITARBEITER_ID = m.MITARBEITER_ID
@@ -460,7 +460,7 @@ class DB_F2:
 
     def get_start_supplier_id(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MIN(LIEFERANT_ID) from LIEFERANT""")
                 row = cursor.fetchone()
                 if row:
@@ -473,7 +473,7 @@ class DB_F2:
 
     def get_end_supplier_id(self):
         try:
-            with self.con.cursor() as cursor:
+            with self.con_f2.cursor() as cursor:
                 cursor.execute("""select MAX(LIEFERANT_ID) from LIEFERANT""")
                 row = cursor.fetchone()
                 if row:
@@ -486,7 +486,7 @@ class DB_F2:
 
     # checks for present items ---------------------------------------------------------------------------------------
     def product_present(self, product_id):
-        with self.con.cursor() as cursor:
+        with self.con_f2.cursor() as cursor:
             cursor.execute("""select * from PRODUKT WHERE PRODUKT_ID = :product_id""", product_id=product_id)
             row = cursor.fetchone()
             if row:
@@ -495,7 +495,7 @@ class DB_F2:
                 False
 
     def worker_present(self, worker_id):
-        with self.con.cursor() as cursor:
+        with self.con_f2.cursor() as cursor:
             cursor.execute("""select * from MITARBEITER WHERE MITARBEITER_ID = :worker_id""", worker_id=worker_id)
             row = cursor.fetchone()
             if row:
@@ -504,7 +504,7 @@ class DB_F2:
                 False
 
     def address_present(self, address_id):
-        with self.con.cursor() as cursor:
+        with self.con_f2.cursor() as cursor:
             cursor.execute("""select * from ADRESSE WHERE ADRESS_ID = :address_id""", address_id=address_id)
             row = cursor.fetchone()
             if row:
@@ -513,7 +513,7 @@ class DB_F2:
                 False
 
     def customer_present(self, customer_id):
-        with self.con.cursor() as cursor:
+        with self.con_f2.cursor() as cursor:
             cursor.execute("""select * from KUNDE WHERE KUNDEN_ID = :customer_id""", customer_id=customer_id)
             row = cursor.fetchone()
             if row:
@@ -522,7 +522,7 @@ class DB_F2:
                 False
 
     def supplier_present(self, supplier_id):
-        with self.con.cursor() as cursor:
+        with self.con_f2.cursor() as cursor:
             cursor.execute("""select * from LIEFERANT WHERE LIEFERANT_ID = :supplier_id""", supplier_id=supplier_id)
             row = cursor.fetchone()
             if row:
@@ -533,9 +533,9 @@ class DB_F2:
 
 class DB_MASTER:
     def __init__(self):
-        self.con = cx_Oracle.connect(user=config.DB_CON_USER_COMBINED, password=config.DB_CON_PW_COMBINED,
-                                     dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
-        print("Database version:", self.con.version)
+        self.con_master = cx_Oracle.connect(user=config.DB_CON_USER_COMBINED, password=config.DB_CON_PW_COMBINED,
+                                            dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
+        print("Database version:", self.con_master.version)
 
 # class DB_OS:
 #     def __init__(self):
