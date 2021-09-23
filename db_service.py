@@ -6,14 +6,14 @@ import cx_Oracle
 import names
 
 
-class DB:
+class DB_F2:
     def __init__(self):
-        self.con = cx_Oracle.connect(user=config.DB_CON_USER, password=config.DB_CON_PW, dsn=config.DB_CON_DSN,
+        self.con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
                                      encoding="UTF-8")
         print("Database version:", self.con.version)
 
     # selects
-    def select_table(self, table_name):
+    def select_table(self, table_name: str):
         try:
             with self.con.cursor() as cursor:
                 cursor.execute(f"""select * from {table_name}""")
@@ -76,7 +76,7 @@ class DB:
     def select_product_with_id(self, product_id):
         try:
             with self.con.cursor() as cursor:
-                cursor.execute(f"""select * from {config.PRODUCTS} where PRODUKT_ID = :product_id""",
+                cursor.execute(f"""select * from {config.PRODUCTS_F2} where PRODUKT_ID = :product_id""",
                                product_id=product_id)
                 cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
                 rows = cursor.fetchall()
@@ -132,7 +132,7 @@ class DB:
             print('Error occurred:')
             print(error)
 
-    # inserts
+    # F2
 
     def insert_mitarbeiter_row(self, first_name, last_name, commission_rate, salary, address_id):
         sql = ('insert into MITARBEITER(VORNAME, NACHNAME, PROVISIONSSATZ, GEHALT, ADRESS_ID)'
@@ -529,3 +529,14 @@ class DB:
                 return True
             else:
                 False
+
+
+class DB_MASTER:
+    def __init__(self):
+        self.con = cx_Oracle.connect(user=config.DB_CON_USER_COMBINED, password=config.DB_CON_PW_COMBINED,
+                                     dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
+        print("Database version:", self.con.version)
+
+# class DB_OS:
+#     def __init__(self):
+#         return

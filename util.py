@@ -25,7 +25,7 @@ def generate_lastname() -> str:
 
 
 def random_date(start, end, prop) -> str:
-    return _str_time_prop(start, end, config.TIME_FORMAT, prop)
+    return _str_time_prop(start, end, config.TIME_FORMAT_F2, prop)
 
 
 def random_salary() -> float:
@@ -41,12 +41,12 @@ def generate_delivery_costs():
 
 
 def generate_delivery_date(sale_date):
-    return (datetime.strptime(sale_date, config.TIME_FORMAT) + timedelta(days=randint(3, 5))).strftime(
-        config.TIME_FORMAT)
+    return (datetime.strptime(sale_date, config.TIME_FORMAT_F2) + timedelta(days=randint(3, 5))).strftime(
+        config.TIME_FORMAT_F2)
 
 
 def generate_adjustment_date(sale_date):
-    return (datetime.strptime(sale_date, config.TIME_FORMAT) + timedelta(days=14)).strftime(config.TIME_FORMAT)
+    return (datetime.strptime(sale_date, config.TIME_FORMAT_F2) + timedelta(days=14)).strftime(config.TIME_FORMAT_F2)
 
 
 def generate_given_money(sale_sum):
@@ -54,7 +54,7 @@ def generate_given_money(sale_sum):
 
 
 def generate_payment_method():
-    return config.PAYMENT_METHODS[randint(0, 1)]
+    return config.PAYMENT_METHODS_F2[randint(0, 1)]
 
 
 def roundup(x):

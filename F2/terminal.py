@@ -1,7 +1,7 @@
 from datetime import datetime
 import config
 import pandas as pd
-from db_service import DB
+from db_service import DB_F2
 
 
 def print_error():
@@ -32,7 +32,7 @@ def print_menu_kasse():
 
 class Terminal():
     def __init__(self):
-        self.db = DB()
+        self.db = DB_F2()
 
     def purchasing(self):
         buying_date = datetime.now().strftime("%m/%d/%Y %I:%M %p")
@@ -115,7 +115,7 @@ class Terminal():
         self.db.calculate_and_insert_weight_products_verkauf(added_sale_id, weight_products)
         change = self.db.insert_bon_row(sale_id=added_sale_id,
                                         given_money=given_money,
-                                        payment_method=config.PAYMENT_METHODS[payment_method],
+                                        payment_method=config.PAYMENT_METHODS_F2[payment_method],
                                         sale_sum=sale_sum + tax_sum)
         print("Rückgeld : " + str(change) + " (IB$)")
 

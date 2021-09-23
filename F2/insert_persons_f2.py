@@ -4,14 +4,14 @@ import config
 import cx_Oracle
 import names
 import util
-from db_service import DB
+from db_service import DB_F2
 
-con = cx_Oracle.connect(user=config.DB_CON_USER, password=config.DB_CON_PW, dsn=config.DB_CON_DSN, encoding="UTF-8")
+con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2, encoding="UTF-8")
 print("Database version:", con.version)
 
 
 def insert_funktionen():
-    functions = config.FUNCTIONS
+    functions = config.FUNCTIONS_F2
     try:
         with con.cursor() as cursor:
             sql = ('Insert into FUNKTION(BEZEICHNUNG)'
@@ -140,5 +140,5 @@ def _testing():
 
 
 print("Launching...")
-db = DB()
+db = DB_F2()
 _testing()

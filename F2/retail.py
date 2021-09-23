@@ -6,7 +6,7 @@ import cx_Oracle
 import names
 from collections import Counter
 
-from db_service import DB
+from db_service import DB_F2
 import util
 
 db = None
@@ -77,10 +77,10 @@ def import_retail_verkauf():
                             # print(product)
                             count = uniform(0.1, 3)
                             product["PURCHASED_WEIGHT"] = product["NETTOGEWICHT"] * count
-                            weight_sum += product["BRUTTOGEWICHT"] * count
+                            weight_sum += product["NETTOGEWICHT"] * count
                             price = db.select_current_sale_price_with_product_id(product["PRODUKT_ID"])
-                            sale_sum += price["BETRAG"]
-                            tax_sum += price["BETRAG"] * product["UMSATZSTEUERSATZ"] * 0.01
+                            sale_sum += price["BETRAG"] * count
+                            tax_sum += price["BETRAG"] * product["UMSATZSTEUERSATZ"] * 0.01 * count
 
                     worker_id = db.get_random_seller()
                     customer_id = db.get_random_customer()
@@ -146,7 +146,7 @@ def import_retail_einkauf():
                 db.calculate_and_insert_weight_products_einkauf(added_buying_id, weight_products)
 
 
-db = DB()
+db = DB_F2()
 # x = db.select_current_sale_price_with_product_id(2324)
 # y = db.select_current_buying_price_with_product_id(2324)
 # print(x["BETRAG"])

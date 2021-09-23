@@ -4,12 +4,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_CON_USER = os.environ.get('DB_CON_USER')
-DB_CON_PW = os.environ.get('DB_CON_PW')
-DB_CON_DSN = cx_Oracle.makedsn(os.environ.get('DB_CON_IP'), 1521, service_name="fastdbwin")
+DB_CON_USER_F2 = os.environ.get('DB_CON_USER_F2')
+DB_CON_PW_F2 = os.environ.get('DB_CON_PW_F2')
+DB_CON_DSN_F2 = cx_Oracle.makedsn(os.environ.get('DB_CON_IP'), 1521, service_name="fastdbwin")
 
-PRODUCTS = "PRODUKT"
-FUNCTIONS = ["Einkäufer",
+DB_CON_USER_COMBINED = os.environ.get('DB_CON_USER_COMBINED')
+DB_CON_PW_COMBINED = os.environ.get('DB_CON_PW_COMBINED')
+DB_CON_DSN_COMBINED = cx_Oracle.makedsn(os.environ.get('DB_CON_IP'), 1521, service_name="fastdbwin")
+
+
+PRODUCTS_F2 = "PRODUKT"
+FUNCTIONS_F2 = ["Einkäufer",
              "Oberkassierer*in",
              "Consultant",
              "Raumpfleger*in",
@@ -21,5 +26,5 @@ FUNCTIONS = ["Einkäufer",
              "Abteilungsleiter*in",
              "Filialleiter*in"]
 
-TIME_FORMAT = '%m/%d/%Y %I:%M %p'
-PAYMENT_METHODS = ["Bar", "Karte"]
+TIME_FORMAT_F2 = '%m/%d/%Y %I:%M %p'
+PAYMENT_METHODS_F2 = ["Bar", "Karte"]
