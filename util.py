@@ -1,7 +1,7 @@
 import math
 import time
 from datetime import timedelta, datetime
-from random import randint, uniform
+from random import randint, uniform, random
 
 import names
 
@@ -60,6 +60,18 @@ def generate_payment_method():
 
 def roundup(x):
     return int(math.ceil(x / 10.0)) * 10
+
+
+def get_random_price(original_price: float) -> float:
+    return original_price * generate_deviation_factor()
+
+
+def generate_deviation_factor() -> float:
+    return uniform(0.8, 1.2)
+
+
+def random_date_for_priceloader(start, end, prop) -> str:
+    return _str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
 
 
 class Util:

@@ -98,7 +98,7 @@ def insert_kunden(range_number):
     address_id_max = db.get_address_id_max()
     for n in range(range_number):
         db.insert_kunde_row(util.generate_firstname(), util.generate_lastname(),
-                            util.random_date('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
+                            util.random_date_for_priceloader('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
                             _random_address_id(address_id_min, address_id_max),
                             _random_address_id(address_id_min, address_id_max))
 

@@ -82,13 +82,13 @@ def import_retail_verkauf():
                     random_date_indicator = randint(1, 5)
                     # 1 month
                     if random_date_indicator == 3:
-                        sale_date = util.random_date('12/15/2020 1:30 PM', '1/15/2021 4:50 AM', random())
+                        sale_date = util.random_date_for_priceloader('12/15/2020 1:30 PM', '1/15/2021 4:50 AM', random())
                     # 1 month
                     elif random_date_indicator == 2:
-                        sale_date = util.random_date('6/1/2021 1:30 PM', '6/30/2021 4:50 AM', random())
+                        sale_date = util.random_date_for_priceloader('6/1/2021 1:30 PM', '6/30/2021 4:50 AM', random())
                     # 3 month (execute if 1,4,5)
                     else:
-                        sale_date = util.random_date('8/20/2021 1:30 PM', '11/30/2021 4:50 AM', random())
+                        sale_date = util.random_date_for_priceloader('8/20/2021 1:30 PM', '11/30/2021 4:50 AM', random())
 
                     added_sale_id = db.insert_verkauf_row(
                         sale_date=sale_date, worker_id=worker_id, customer_id=customer_id, sale_netto_sum=sale_sum,
@@ -135,7 +135,7 @@ def import_retail_einkauf():
                 supplier_id = db.get_random_supplier()
 
                 added_buying_id = db.insert_einkauf_row(
-                    util.random_date('1/1/2017 1:30 PM', '1/1/2019 4:50 AM', random()),
+                    util.random_date_for_priceloader('1/1/2017 1:30 PM', '1/1/2019 4:50 AM', random()),
                     worker_id, supplier_id)
                 db.calculate_and_insert_count_products_einkauf(added_buying_id, count_products)
                 db.calculate_and_insert_weight_products_einkauf(added_buying_id, weight_products)
