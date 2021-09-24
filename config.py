@@ -12,6 +12,10 @@ DB_CON_USER_COMBINED = os.environ.get('DB_CON_USER_COMBINED')
 DB_CON_PW_COMBINED = os.environ.get('DB_CON_PW_COMBINED')
 DB_CON_DSN_COMBINED = cx_Oracle.makedsn(os.environ.get('DB_CON_IP'), 1521, service_name="fastdbwin")
 
+DB_CON_USER_OS = os.environ.get('DB_CON_USER_OS')
+DB_CON_PW_OS = os.environ.get('DB_CON_PW_OS')
+DB_CON_DSN_OS = cx_Oracle.makedsn(os.environ.get('DB_CON_OS'), 1521, service_name="fastdbwin")
+
 
 PRODUCTS_F2 = "PRODUKT"
 FUNCTIONS_F2 = ["Einkäufer",
