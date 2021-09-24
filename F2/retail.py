@@ -1,13 +1,8 @@
 import csv
-import time
-from random import random, seed, gauss, randint, uniform
-import config
-import cx_Oracle
-import names
-from collections import Counter
+from random import random, randint, uniform
 
-from db_service import DB_F2
 import util
+from db_service import DB_F2
 
 db = None
 

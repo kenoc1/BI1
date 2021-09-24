@@ -1,10 +1,11 @@
-import time
-from random import random, seed, gauss, randint, uniform
-import config
-import cx_Oracle
-import names
-from datetime import timedelta, datetime
 import math
+import time
+from datetime import timedelta, datetime
+from random import randint, uniform
+
+import names
+
+import config
 
 
 def _str_time_prop(start, end, time_format, prop) -> str:
@@ -71,4 +72,18 @@ class Util:
         # print(delivery_date)
         # print(adjustment_date)
 
+
 # util = Util()
+
+
+def oz_to_ibs(oz: float) -> float:
+    return ((oz * 28.35) / 1000) * 2
+
+
+def number_str_to_float(incorrect_value: str) -> float:
+    correct_value = incorrect_value.replace(",", ".")
+    return float(correct_value)
+
+
+def cm_to_inch(cm: float) -> float:
+    return cm / 2.54

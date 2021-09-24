@@ -1,12 +1,13 @@
-import time
-from random import random, seed, gauss, randint, uniform
-import config
+from random import random, randint
+
 import cx_Oracle
-import names
+
+import config
 import util
 from db_service import DB_F2
 
-con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2, encoding="UTF-8")
+con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+                        encoding="UTF-8")
 print("Database version:", con.version)
 
 
