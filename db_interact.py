@@ -130,7 +130,7 @@ class DB:
 
     def worker_present(self, worker_id):
         with self.con.cursor() as cursor:
-            cursor.execute("""select * from KUNDE WHERE KUNDEN_ID = :customer_id""", customer_id=customer_id)
+            cursor.execute("""select * from KUNDE WHERE KUNDEN_ID = :customer_id""", customer_id=worker_id)
             row = cursor.fetchone()
             if row:
                 return True
@@ -330,11 +330,70 @@ class DB:
                        bruttogewicht: float, pwidth: float, pheight: float, pdepth: float):
         try:
             sql = (
-                'insert into PRODUKT(NETTOGEWICHT, UMSATZSTEUERSATZ, BEZEICHNUNG, SKU, TYP, MARKE_ID, BRUTTOGEWICHT, PRODUKT_HOEHE, PRODUKT_TIEFE , PRODUKT_BREITE) '  
+                'insert into PRODUKT(NETTOGEWICHT, UMSATZSTEUERSATZ, BEZEICHNUNG, SKU, TYP, MARKE_ID, BRUTTOGEWICHT, PRODUKT_HOEHE, PRODUKT_TIEFE , PRODUKT_BREITE) '
                 'values(:nettogewicht,:umsatzsteuer,:bezeichnung,:sku, :typ, :marke, :bruttogewicht, :pheight, :pdepth, :pwidth)')
             with self.con.cursor() as cursor:
                 cursor.execute(sql, [nettogewicht, umsatzsteuer, bezeichnung, sku, art, marke, bruttogewicht, pwidth,
                                      pheight, pdepth])
+                self.con.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_subcategory(self, description: str, age_restriction: int):
+        try:
+            sql = (
+                'insert into PRODUKTKATEGORIE(BEZEICHNUNG, ALTERFREIGABE) '
+                'values(:bezeichnung, :alters)')
+            with self.con.cursor() as cursor:
+                cursor.execute(sql, [description, age_restriction])
+                self.con.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product_subcategory(self, product_id: int, cat_id: int):
+        try:
+            sql = (
+                'insert into ZUWEISUNG_PRODUKT_PRODUKTKATEGORIE(PRODUKT_ID, PRODUKTKATEGORIE_ID) '
+                'values(:productid, :catid)')
+            with self.con.cursor() as cursor:
+                cursor.execute(sql, [product_id, cat_id])
+                self.con.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_product_id_by_name(self, product_name: str):
+        try:
+            with self.con.cursor() as cursor:
+                cursor.execute(f"select PRODUKT_ID from PRODUKT WHERE BEZEICHNUNG = :name", name=product_name)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_category_id_by_name(self, category_name: str):
+        try:
+            with self.con.cursor() as cursor:
+                cursor.execute(f"select PRODUKTKATEGORIE_ID from PRODUKTKATEGORIE WHERE BEZEICHNUNG = :name",
+                               name=category_name)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_oberkategorie_subcategory(self, subcat_id: int, ocat_id: int):
+        try:
+            sql = (
+                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) ' 
+                'values(:catid, :ocatid)')
+            with self.con.cursor() as cursor:
+                cursor.execute(sql, [subcat_id, ocat_id])
                 self.con.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
