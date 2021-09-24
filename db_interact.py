@@ -240,18 +240,18 @@ class DB:
             print('Error occurred:')
             print(error)
 
-    def insert_dimension(self, pwidth: float, pheight: float, pdepth: float, pid: int):
-        sql = ("update PRODUKT "
-               "set PRODUKT_HOEHE=:pheight, PRODUKT_TIEFE= :pdepth , PRODUKT_BREITE =:pwidth "
-               "where PRODUKT_ID = :pid")
-        try:
-            # create a cursor
-            with self.con.cursor() as cursor:
-                cursor.execute(sql, [pheight, pdepth, pwidth, pid])
-                self.con.commit()
-        except cx_Oracle.Error as error:
-            print('Error occurred:')
-            print(error)
+    # def insert_dimension(self, pwidth: float, pheight: float, pdepth: float, pid: int):
+    #     sql = ("update PRODUKT "
+    #            "set PRODUKT_HOEHE=:pheight, PRODUKT_TIEFE= :pdepth , PRODUKT_BREITE =:pwidth "
+    #            "where PRODUKT_ID = :pid")
+    #     try:
+    #         # create a cursor
+    #         with self.con.cursor() as cursor:
+    #             cursor.execute(sql, [pheight, pdepth, pwidth, pid])
+    #             self.con.commit()
+    #     except cx_Oracle.Error as error:
+    #         print('Error occurred:')
+    #         print(error)
 
     def insert_lagereinheit(self, nummer, zeile, spalte, breite, tiefe, hoehe, typ):
         sql = (
@@ -311,6 +311,30 @@ class DB:
             with self.con.cursor() as cursor:
                 cursor.execute(sql, [productid, lagerid])
                 # commit work
+                self.con.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_brand_id(self, brand_name: str):
+        try:
+            with self.con.cursor() as cursor:
+                cursor.execute(f"select MARKE_ID from MARKE WHERE BEZEICHNUNG = :name", name=brand_name)
+                rows = cursor.fetchall()
+                return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product(self, nettogewicht: float, umsatzsteuer: float, bezeichnung: str, sku: int, art: str, marke: str,
+                       bruttogewicht: float, pwidth: float, pheight: float, pdepth: float):
+        try:
+            sql = (
+                'insert into PRODUKT(NETTOGEWICHT, UMSATZSTEUERSATZ, BEZEICHNUNG, SKU, TYP, MARKE_ID, BRUTTOGEWICHT, PRODUKT_HOEHE, PRODUKT_TIEFE , PRODUKT_BREITE) '  
+                'values(:nettogewicht,:umsatzsteuer,:bezeichnung,:sku, :typ, :marke, :bruttogewicht, :pheight, :pdepth, :pwidth)')
+            with self.con.cursor() as cursor:
+                cursor.execute(sql, [nettogewicht, umsatzsteuer, bezeichnung, sku, art, marke, bruttogewicht, pwidth,
+                                     pheight, pdepth])
                 self.con.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')

@@ -9,45 +9,46 @@ db = DB()
 def create_lagereinheiten_into_database():
     products = db.select_products()
     current_shelf_number = 53
-    produce = ProduceShelf(current_shelf_number)
-    gebaek = BakedGoodShelf(current_shelf_number + 1)
-    getraenke = DrinkShelf(current_shelf_number + 2)
-    gefrier = FreezerShelf(current_shelf_number + 3)
-    kuehl = CooledGoodsShelf(current_shelf_number + 4)
-    rest = NormalShelf(current_shelf_number + 5)
-    current_shelf_number = current_shelf_number + 5
-    for product in products:
-        product_category_id = db.select_categoryid_from_productid(product[0])
-        if product_category_id in [282, 283, 290, 298, 321, 323]:
-            if not gebaek.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                gebaek = BakedGoodShelf(current_shelf_number)
-            gebaek.use_space(product[0], "Lagerflaeche")
-        elif product_category_id in [267, 272, 275, 276, 317, 269, 280, 327, 328, 329, 330, 331, 332]:
-            if not kuehl.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                kuehl = CooledGoodsShelf(current_shelf_number)
-            kuehl.use_space(product[0], "Lagerflaeche")
-        elif product_category_id in [270, 273, 312, 313, 314, 320, 334, 337]:
-            if not gefrier.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                gefrier = FreezerShelf(current_shelf_number)
-            gefrier.use_space(product[0], "Lagerflaeche")
-        elif product_category_id in [279, 286, 295, 296, 303]:
-            if not getraenke.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                getraenke = DrinkShelf(current_shelf_number)
-            getraenke.use_space(product[0], "Lagerflaeche")
-        elif product_category_id in [274, 310, 333]:
-            if not produce.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                produce = ProduceShelf(current_shelf_number)
-            produce.use_space(product[0], "Lagerflaeche")
-        else:
-            if not rest.space_available():
-                current_shelf_number = current_shelf_number.__add__(1)
-                rest = NormalShelf(current_shelf_number)
-            rest.use_space(product[0], "Lagerflaeche")
+    for storage_unit_type in ["Verkaufslaeche", "Lagerflaeche"]:
+        produce = ProduceShelf(current_shelf_number + 1)
+        gebaek = BakedGoodShelf(current_shelf_number + 2)
+        getraenke = DrinkShelf(current_shelf_number + 3)
+        gefrier = FreezerShelf(current_shelf_number + 4)
+        kuehl = CooledGoodsShelf(current_shelf_number + 5)
+        rest = NormalShelf(current_shelf_number + 6)
+        current_shelf_number = current_shelf_number + 6
+        for product in products:
+            product_category_id = db.select_categoryid_from_productid(product[0])
+            if product_category_id in [282, 283, 290, 298, 321, 323]:
+                if not gebaek.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    gebaek = BakedGoodShelf(current_shelf_number)
+                gebaek.use_space(product[0], storage_unit_type)
+            elif product_category_id in [267, 272, 275, 276, 317, 269, 280, 327, 328, 329, 330, 331, 332]:
+                if not kuehl.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    kuehl = CooledGoodsShelf(current_shelf_number)
+                kuehl.use_space(product[0], storage_unit_type)
+            elif product_category_id in [270, 273, 312, 313, 314, 320, 334, 337]:
+                if not gefrier.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    gefrier = FreezerShelf(current_shelf_number)
+                gefrier.use_space(product[0], storage_unit_type)
+            elif product_category_id in [279, 286, 295, 296, 303]:
+                if not getraenke.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    getraenke = DrinkShelf(current_shelf_number)
+                getraenke.use_space(product[0], storage_unit_type)
+            elif product_category_id in [274, 310, 333]:
+                if not produce.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    produce = ProduceShelf(current_shelf_number)
+                produce.use_space(product[0], storage_unit_type)
+            else:
+                if not rest.space_available():
+                    current_shelf_number = current_shelf_number.__add__(1)
+                    rest = NormalShelf(current_shelf_number)
+                rest.use_space(product[0], storage_unit_type)
 
 
 class ShelfLoader:
