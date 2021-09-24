@@ -2,6 +2,7 @@ import csv
 from random import random, randint, uniform
 
 import util
+
 from db_service import DB_F2
 
 db = None
