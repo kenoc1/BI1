@@ -64,6 +64,18 @@ def roundup(x):
     return int(math.ceil(x / 10.0)) * 10
 
 
+def get_random_price(original_price: float) -> float:
+    return original_price * generate_deviation_factor()
+
+
+def generate_deviation_factor() -> float:
+    return uniform(0.8, 1.2)
+
+
+def random_date_for_priceloader(start, end, prop) -> str:
+    return _str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
+
+
 class Util:
     def __init__(self):
         print("util init...")
@@ -74,4 +86,15 @@ class Util:
         # print(delivery_date)
         # print(adjustment_date)
 
-# util = Util()
+
+def oz_to_ibs(oz: float) -> float:
+    return ((oz * 28.35) / 1000) * 2
+
+
+def number_str_to_float(incorrect_value: str) -> float:
+    correct_value = incorrect_value.replace(",", ".")
+    return float(correct_value)
+
+
+def cm_to_inch(cm: float) -> float:
+    return cm / 2.54
