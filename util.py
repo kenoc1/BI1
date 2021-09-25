@@ -1,7 +1,6 @@
 import time
 from random import random, seed, gauss, randint, uniform
 import config
-import cx_Oracle
 import names
 from datetime import timedelta, datetime
 import math
@@ -14,6 +13,10 @@ def _str_time_prop(start, end, time_format, prop) -> str:
     ptime = stime + prop * (etime - stime)
 
     return time.strftime(time_format, time.localtime(ptime))
+
+
+def generate_mail_with_company_name(company_name: str):
+    return f"info@{company_name}.net"
 
 
 def generate_firstname() -> str:

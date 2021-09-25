@@ -1,14 +1,13 @@
-import time
 from collections import Counter
 from random import random, seed, gauss, randint, uniform
 import config
 import cx_Oracle
-import names
 
 
 class DB_F2:
     def __init__(self):
-        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
+                                        dsn=config.DB_CON_DSN_F2,
                                         encoding="UTF-8")
         print("Database version:", self.con_f2.version)
 
@@ -43,6 +42,9 @@ class DB_F2:
 
     def select_all_worker_functions(self):
         return self._select_all_dict("FUNKTION")
+
+    def select_all_hersteller(self):
+        return self._select_all_dict("HERSTELLER")
 
     def _select_all_dict(self, table_name):
         try:
@@ -536,6 +538,62 @@ class DB_MASTER:
         self.con_master = cx_Oracle.connect(user=config.DB_CON_USER_COMBINED, password=config.DB_CON_PW_COMBINED,
                                             dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
         print("Database version:", self.con_master.version)
+
+    def select_table(self, table_name: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"""select * from {table_name}""")
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_lieferant_row(self, address_id, supplier_name, mail, tel_number, url, contact_fname, contact_lname,
+                             ranking, iban):
+        sql = (
+            'insert into LIEFERANT(ADRESSE_ID, LIEFERANT_NAME, EMAIL, TELEFONNUMMER, '
+            'URL, KONTAKT_NACHNAME, KONTAKT_VORNAME, RANKING, IBAN) '
+            "values(:address_id,:supplier_name,:mail,:tel_number,:url,:contact_fname,"
+            ":contact_lname,:ranking,:iban)")
+        try:
+            # create a cursor
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [address_id, supplier_name, mail, tel_number, url, contact_fname, contact_lname,
+                                     ranking, iban])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_lieferant_row_only_required(self, address_id, supplier_name, mail):
+        try:
+            # create a cursor
+            with self.con_master.cursor() as cursor:
+                new_id = cursor.var(cx_Oracle.NUMBER)
+                sql = ('insert into LIEFERANT(ADRESSE_ID, LIEFERANT_NAME, EMAIL)'
+                       "values(:address_id,:supplier_name,:mail)"
+                       "returning VERKAUFS_ID into :4")
+                cursor.execute(sql, [address_id, supplier_name, mail, new_id])
+                self.con_master.commit()
+                return int(new_id.getvalue()[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # checks for present items ---------------------------------------------------------------------------------------
+    def supplier_present_check_with_description(self, supplier_name: str):
+        with self.con_master.cursor() as cursor:
+            cursor.execute("""select * from LIEFERANT WHERE LIEFERANT_NAME = :supplier_name""",
+                           supplier_name=supplier_name)
+            row = cursor.fetchone()
+            if row:
+                return True
+            else:
+                False
 
 # class DB_OS:
 #     def __init__(self):
