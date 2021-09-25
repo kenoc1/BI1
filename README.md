@@ -1,8 +1,11 @@
 # BI1
 
-Folgende Dateien wurden zum Einfügen und Generieren verwendet:
+Folgende Dateien wurden zum Einfügen und Generieren für F2 verwendet:
 - persons.py
 - retail.py
+- category_loader.py
+- lager_loader.py
+- price_loader.py
 
 Die Datei config.py enthält Konstanten sowie läd Geheimnisse für den Verbindungsaufbau.
 
