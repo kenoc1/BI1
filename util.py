@@ -76,17 +76,6 @@ def random_date_for_priceloader(start, end, prop) -> str:
     return _str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
 
 
-class Util:
-    def __init__(self):
-        print("util init...")
-        # sale_date = random_date('12/15/2020 1:30 PM', '1/15/2021 4:50 AM', random())
-        # delivery_date = generate_delivery_date(sale_date)
-        # adjustment_date = generate_adjustment_date(sale_date)
-        # print(sale_date)
-        # print(delivery_date)
-        # print(adjustment_date)
-
-
 def oz_to_ibs(oz: float) -> float:
     return ((oz * 28.35) / 1000) * 2
 
@@ -98,3 +87,14 @@ def number_str_to_float(incorrect_value: str) -> float:
 
 def cm_to_inch(cm: float) -> float:
     return cm / 2.54
+
+
+class Util:
+    def __init__(self):
+        print("util init...")
+        # sale_date = random_date('12/15/2020 1:30 PM', '1/15/2021 4:50 AM', random())
+        # delivery_date = generate_delivery_date(sale_date)
+        # adjustment_date = generate_adjustment_date(sale_date)
+        # print(sale_date)
+        # print(delivery_date)
+        # print(adjustment_date)
