@@ -99,3 +99,4 @@ def number_str_to_float(incorrect_value: str) -> float:
 
 def cm_to_inch(cm: float) -> float:
     return cm / 2.54
+

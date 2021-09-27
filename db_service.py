@@ -8,7 +8,8 @@ import config
 
 class DB_F2:
     def __init__(self):
-        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
+                                        dsn=config.DB_CON_DSN_F2,
                                         encoding="UTF-8")
         print("Database version:", self.con_f2.version)
 
@@ -43,6 +44,12 @@ class DB_F2:
 
     def select_all_worker_functions(self):
         return self._select_all_dict("FUNKTION")
+
+    def select_all_produktoberkategorien(self):
+        return self._select_all_dict("PRODUKTOBERKATEGORIE")
+
+    def select_all_produktkategorien(self):
+        return self._select_all_dict("PRODUKTKATEGORIE")
 
     def _select_all_dict(self, table_name):
         try:
@@ -705,7 +712,19 @@ class DB_F2:
     def insert_oberkategorie_subcategory(self, subcat_id: int, ocat_id: int):
         try:
             sql = (
-                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) ' 
+                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) '
+                'values(:catid, :ocatid)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [subcat_id, ocat_id])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_all_oberkategorie(self, subcat_id: int, ocat_id: int):
+        try:
+            sql = (
+                'select  ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) '
                 'values(:catid, :ocatid)')
             with self.con_f2.cursor() as cursor:
                 cursor.execute(sql, [subcat_id, ocat_id])
