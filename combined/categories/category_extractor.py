@@ -7,7 +7,6 @@ class CategoryExtractor:
 
     def __init__(self):
         self.db = DB_F2()
-        self._translated_categories = []
 
     @staticmethod
     def _make_csv_line_into_list(line: list) -> list[str]:
@@ -16,13 +15,13 @@ class CategoryExtractor:
     def _load_oberkategorien_from_database(self) -> None:
         self._oberkategorien: list = self.db.select_all_produktoberkategorien()
 
-    def _load_subaktegorien_from_database(self) -> None:
+    def _load_subkategorien_from_database(self) -> None:
         self._subkategorien: list = self.db.select_all_produktkategorien()
 
     def load_data(self) -> None:
         self._load_oberkategorien_from_database()
-        self._load_subaktegorien_from_database()
-        self._load_category_csv()
+        self._load_subkategorien_from_database()
+        self._load_category_csv_files()
 
     def _get_category_csv_as_dict(self, path: str):
         category_dicts: list[dict] = []
@@ -35,7 +34,7 @@ class CategoryExtractor:
                     {first_line[row_as_list.index(elem)]: elem for elem in row_as_list})
         return category_dicts
 
-    def _load_category_csv(self) -> None:
+    def _load_category_csv_files(self) -> None:
         self._translated_categories = self._get_category_csv_as_dict(
             '../../csv-files/produkt_kategorien_uebersetzt.csv')
         self._original_categories = self._get_category_csv_as_dict('../../csv-files/produkt_kategorien.csv')
@@ -49,15 +48,10 @@ class CategoryExtractor:
         return self._subkategorien
 
     @property
-    def translated_category_csv(self) -> list[dict]:
+    def german_category_csv(self) -> list[dict]:
         return self._translated_categories
 
     @property
-    def original_category_csv(self) -> list[dict]:
+    def english_category_csv(self) -> list[dict]:
         return self._original_categories
 
-
-cl = CategoryExtractor()
-cl.load_data()
-# [print(cat) for cat in cl.oberkategorien]
-[print(c) for c in cl.translated_category_csv]
