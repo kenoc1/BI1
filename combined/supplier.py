@@ -32,7 +32,7 @@ class Supplier:
         self.db_master = DB_MASTER()
 
     def insert_hersteller_to_lieferanten(self):
-        f2_master_connection = []
+        f2_master_supplier_connection = []
         hersteller = self.db_f2.select_all_hersteller()
         for item in hersteller:
             print(item)
@@ -41,9 +41,13 @@ class Supplier:
             mail = config.DUMMY_MAIL
             if not self.db_master.supplier_present_check_with_description(supplier_name):
                 new_id = self.db_master.insert_lieferant_row_only_required(address_id, supplier_name, mail)
-                f2_master_connection.append([new_id, item['HERSTELLER_ID']])
-        if f2_master_connection:
-            save_f2_master_supplier_id_connection(f2_master_connection)
+                f2_master_supplier_connection.append([new_id, item['HERSTELLER_ID']])
+                # ToDo: Herkunft
+            else:
+                pass
+                # ToDO: Herkunft prüfen und ggf. hinzufügen
+        if f2_master_supplier_connection:
+            save_f2_master_supplier_id_connection(f2_master_supplier_connection)
 
 
 Supplier().insert_hersteller_to_lieferanten()

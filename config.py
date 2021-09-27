@@ -28,5 +28,6 @@ FUNCTIONS_F2 = ["Einkäufer",
 
 TIME_FORMAT_F2 = '%m/%d/%Y %I:%M %p'
 PAYMENT_METHODS_F2 = ["Bar", "Karte"]
+PRODUCT_TYP_F2 = ["gewichtsbasiert", "stueckbasiert"]
 DUMMY_MAIL = "nicht vorhanden"
 DUMMY_ADDRESS = 0

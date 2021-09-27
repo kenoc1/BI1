@@ -4,7 +4,6 @@ import config
 import cx_Oracle
 
 
-
 class DB_F2:
     def __init__(self):
         self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
@@ -46,6 +45,9 @@ class DB_F2:
 
     def select_all_hersteller(self):
         return self._select_all_dict("HERSTELLER")
+
+    def select_all_produkte(self):
+        return self._select_all_dict("PRODUKT")
 
     def _select_all_dict(self, table_name):
         try:
@@ -128,6 +130,18 @@ class DB_F2:
             with self.con_f2.cursor() as cursor:
                 cursor.execute("""select * from FUNKTION WHERE BEZEICHNUNG = :function_description""",
                                function_description=function_description)
+                row = cursor.fetchone()
+            if row:
+                return row[0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_supplier_id_with_brand_id(self, brand_id: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute("""select HERSTELLER_ID from MARKE WHERE MARKE_ID = :brand_id""",
+                               brand_id=brand_id)
                 row = cursor.fetchone()
             if row:
                 return row[0]
@@ -708,7 +722,7 @@ class DB_F2:
     def insert_oberkategorie_subcategory(self, subcat_id: int, ocat_id: int):
         try:
             sql = (
-                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) ' 
+                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) '
                 'values(:catid, :ocatid)')
             with self.con_f2.cursor() as cursor:
                 cursor.execute(sql, [subcat_id, ocat_id])
@@ -726,7 +740,7 @@ class DB_MASTER:
 
     def select_table(self, table_name: str):
         try:
-            with self.con_f2.cursor() as cursor:
+            with self.con_master.cursor() as cursor:
                 cursor.execute(f"""select * from {table_name}""")
                 rows = cursor.fetchall()
                 if rows:
@@ -769,7 +783,40 @@ class DB_MASTER:
             print('Error occurred:')
             print(error)
 
+    def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
+                                         purchasing_price, selling_price, mwst):
+        try:
+            with self.con_master.cursor() as cursor:
+                new_id = cursor.var(cx_Oracle.NUMBER)
+                sql = (
+                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ) '
+                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst)'
+                    "returning PRODUKT_ID into :10")
+                cursor.execute(sql,
+                               [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
+                                selling_price, mwst, new_id])
+                self.con_master.commit()
+                return int(new_id.getvalue()[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
     # checks for present items ---------------------------------------------------------------------------------------
+    def product_present_check_with_sku(self, sku: str, supplier_id: int):
+        with self.con_master.cursor() as cursor:
+            # sql = (
+            #   "select PRODUKT_ID, LIEFERANT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID= :supplier_id"
+            #  "values(:supplier)"
+            # )
+            cursor.execute("""select PRODUKT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID = :supplier_id""",
+                           sku=sku,
+                           supplier_id=supplier_id)
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            else:
+                False
+
     def supplier_present_check_with_description(self, supplier_name: str):
         with self.con_master.cursor() as cursor:
             cursor.execute("""select * from LIEFERANT WHERE LIEFERANT_NAME = :supplier_name""",
