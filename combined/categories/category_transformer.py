@@ -67,7 +67,6 @@ class _Translator:
 
     def _get_excel_id_by_translated_subcategory(self, german_subcategory: str) -> int:
         for german_category_csv_entry in self.german_csv:
-            print(german_category_csv_entry)
             if compare(german_subcategory, german_category_csv_entry.get("product_subcategory")):
                 return german_category_csv_entry.get("product_class_id")
 

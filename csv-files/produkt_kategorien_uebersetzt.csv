@@ -1,96 +1,96 @@
 product_class_id;product_subcategory;product_category;product_department;product_family
-1;N�sse;Spezialit�t;Erzeugnis;Food
-2;Schalentier;Meeresfr�chte;Meeresfr�chte;Food
+1;Nüsse;Spezialität;Erzeugnis;Food
+2;Schalentier;Meeresfrüchte;Meeresfrüchte;Food
 3;Obstkonserven;Obst;Konserven;Food
-4;Gew�rze;Backwaren;Backwaren;Food
-5;Nudeln;St�rkehaltige Lebensmittel;St�rkehaltige Lebensmittel;Food
+4;Gewürze;Backwaren;Backwaren;Food
+5;Nudeln;Stärkehaltige Lebensmittel;Stärkehaltige Lebensmittel;Food
 6;Joghurt;Molkerei;Molkerei;Food
 7;Kaffee;Trockenwaren;Backwaren;Drink
 8;Deli Fleisch;Fleisch;Deli;Food
-9;Eis;Gefrorene Desserts;Tiefk�hlkost;Food
-10;Fertiggericht;Gefrorene Vorspeisen;Tiefk�hlkost;Food
-11;K�se;Molkerei;Molkerei;Food
+9;Eis;Gefrorene Desserts;Tiefkühlkost;Food
+10;Fertiggericht;Gefrorene Vorspeisen;Tiefkühlkost;Food
+11;Käse;Molkerei;Molkerei;Food
 12;Pommes frites;Snacks;Snacks;Food
-13;Frisches Gem�se;Gem�se;Produzieren;Food
+13;Frisches Gemüse;Gemüse;Produzieren;Food
 14;Saure Sahne;Molkerei;Molkerei;Food
-15;H�ttenk�se;Molkerei;Molkerei;Food
+15;Hüttenkäse;Molkerei;Molkerei;Food
 16;Deli Salate;Beilagen;Deli;Food
 17;Trockenfleisch;Snacks;Snacks;Food
-18;Papiert�cher;Papierprodukte;Haushalt;Non-Consumable
-19;Soda;Kohlens�urehaltige Getr�nke;Getr�nke;Drink
+18;Papiertücher;Papierprodukte;Haushalt;Non-Consumable
+19;Soda;Kohlensäurehaltige Getränke;Getränke;Drink
 20;Desodorierende Mittel;Reinigungsmittel;Haushalt;Non-Consumable
 21;Reinigung;Reinigungsmittel;Haushalt;Non-Consumable
 22;Reinigung;Reinigungsmittel;Haushalt;Non-Consumable
 23;Duschseife;Reinigungsmittel;Haushalt;Non-Consumable
-24;Frischfisch;Meeresfr�chte;Meeresfr�chte;Food
+24;Frischfisch;Meeresfrüchte;Meeresfrüchte;Food
 25;Bagels;Brot;Backwaren;Food
 26;Muffins;Brot;Backwaren;Food
 27;Schnittbrot;Brot;Backwaren;Food
-28;Pfannkuchen Mix;Fr�hst�ck Lebensmittel;Tiefk�hlkost;Food
-29;Pfannkuchen;Fr�hst�ck Lebensmittel;Tiefk�hlkost;Food
-30;Saft;Reine Saftgetr�nke;Getr�nke;Drink
+28;Pfannkuchen Mix;Frühstück Lebensmittel;Tiefkühlkost;Food
+29;Pfannkuchen;Frühstück Lebensmittel;Tiefkühlkost;Food
+30;Saft;Reine Saftgetränke;Getränke;Drink
 31;Gelee;Marmeladen und Gelees;Backwaren;Food
-32;Konfit�re;Marmeladen und Gelees;Backwaren;Food
+32;Konfitüre;Marmeladen und Gelees;Backwaren;Food
 33;Eingemachtes;Marmeladen und Gelees;Backwaren;Food
-34;Waffeln;Fr�hst�ck Lebensmittel;Tiefk�hlkost;Food
-35;Getreide;Fr�hst�ck Lebensmittel;Fr�hst�ck Lebensmittel;Food
-36;Schokoladen-S��igkeiten;S��igkeiten;Schnellimbisse;Food
-37;Kaugummi;S��igkeiten;Schnellimbisse;Food
-38;Bonbon;S��igkeiten;Schnellimbisse;Food
-39;K�rperpflege;Hygiene;Gesundheit und Hygiene;Non-Consumable
-40;T�pfe und Pfannen;K�chenprodukte;Haushalt;Non-Consumable
+34;Waffeln;Frühstück Lebensmittel;Tiefkühlkost;Food
+35;Getreide;Frühstück Lebensmittel;Frühstück Lebensmittel;Food
+36;Schokoladen-Süßigkeiten;Süßigkeiten;Schnellimbisse;Food
+37;Kaugummi;Süßigkeiten;Schnellimbisse;Food
+38;Bonbon;Süßigkeiten;Schnellimbisse;Food
+39;Körperpflege;Hygiene;Gesundheit und Hygiene;Non-Consumable
+40;Töpfe und Pfannen;Küchenprodukte;Haushalt;Non-Consumable
 41;Werkzeuge;Hardware;Haushalt;Non-Consumable
-42;Schw�mme;K�chenprodukte;Haushalt;Non-Consumable
-43;Bier;Bier und Wein;Alkoholische Getr�nke;Drink
-44;Wein;Bier und Wein;Alkoholische Getr�nke;Drink
+42;Schwämme;Küchenprodukte;Haushalt;Non-Consumable
+43;Bier;Bier und Wein;Alkoholische Getränke;Drink
+44;Wein;Bier und Wein;Alkoholische Getränke;Drink
 45;Cookies;Snacks;Snacks;Food
 46;Brezeln;Snacks;Snacks;Food
 47;Kerzen;Kerzen;Haushalt;Non-Consumable
 48;Saucen;Backwaren;Backwaren;Food
-49;Speise�l;Backwaren;Backwaren;Food
+49;Speiseöl;Backwaren;Backwaren;Food
 50;Zucker;Backwaren;Backwaren;Food
-51;Schokolade;Hei�e Getr�nke;Getr�nke;Drink
-52;Aromatisierte Getr�nke;Getr�nke;Getr�nke;Drink
+51;Schokolade;Heiße Getränke;Getränke;Drink
+52;Aromatisierte Getränke;Getränke;Getränke;Drink
 53;Erdnussbutter;Marmeladen und Gelees;Backwaren;Food
 54;Popcorn;Snacks;Snacks;Food
 55;Papierschalen;Papierprodukte;Haushalt;Non-Consumable
 56;Plastikutensilien;Kunststoffprodukte;Haushalt;Non-Consumable
-57;Reis;St�rkehaltige Lebensmittel;St�rkehaltige Lebensmittel;Food
+57;Reis;Stärkehaltige Lebensmittel;Stärkehaltige Lebensmittel;Food
 58;Suppe;Dosensuppe;Konserven;Food
 59;Dehydrierte Suppe;Verpackte Suppe;Verpackte Lebensmittel;Food
-60;Tiefk�hlgem�se;Gem�se;Tiefk�hlkost;Food
-61;Frisches Gem�se;Gem�se;Produzieren;Food
-62;Dosengem�se;Gem�se;Konserven;Food
-63;Pommes frites;Gem�se;Tiefk�hlkost;Food
-64;Pizza;Pizza;Tiefk�hlkost;Food
+60;Tiefkühlgemüse;Gemüse;Tiefkühlkost;Food
+61;Frisches Gemüse;Gemüse;Produzieren;Food
+62;Dosengemüse;Gem�se;Konserven;Food
+63;Pommes frites;Gemüse;Tiefkühlkost;Food
+64;Pizza;Pizza;Tiefkühlkost;Food
 65;Hamburger;Fleisch;Fleisch;Food
 66;Eier;Eier;Eier;Food
-67;Tofu;Verpacktes Gem�se;Produzieren;Food
-68;Sp�lmittel;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
-69;Sp�lmaschinenseife;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
+67;Tofu;Verpacktes Gemüse;Produzieren;Food
+68;Spülmittel;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
+69;Spülmaschinenseife;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
 70;Aspirin;Schmerzmittel;Gesundheit und Hygiene;Non-Consumable
 71;Ibuprofen;Schmerzmittel;Gesundheit und Hygiene;Non-Consumable
 72;Acetominifen;Schmerzmittel;Gesundheit und Hygiene;Non-Consumable
 73;Nasensprays;Decongestants;Gesundheit und Hygiene;Non-Consumable
 74;Mundwasser;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
-75;Erk�ltungsmittel;Erk�ltungsmittel;Gesundheit und Hygiene;Non-Consumable
+75;Erkältungsmittel;Erkältungsmittel;Gesundheit und Hygiene;Non-Consumable
 76;Milch;Molkerei;Molkerei;Drink
-77;Frisches H�hnchen;Fleisch;Deli;Food
-78;Sp�lung;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
+77;Frisches Hähnchen;Fleisch;Deli;Food
+78;Spülung;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
 79;Shampoo;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
-80;Gl�hbirnen;Elektrisch;Haushalt;Non-Consumable
+80;Glühbirnen;Elektrisch;Haushalt;Non-Consumable
 81;Hot Dogs;Fleisch;Deli;Food
 82;Kekse;Snacks;Snacks;Food
 83;Dips;Snacks;Snacks;Food
 84;Donuts;Snacks;Snacks;Food
-85;Toilettenb�rsten;Badezimmerprodukte;Haushalt;Non-Consumable
-86;Topfw�scher;K�chenprodukte;Haushalt;Non-Consumable
-87;Topfreiniger;K�chenprodukte;Haushalt;Non-Consumable
-88;Zahnb�rsten;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
-89;Sonnenbrille;Spezialit�t;Karussell;Non-Consumable
-90;Kaffee;Hei�e Getr�nke;Getr�nke;Drink
+85;Toilettenbürsten;Badezimmerprodukte;Haushalt;Non-Consumable
+86;Topfwäscher;Küchenprodukte;Haushalt;Non-Consumable
+87;Topfreiniger;Küchenprodukte;Haushalt;Non-Consumable
+88;Zahnbürsten;Badezimmerprodukte;Gesundheit und Hygiene;Non-Consumable
+89;Sonnenbrille;Spezialität;Karussell;Non-Consumable
+90;Kaffee;Heiße Getränke;Getränke;Drink
 91;Bologna;Fleisch;Deli;Food
-92;Alkoholfreier Wein;Bier und Wein;Alkoholische Getr�nke;Drink
+92;Alkoholfreier Wein;Bier und Wein;Alkoholische Getränke;Drink
 93;Thunfisch;Thunfischkonserven;Konserven;Food
 94;Garnele;Garnelen in Dosen;Konserven;Food
 95;Sardellen;Sardellen in Dosen;Konserven;Food
@@ -98,7 +98,7 @@ product_class_id;product_subcategory;product_category;product_department;product
 97;Austern;Austern in Dosen;Konserven;Food
 98;Sardinen;Sardinenkonserven;Konserven;Food
 99;Frischobst;Obst;Produzieren;Food
-100;Gefrorenes Huhn;Fleisch;Tiefk�hlkost;Food
+100;Gefrorenes Huhn;Fleisch;Tiefkühlkost;Food
 101;Batterien;Elektrisch;Haushalt;Non-Consumable
 102;Landkarten;Verschiedenes;Kasse;Non-Consumable
 103;Schraubendreher;Hardware;Kasse;Non-Consumable
@@ -107,5 +107,5 @@ product_class_id;product_subcategory;product_category;product_department;product
 106;Modemagazine;Zeitschriften;Periodika;Non-Consumable
 107;Computerzeitschriften;Zeitschriften;Periodika;Non-Consumable
 108;Automagazine;Zeitschriften;Periodika;Non-Consumable
-109;D�rrobst;Snacks;Snacks;Food
-110;Eis am Stiel;Gefrorene Desserts;Tiefk�hlkost;Food
+109;Dörrobst;Snacks;Snacks;Food
+110;Eis am Stiel;Gefrorene Desserts;Tiefkühlkost;Food

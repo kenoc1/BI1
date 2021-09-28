@@ -25,7 +25,7 @@ class CategoryExtractor:
 
     def _get_category_csv_as_dict(self, path: str):
         category_dicts: list[dict] = []
-        with open(path, mode='r') as category_file:
+        with open(path, mode='r', encoding="utf8") as category_file:
             reader = csv.reader(category_file)
             first_line: list = [header for header in self._make_csv_line_into_list(next(reader))]
             for row in reader:
