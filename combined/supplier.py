@@ -39,6 +39,7 @@ class Supplier:
             address_id = config.DUMMY_ADDRESS
             supplier_name = item["BEZEICHNUNG"]
             mail = config.DUMMY_MAIL
+            # ToDo: present check with lower and space check
             if not self.db_master.supplier_present_check_with_description(supplier_name):
                 new_id = self.db_master.insert_lieferant_row_only_required(address_id, supplier_name, mail)
                 f2_master_supplier_connection.append([new_id, item['HERSTELLER_ID']])

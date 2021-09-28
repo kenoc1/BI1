@@ -53,6 +53,9 @@ class Products:
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
 
+    # ToDo: Preishistorie als Entitaet mithilfe von Preis aus F2
+    # ToDo: Marken als Attribut
+
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []
         products = self.db_f2.select_all_produkte()
@@ -64,12 +67,18 @@ class Products:
             product_name = product["BEZEICHNUNG"]
             sku = product["SKU"]
             discount = 0
-            size_fit = 1
             if product["TYP"] == config.PRODUCT_TYP_F2[0]:
                 # ToDO: gewichtsbasiert Preis umrechnen
+                # ToDO: nettogewicht in IBpount -> 1kg
+                # ToDO: Preis: Preis in Euro
+                # ToDO: Preis: IBpount-1kg umrechnungsfaktor mal Preis
+
+                size_fit = "1kg"
                 purchasing_price = ""
                 selling_price = ""
             else:
+                size_fit = 1
+                # ToDO: Preis umrechnen Einheit
                 purchasing_price = self.db_f2.select_current_buying_price_with_product_id(product_id_f2)
                 selling_price = self.db_f2.select_current_sale_price_with_product_id(product_id_f2)
             mwst = convert_mwst(float(product["UMSATZSTEUERSATZ"]))
@@ -83,5 +92,6 @@ class Products:
                 f2_master_products_connection.append([new_id, product_id_f2])
             else:
                 print(product_present_id)
+                # ToDo: Preis beachten
                 # ToDo: Zuweisung einfügen
         save_f2_master_products_id_connection(f2_master_products_connection)
