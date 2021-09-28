@@ -40,11 +40,11 @@ class CategoryExtractor:
         self._original_categories = self._get_category_csv_as_dict('../../csv-files/produkt_kategorien.csv')
 
     @property
-    def oberkategorien(self) -> list[dict]:
+    def f2_db_oberkategorien(self) -> list[dict]:
         return self._oberkategorien
 
     @property
-    def subkategorien(self) -> list[dict]:
+    def f2_db_subkategorien(self) -> list[dict]:
         return self._subkategorien
 
     @property
