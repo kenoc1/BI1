@@ -799,17 +799,16 @@ class DB_MASTER:
 
     def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
                                          purchasing_price, selling_price, mwst, brand_name) -> int:
-        # ToDo: Marke Attribut einfuegen
         try:
             with self.con_master.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
                 sql = (
-                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ) '
-                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst)'
-                    "returning PRODUKT_ID into :10")
+                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, MARKE) '
+                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :brand_name)'
+                    "returning PRODUKT_ID into :11")
                 cursor.execute(sql,
                                [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
-                                selling_price, mwst, new_id])
+                                selling_price, mwst, brand_name, new_id])
                 self.con_master.commit()
                 return int(new_id.getvalue()[0])
         except cx_Oracle.Error as error:
