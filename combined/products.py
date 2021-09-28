@@ -86,8 +86,7 @@ class Products:
             discount = 0
             # discount = config.DUMMY_DISCOUNT
 
-            # ToDo: Was passiert, wenn sich Marken aendern?
-            # Marken als Attribut
+            # Marken als Attribut hinzufuegen
             brand_name = self.db_f2.get_brand_name(product["MARKE_ID"])
 
             # Preis umrechnen Einheit
