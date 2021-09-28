@@ -36,8 +36,8 @@ class CategoryExtractor:
 
     def _load_category_csv_files(self) -> None:
         self._translated_categories = self._get_category_csv_as_dict(
-            '../../csv-files/produkt_kategorien_uebersetzt.csv')
-        self._original_categories = self._get_category_csv_as_dict('../../csv-files/produkt_kategorien.csv')
+            '../../data/csv-files/produkt_kategorien_uebersetzt.csv')
+        self._original_categories = self._get_category_csv_as_dict('../../data/csv-files/produkt_kategorien.csv')
 
     @property
     def f2_db_oberkategorien(self) -> list[dict]:

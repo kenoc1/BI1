@@ -768,19 +768,28 @@ class DB_MASTER:
             print(error)
 
     def select_subcat_where_bezeichnung(self, bezeichnung: str) -> list:
-        try:
-            with self.con_master.cursor() as cursor:
-                cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
-                               bezeichnung=bezeichnung)
-                cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
-                rows = cursor.fetchall()
-                if rows:
-                    return rows
-                else:
-                    return []
-        except cx_Oracle.Error as error:
-            print('Error occurred:')
-            print(error)
+
+        with self.con_master.cursor() as cursor:
+            cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
+                           bezeichnung=bezeichnung)
+            cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+            rows = cursor.fetchall()
+            if rows:
+                return rows
+            else:
+                return []
+
+    def insert_subcategory(self, subcat_name: str):
+        sql = (
+                "insert into PRODUKT_SUBKATEGORIE(BEZEICHNUNG) "
+                "values(:bezeichnung) " + \
+                "returning PRODUKT_SUBKATEGORIE_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql, [subcat_name, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
 
 # class DB_OS:
 #     def __init__(self):

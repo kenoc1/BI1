@@ -1,3 +1,8 @@
+import sys
+
+import cx_Oracle
+
+from combined import file_writer
 from combined.categories.category_extractor import CategoryExtractor
 from combined.custom_exceptions import NoExcelIdFoundForGermanCategoryName
 from combined.string_equality_tester import compare
@@ -10,14 +15,24 @@ class CategoryTransformer:
         self.db_master = DB_MASTER()
         self.category_extractor = CategoryExtractor()
         self.category_extractor.load_data()
-        self.category_translator = _Translator(german_csv=self.category_extractor.german_category_csv,
-                                               english_csv=self.category_extractor.english_category_csv)
+        self.category_translator = _SubcategoryTranslator(german_csv=self.category_extractor.german_category_csv,
+                                                          english_csv=self.category_extractor.english_category_csv)
 
-    def _save_oberkategorie_mapping_to_file(self) -> None:
+    def _is_oberkategorie_mappable(self, english_oberkategorie_name: str) -> bool:
         pass
 
-    def _save_subkategorie_mapping_to_file(self) -> None:
+    def _map_oberkategorien(self):
+        # DB:  {'PRODUKTOBERKATEGORIE_ID': 1, 'BEZEICHNUNG': 'Lebensmittel'}
+        # CSV: {'product_class_id': '1', 'product_subcategory': 'Nüsse', 'product_category': 'Spezialität', 'product_department': 'Erzeugnis', 'product_family': 'Food'}
         pass
+
+    def _query_subkategorie_by_name(self, english_subkategorie_name: str) -> list:
+        try:
+            return self.db_master.select_subcat_where_bezeichnung(english_subkategorie_name)
+        except cx_Oracle.Error as error:
+            print('Database error occurred:')
+            print(error)
+            sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
     def _is_subkategorie_mappable(self, english_subkategorie_name: str) -> bool:
         """
@@ -28,39 +43,57 @@ class CategoryTransformer:
         selected_entries = self.db_master.select_subcat_where_bezeichnung(english_subkategorie_name)
         return True if len(selected_entries) == 1 else False
 
-    def _is_oberkategorie_mappable(self, english_oberkategorie_name: str) -> bool:
-        pass
+    def _exists_subkategorie(self, english_subkategorie_name: str) -> bool:
+        selected_entries = self.db_master.select_subcat_where_bezeichnung(english_subkategorie_name)
+        return True if len(selected_entries) > 0 else False
 
-    def _map_oberkategorien(self):
-        # DB:  {'PRODUKTOBERKATEGORIE_ID': 1, 'BEZEICHNUNG': 'Lebensmittel'}
-        # CSV: {'product_class_id': '1', 'product_subcategory': 'Nüsse', 'product_category': 'Spezialität', 'product_department': 'Erzeugnis', 'product_family': 'Food'}
-        pass
+    @staticmethod
+    def _write_manual_check_to_file(content: dict):
+        file_writer.write_to_csv(header=[],
+                                 rows=[[content]],
+                                 filepath="../../data/manual_check/subcategories_to_manually_check.csv")
+
+    @staticmethod
+    def _write_id_allocation_to_file(row: list):
+        file_writer.write_to_csv(header=[],
+                                 rows=[row],
+                                 filepath="../../data/allocation_csvs/subcategories_ids_old_to_new.csv")
 
     def _map_subkategorien(self):
-        # DB:  {'PRODUKTKATEGORIE_ID': 262, 'BEZEICHNUNG': 'Nüsse', 'ALTERFREIGABE': 0}
-        # CSV: {'product_class_id': '1', 'product_subcategory': 'Nüsse', 'product_category': 'Spezialität', 'product_department': 'Erzeugnis', 'product_family': 'Food'}
+        """
+            F2 Beispiel-Dict: {'PRODUKTKATEGORIE_ID': 262, 'BEZEICHNUNG': 'Nüsse', 'ALTERFREIGABE': 0}
+            CSV Beispiel-Dict: {'product_class_id': '1', 'product_subcategory': 'Nüsse', 'product_category': 'Spezialität', 'product_department': 'Erzeugnis', 'product_family': 'Food'}
+            COMBINED Beispiel-Dict: {'PRODUKT_SUBKATEGORIE_ID': 1, 'PRODUKT_KATEGORIE_ID': 2, 'BEZEICHNUNG': 'Nuts'}
+        """
         for subkategorie_entry in self.category_extractor.f2_db_subkategorien:
             try:
                 translated_name: str = self.category_translator.translate(
                     german_subkategorie_name=subkategorie_entry.get("BEZEICHNUNG"))
-                if not self._is_subkategorie_mappable(translated_name):
-                    # TODO Kategorie einfügen
-                    pass
-                elif True:  # TODO Wenn nicht schon vorhanden, also zugewiesen ist
+                if not self._is_subkategorie_mappable(english_subkategorie_name=translated_name):
+                    if not self._exists_subkategorie(english_subkategorie_name=translated_name):
+                        # TODO new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
+                        new_id: int = 0
+                        self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), new_id])
+                        # TODO Zuordnung in Zuweisungstabelle speichern
+                    else:
+                        self._write_manual_check_to_file(subkategorie_entry)
+                else:
+                    existing_id = self._query_subkategorie_by_name(translated_name)[0].get("PRODUKT_SUBKATEGORIE_ID")
+                    self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), existing_id])
                     # TODO Zuordnung in Zuweisungstabelle speichern
-                    pass
-                # TODO Alte und Neue Ids in CSV speichern
             except NoExcelIdFoundForGermanCategoryName:
-                print("Not found: {}".format(subkategorie_entry.__str__()))
-
-                pass
-                # TODO Es kann keine Übersetzung gefunden werden
+                print("Not translation found for: {}".format(subkategorie_entry.__str__()))
+                self._write_manual_check_to_file(subkategorie_entry)
+            except cx_Oracle.Error as error:
+                print('Database error occurred:')
+                print(error)
+                sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
     def run(self):
         self._map_subkategorien()
 
 
-class _Translator:
+class _SubcategoryTranslator:
     def __init__(self, german_csv: list[dict], english_csv: list[dict]):
         self.german_csv = german_csv
         self.english_csv = english_csv
