@@ -1,7 +1,7 @@
 import csv
 
-from db_service import DB_F2
 import util
+from db_service import DB_F2
 
 
 class PriceLoader:
@@ -10,7 +10,7 @@ class PriceLoader:
         self.db = DB_F2()
 
     def load_prices_into_database(self):
-        with open('../csv-files/produkte.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkte.csv', newline='') as csvfile:
             products = csv.reader(csvfile, delimiter=';')
             for product in products:
                 product_id = self.db.get_product_id_by_name(productname=product[3])
