@@ -35,7 +35,7 @@ product_class_id;product_subcategory    ;product_category           ;product_dep
 34              ;Waffeln                ;Fr�hst�ck Lebensmittel     ;Tiefk�hlkost              ;Food
 35              ;Getreide               ;Fr�hst�ck Lebensmittel     ;Fr�hst�ck Lebensmittel    ;Food
 36              ;Schokoladen-S��igkeiten;S��igkeiten                ;Schnellimbisse            ;Food
-37              ;Kaugummi               ;S��igkeiten                ;Schnellimbisse            ;Food
+37              ;Zahnfleisch            ;S��igkeiten                ;Schnellimbisse            ;Food
 38              ;Bonbon                 ;S��igkeiten                ;Schnellimbisse            ;Food
 39              ;K�rperpflege           ;Hygiene                    ;Gesundheit und Hygiene    ;Non-Consumable
 40              ;T�pfe und Pfannen      ;K�chenprodukte             ;Haushalt                  ;Non-Consumable
