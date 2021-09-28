@@ -740,6 +740,48 @@ class DB_MASTER:
                                             dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
         print("Database version:", self.con_master.version)
 
+    def select_table(self, table_name: str) -> list:
+        try:
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""select * from {table_name}""")
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def _select_all_dict(self, table_name: str) -> list:
+        try:
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""select * from {table_name}""")
+                cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_subcat_where_bezeichnung(self, bezeichnung: str) -> list:
+        try:
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
+                               bezeichnung=bezeichnung)
+                cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
 # class DB_OS:
 #     def __init__(self):
 #         return
