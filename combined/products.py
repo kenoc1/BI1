@@ -1,5 +1,6 @@
 from db_service import DB_F2, DB_MASTER
 import key_allocation_saver
+import key_allocation_reader
 import util
 import config
 
@@ -58,6 +59,7 @@ class Products:
     def __init__(self):
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
+        self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_CAT_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
 
@@ -67,8 +69,8 @@ class Products:
 
     @staticmethod
     def _get_new_product_class_id(f2_class_id: str):
-        # Informationen anreichern
-        # ToDo: read CSV
+        # Informationen werden hier angereichert
+        # ToDo: get id out of CSV
         return 0
 
     def insert_products_from_f2_to_master(self):
@@ -118,7 +120,7 @@ class Products:
                 self.db_master.insert_source_product()
 
         key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
-                                                                   "f2_master_lieferant_hersteller_con.csv")
+                                                                   config.PRODUCTS_CON_FILE_NAME)
 
     def insert_product_price_history(self):
         prices = self.db_f2.select_all_preise()
@@ -133,7 +135,6 @@ class Products:
             start_date = price["GUELTIGKEITS_BEGINN"]
             self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
                                                         start_date=start_date)
-
 
 # testing
 # Products()

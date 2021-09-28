@@ -37,3 +37,7 @@ GEWICHTSBASIERT_EINHEIT_STUECK = "1kg"
 SOURCE_F2 = 2
 SOURCE_OS = 1
 # DUMMY_DISCOUNT = 0
+
+
+PRODUCTS_CON_FILE_NAME = "f2_master_lieferant_hersteller_con.csv"
+PRODUCT_CAT_CON_FILE_NAME = "f2_master_kategorie_con.csv"
