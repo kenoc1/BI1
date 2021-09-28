@@ -89,6 +89,18 @@ def cm_to_inch(cm: float) -> float:
     return cm / 2.54
 
 
+def inch_to_cm(inch: float) -> float:
+    return inch * 2.54
+
+
+def ib_dollar_to_euro(ib_dollar: float) -> float:
+    return ib_dollar / 2
+
+
+def ib_lbs_to_kg(ib_lbs: float) -> float:
+    return ib_lbs / 2
+
+
 class Util:
     def __init__(self):
         print("util init...")

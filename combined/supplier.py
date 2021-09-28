@@ -1,7 +1,8 @@
 import config
 import util
 from db_service import DB_F2, DB_MASTER
-import numpy as np
+import key_allocation_saver
+import string_equality_tester
 
 
 # --- OS Lieferant---
@@ -21,15 +22,12 @@ import numpy as np
 # HERSTELLER_ID NUMBER
 # BEZEICHNUNG VARCHAR2(255)
 
-def save_f2_master_supplier_id_connection(connections):
-    a = np.array(connections)
-    np.savetxt('f2_master_lieferant_hersteller_con.csv', a, delimiter=',')
-
-
 class Supplier:
     def __init__(self):
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
+        # testing
+        # self.db_master.supplier_present_check_with_description("Schropp und Merten AG")
 
     def insert_hersteller_to_lieferanten(self):
         f2_master_supplier_connection = []
@@ -39,7 +37,6 @@ class Supplier:
             address_id = config.DUMMY_ADDRESS
             supplier_name = item["BEZEICHNUNG"]
             mail = config.DUMMY_MAIL
-            # ToDo: present check with lower and space check
             if not self.db_master.supplier_present_check_with_description(supplier_name):
                 new_id = self.db_master.insert_lieferant_row_only_required(address_id, supplier_name, mail)
                 f2_master_supplier_connection.append([new_id, item['HERSTELLER_ID']])
@@ -48,7 +45,12 @@ class Supplier:
                 pass
                 # ToDO: Herkunft prüfen und ggf. hinzufügen
         if f2_master_supplier_connection:
-            save_f2_master_supplier_id_connection(f2_master_supplier_connection)
+            key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_supplier_connection,
+                                                                       "f2_master_lieferant_hersteller_con.csv")
 
 
-Supplier().insert_hersteller_to_lieferanten()
+# testing
+Supplier()
+
+# prod
+# Supplier().insert_hersteller_to_lieferanten()

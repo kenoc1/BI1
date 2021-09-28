@@ -1,7 +1,7 @@
-import config
-import util
 from db_service import DB_F2, DB_MASTER
-import numpy as np
+import key_allocation_saver
+import util
+import config
 
 
 # --- OS PRODUKT---
@@ -33,28 +33,43 @@ import numpy as np
 # Produkt_Hoehe    NUMBER(10, 2),
 # Produkt_Tiefe    NUMBER(10, 2),
 # Produkt_Breite   NUMBER(10, 2),
-# Marke_Id         NUMBER(10)         NOT NULL,
-
-def save_f2_master_products_id_connection(connections):
-    a = np.array(connections)
-    np.savetxt('f2_master_lieferant_hersteller_con.csv', a, delimiter=',')
+# Marke_Id         NUMBER(10)         NOT NULL, FK
 
 
-def convert_mwst(mwst: float):
-    return mwst / 100
+# --- F2 PREIS ---
+# PREIS_ID                NUMBER(10) primary key,
+# BETRAG                  NUMBER(10, 2)
+# GUELTIGKEITS_BEGINN     DATE
+# GUELTIGKEITS_ENDE       DATE,
+# TYP                     VARCHAR2(15 char),
+# PRODUKT_ID              NUMBER(10), FK
 
 
-def get_new_product_class_id(self, f2_class_id: str):
-    return True
-
+# --- MASTER PREISHISTORIE ---
+# PREISHISTORIE_ID NUMBER primary key,
+# PRODUKT_ID NUMBER
+# constraint FK_PRODUKT_PREISHISTORIE_ID references PRODUKT,
+# BETRAG NUMBER,
+# START_TIMESTAMP DATE,
+# END_TIMESTAMP DATE,
+# TYP VARCHAR2(15 CHAR) CHECK ( Typ IN ('EINKAUFSPREIS', 'LISTENVERKAUFSPREIS'))
 
 class Products:
     def __init__(self):
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
+        # testing
+        # print(self.db_master.product_present_check_with_sku("22576443552", 19))
 
-    # ToDo: Preishistorie als Entitaet mithilfe von Preis aus F2
-    # ToDo: Marken als Attribut
+    @staticmethod
+    def _convert_mwst(mwst: float):
+        return mwst * 0.01
+
+    @staticmethod
+    def _get_new_product_class_id(f2_class_id: str):
+        # Informationen anreichern
+        # ToDo: read CSV
+        return 0
 
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []
@@ -63,35 +78,67 @@ class Products:
             print(product)
             product_id_f2 = product["PRODUKT_ID"]
             supplier_id = self.db_f2.get_supplier_id_with_brand_id(product["MARKE_ID"])
-            product_class_id = get_new_product_class_id(self.db_f2.select_categoryid_from_productid(product_id_f2))
+            product_class_id = self._get_new_product_class_id(
+                self.db_f2.select_categoryid_from_productid(product_id_f2))
             product_name = product["BEZEICHNUNG"]
             sku = product["SKU"]
             discount = 0
-            if product["TYP"] == config.PRODUCT_TYP_F2[0]:
-                # ToDO: gewichtsbasiert Preis umrechnen
-                # ToDO: nettogewicht in IBpount -> 1kg
-                # ToDO: Preis: Preis in Euro
-                # ToDO: Preis: IBpount-1kg umrechnungsfaktor mal Preis
+            # discount = config.DUMMY_DISCOUNT
 
-                size_fit = "1kg"
-                purchasing_price = ""
-                selling_price = ""
+            # ToDo: Was passiert, wenn sich Marken aendern?
+            # Marken als Attribut
+            brand_name = self.db_f2.get_brand_name(product["MARKE_ID"])
+
+            # Preis umrechnen Einheit
+            purchasing_price = util.ib_dollar_to_euro(
+                self.db_f2.select_current_buying_price_with_product_id(product_id_f2)["BETRAG"])
+            selling_price = util.ib_dollar_to_euro(
+                self.db_f2.select_current_sale_price_with_product_id(product_id_f2)["BETRAG"])
+            mwst = self._convert_mwst(float(product["UMSATZSTEUERSATZ"]))
+
+            if product["TYP"] == config.PRODUCT_TYP_F2[0]:
+                weight = util.ib_lbs_to_kg(product["NETTOGEWICHT"])
+                purchasing_price = (1 / weight) * purchasing_price
+                selling_price = (1 / weight) * selling_price
+
+                size_fit = config.GEWICHTSBASIERT_EINHEIT_STUECK
             else:
                 size_fit = 1
-                # ToDO: Preis umrechnen Einheit
-                purchasing_price = self.db_f2.select_current_buying_price_with_product_id(product_id_f2)
-                selling_price = self.db_f2.select_current_sale_price_with_product_id(product_id_f2)
-            mwst = convert_mwst(float(product["UMSATZSTEUERSATZ"]))
 
             product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
 
             if not product_present_id:
-                new_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
-                                                                         sku, discount, size_fit,
-                                                                         purchasing_price, selling_price, mwst)
-                f2_master_products_connection.append([new_id, product_id_f2])
+                # product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
+                #                                                          sku, discount, size_fit,
+                #                                                          purchasing_price, selling_price, mwst, brand_name)
+                product_present_id = 1
+                f2_master_products_connection.append([product_present_id, product_id_f2])
+
+            if not self.db_master.source_present_check_product(product_present_id):
+                self.db_master.insert_source_product()
+
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
+                                                                   "f2_master_lieferant_hersteller_con.csv")
+
+    def insert_product_price_history(self):
+        prices = self.db_f2.select_all_preise()
+        for price in prices:
+            print(price)
+            product_id = price["PRODUKT_ID"]
+            price = price["BETRAG"]
+            if price["TYP"] == config.PREIS_TYP_F2[0]:
+                typ = config.PREIS_TYP[0]
             else:
-                print(product_present_id)
-                # ToDo: Preis beachten
-                # ToDo: Zuweisung einfügen
-        save_f2_master_products_id_connection(f2_master_products_connection)
+                typ = config.PREIS_TYP[1]
+            start_date = price["GUELTIGKEITS_BEGINN"]
+            self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
+                                                        start_date=start_date)
+
+
+# testing
+# Products()
+
+# prod
+# products = Products()
+# products.insert_products_from_f2_to_master()
+# products.insert_product_price_history()

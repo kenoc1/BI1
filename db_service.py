@@ -2,6 +2,7 @@ from collections import Counter
 from random import randint
 import config
 import cx_Oracle
+import combined.string_equality_tester as string_equality_tester
 
 
 class DB_F2:
@@ -48,6 +49,9 @@ class DB_F2:
 
     def select_all_produkte(self):
         return self._select_all_dict("PRODUKT")
+
+    def select_all_preise(self):
+        return self._select_all_dict("PREIS")
 
     def _select_all_dict(self, table_name):
         try:
@@ -144,7 +148,7 @@ class DB_F2:
                                brand_id=brand_id)
                 row = cursor.fetchone()
             if row:
-                return row[0]
+                return int(row[0])
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -658,6 +662,16 @@ class DB_F2:
             print('Error occurred:')
             print(error)
 
+    def get_brand_name(self, brand_id: int) -> str:
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select BEZEICHNUNG from MARKE WHERE MARKE_ID = :brand_id", brand_id=brand_id)
+                rows = cursor.fetchall()
+                return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
     def insert_product(self, nettogewicht: float, umsatzsteuer: float, bezeichnung: str, sku: int, art: str, marke: str,
                        bruttogewicht: float, pwidth: float, pheight: float, pdepth: float):
         try:
@@ -784,7 +798,8 @@ class DB_MASTER:
             print(error)
 
     def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
-                                         purchasing_price, selling_price, mwst):
+                                         purchasing_price, selling_price, mwst, brand_name) -> int:
+        # ToDo: Marke Attribut einfuegen
         try:
             with self.con_master.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
@@ -801,16 +816,43 @@ class DB_MASTER:
             print('Error occurred:')
             print(error)
 
+    def insert_product_price_history(self, product_id, price, typ, start_date):
+        try:
+            sql = (
+                'insert into PREISHISTORIE(PRODUKT_ID, BETRAG, TYP, START_TIMESTAMP) '
+                'values(:product_id,:price,:typ,:start_date)')
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [product_id, price, typ, start_date])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # source inserts ---------------------------------------------------------------------------------------
+    def insert_source_product(self, product_id, source_id):
+        try:
+            sql = (
+                'insert into DATENHERKUNFT_PRODUKT(PRODUKT_ID, DATENHERKUNFT_ID)'
+                'values(:product_id,:source_id)')
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [product_id, source_id])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
     # checks for present items ---------------------------------------------------------------------------------------
     def product_present_check_with_sku(self, sku: str, supplier_id: int):
+        sku = string_equality_tester.uniform_string(str(sku))
         with self.con_master.cursor() as cursor:
             # sql = (
             #   "select PRODUKT_ID, LIEFERANT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID= :supplier_id"
             #  "values(:supplier)"
             # )
-            cursor.execute("""select PRODUKT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID = :supplier_id""",
-                           sku=sku,
-                           supplier_id=supplier_id)
+            cursor.execute(
+                """select PRODUKT_ID from PRODUKT WHERE LOWER(REPLACE(SKU, ' ','')) = :sku AND LIEFERANT_ID = :supplier_id""",
+                sku=sku,
+                supplier_id=supplier_id)
             row = cursor.fetchone()
             if row:
                 return row[0]
@@ -818,8 +860,9 @@ class DB_MASTER:
                 False
 
     def supplier_present_check_with_description(self, supplier_name: str):
+        supplier_name = string_equality_tester.uniform_string(supplier_name)
         with self.con_master.cursor() as cursor:
-            cursor.execute("""select * from LIEFERANT WHERE LIEFERANT_NAME = :supplier_name""",
+            cursor.execute("""select * from LIEFERANT WHERE LOWER(REPLACE(LIEFERANT_NAME, ' ','')) = :supplier_name""",
                            supplier_name=supplier_name)
             row = cursor.fetchone()
             if row:
@@ -827,6 +870,12 @@ class DB_MASTER:
             else:
                 False
 
-# class DB_OS:
-#     def __init__(self):
-#         return
+    def source_present_check_product(self, product_id: int):
+        with self.con_master.cursor() as cursor:
+            cursor.execute("""select * from DATENHERKUNFT_PRODUKT WHERE PRODUKT_ID = :product_id""",
+                           product_id=product_id)
+            row = cursor.fetchone()
+            if row:
+                return True
+            else:
+                return False
