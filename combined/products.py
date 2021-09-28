@@ -67,11 +67,10 @@ class Products:
     def _convert_mwst(mwst: float):
         return mwst * 0.01
 
-    @staticmethod
-    def _get_new_product_class_id(f2_class_id: str):
+    def _get_new_product_class_id(self, f2_class_id: str):
         # Informationen werden hier angereichert
-        # ToDo: get id out of CSV
-        return 0
+        return util.search_for_id(self.con_cat, f2_class_id)
+        # return 0
 
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []

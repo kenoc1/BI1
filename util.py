@@ -4,6 +4,7 @@ import config
 import names
 from datetime import timedelta, datetime
 import math
+import numpy as np
 
 
 def _str_time_prop(start, end, time_format, prop) -> str:
@@ -99,6 +100,12 @@ def ib_dollar_to_euro(ib_dollar: float) -> float:
 
 def ib_lbs_to_kg(ib_lbs: float) -> float:
     return ib_lbs / 2
+
+
+def search_for_id(arr, wanted_id) -> int:
+    # ToDo: testing!!!
+    rows = np.where(arr[1] == wanted_id)
+    return arr[rows][0][0]
 
 
 class Util:
