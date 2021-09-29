@@ -45,8 +45,7 @@ class Supplier:
                 pass
                 # ToDO: Herkunft prüfen und ggf. hinzufügen
         if f2_master_supplier_connection:
-            key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_supplier_connection,
-                                                                       "f2_master_lieferant_hersteller_con.csv")
+            key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_supplier_connection,                                                                       )
 
 
 # testing

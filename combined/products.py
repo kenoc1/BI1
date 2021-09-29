@@ -60,6 +60,7 @@ class Products:
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
         self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_CAT_CON_FILE_NAME)
+        self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.SUPPLIER_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
 
@@ -70,7 +71,9 @@ class Products:
     def _get_new_product_class_id(self, f2_class_id: str):
         # Informationen werden hier angereichert
         return util.search_for_id(self.con_cat, f2_class_id)
-        # return 0
+
+    def _get_new_supplier_id(self, f2_supplier_id: str):
+        return util.search_for_id(self.con_sup, f2_supplier_id)
 
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []
@@ -78,7 +81,7 @@ class Products:
         for product in products:
             print(product)
             product_id_f2 = product["PRODUKT_ID"]
-            supplier_id = self.db_f2.get_supplier_id_with_brand_id(product["MARKE_ID"])
+            supplier_id = self._get_new_supplier_id(self.db_f2.get_supplier_id_with_brand_id(product["MARKE_ID"]))
             product_class_id = self._get_new_product_class_id(
                 self.db_f2.select_categoryid_from_productid(product_id_f2))
             product_name = product["BEZEICHNUNG"]
@@ -86,7 +89,7 @@ class Products:
             discount = 0
             # discount = config.DUMMY_DISCOUNT
 
-            # Marken als Attribut hinzufuegen
+            # Marken als Enität hinzufuegen
             brand_name = self.db_f2.get_brand_name(product["MARKE_ID"])
 
             # Preis umrechnen Einheit
@@ -108,9 +111,9 @@ class Products:
             product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
 
             if not product_present_id:
-                # product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
-                #                                                          sku, discount, size_fit,
-                #                                                          purchasing_price, selling_price, mwst, brand_name)
+                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
+                                                                         sku, discount, size_fit,
+                                                                         purchasing_price, selling_price, mwst)
                 product_present_id = 1
                 f2_master_products_connection.append([product_present_id, product_id_f2])
 
@@ -134,10 +137,23 @@ class Products:
             self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
                                                         start_date=start_date)
 
+    def insert_brands(self):
+        f2_master_brands_connection = []
+        brands = self.db_f2.select_all_marken()
+        for brand in brands:
+            print(brand)
+            supplier_id = self._get_new_supplier_id(brand["HERSTELLER_ID"])
+            brand_name = brand["BEZEICHNUNG"]
+            new_id = self.db_master.insert_brand_row(supplier_id=supplier_id, brand_name=brand_name)
+            f2_master_brands_connection.append([new_id, brand["MARKE_ID"]])
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_brands_connection,
+                                                                   config.BRAND_CON_FILE_NAME)
+
 # testing
 # Products()
 
 # prod
 # products = Products()
+# products.insert_brands()
 # products.insert_products_from_f2_to_master()
 # products.insert_product_price_history()
