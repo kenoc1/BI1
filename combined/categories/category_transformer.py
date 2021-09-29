@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import cx_Oracle
 
@@ -49,15 +50,15 @@ class CategoryTransformer:
 
     @staticmethod
     def _write_manual_check_to_file(content: dict):
-        file_writer.write_to_csv(header=[],
-                                 rows=[[content]],
-                                 filepath="../../data/manual_check/subcategories_to_manually_check.csv")
+        file_writer.write_to_csv_with_path(header=[],
+                                           rows=[[content]],
+                                           filepath=Path().cwd().parent.parent / 'data' / 'csv-manual_check' / 'subcategories_to_manually_check.csv')
 
     @staticmethod
     def _write_id_allocation_to_file(row: list):
-        file_writer.write_to_csv(header=[],
-                                 rows=[row],
-                                 filepath="../../data/allocation_csvs/subcategories_ids_old_to_new.csv")
+        file_writer.write_to_csv_with_path(header=[],
+                                           rows=[row],
+                                           filepath=Path().cwd().parent.parent / 'data' / 'csv-allocation_csvs' / 'subcategories_ids_old_to_new.csv')
 
     def _map_subkategorien(self):
         """

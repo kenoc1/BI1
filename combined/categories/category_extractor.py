@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 from db_service import DB_F2
 
@@ -23,9 +24,9 @@ class CategoryExtractor:
         self._load_subkategorien_from_database()
         self._load_category_csv_files()
 
-    def _get_category_csv_as_dict(self, path: str):
+    def _get_category_csv_as_dict(self, path: Path):
         category_dicts: list[dict] = []
-        with open(path, mode='r', encoding="utf8") as category_file:
+        with path.open(mode='r', encoding="utf8") as category_file:
             reader = csv.reader(category_file)
             first_line: list = [header for header in self._make_csv_line_into_list(next(reader))]
             for row in reader:
@@ -36,10 +37,10 @@ class CategoryExtractor:
 
     def _load_category_csv_files(self) -> None:
         self._translated_categories = self._get_category_csv_as_dict(
-            '../../data/csv-files/produkt_kategorien_uebersetzt.csv')
-        self._original_categories = self._get_category_csv_as_dict('../../data/csv-files/produkt_kategorien.csv')
+            Path().cwd().parent.parent / 'data' / 'csv-files' / 'produkt_kategorien_uebersetzt.csv')
+        self._original_categories = self._get_category_csv_as_dict(
+            Path().cwd().parent.parent / 'data' / 'csv-files' / 'produkt_kategorien.csv')
 
-    @property
     def f2_db_oberkategorien(self) -> list[dict]:
         return self._oberkategorien
 
@@ -54,4 +55,3 @@ class CategoryExtractor:
     @property
     def english_category_csv(self) -> list[dict]:
         return self._original_categories
-
