@@ -61,7 +61,7 @@ class Products:
         self.db_master = DB_MASTER()
         self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_SUB_CAT_CON_FILE_NAME)
         self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.SUPPLIER_CON_FILE_NAME)
-        # self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.BRAND_CON_FILE_NAME)
+        self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.BRAND_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
         # print(self._get_new_supplier_id(33))
@@ -93,6 +93,7 @@ class Products:
             product_name = product["BEZEICHNUNG"]
             sku = product["SKU"]
             discount = 0
+            ean = config.DUMMY_EAN
 
             # Marken als Enität hinzufuegen
             brand_id = self._get_new_brand_id(product["MARKE_ID"])
@@ -118,7 +119,7 @@ class Products:
             if not product_present_id:
                 product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id,
                                                                                      product_name,
-                                                                                     sku, discount, size_fit,
+                                                                                     sku, ean, discount, size_fit,
                                                                                      purchasing_price, selling_price,
                                                                                      mwst, brand_id, config.SOURCE_F2)
                 f2_master_products_connection.append([product_present_id, product_id_f2])

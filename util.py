@@ -111,7 +111,7 @@ def search_for_id(arr, wanted_id) -> int:
     # print(arr[rows][0][0])
     for item in arr:
         if item[1] == wanted_id:
-            return item[0]
+            return int(item[0])
     raise Exception()
 
 
