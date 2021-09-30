@@ -1,8 +1,10 @@
 import cx_Oracle
+from numpy import genfromtxt
 
 import config
 from combined.ImportKunden.Kunde import Kunde
 from combined.ImportKunden.AnredenFinder import AnredenFinder
+from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
 
 
 class ImportKunden:
@@ -10,11 +12,6 @@ class ImportKunden:
         # Liste in der die selektierten Kunden gespeichert werden
         self.kunden_tupel = []
         self.kunden_objekte = []
-
-        # Liste in denen die selektierten Adressen gespeichert werden
-        self.lieferadress_tupel = []
-        self.rechnungsadress_tupel = []
-        self.adress_objekte = []
 
         # DB-Verbindung zu F2
         self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
@@ -63,5 +60,7 @@ class ImportKunden:
             self.kunden_objekte.append(kunde)
 
         return self.kunden_objekte
+
+
 
 

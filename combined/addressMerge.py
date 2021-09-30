@@ -29,7 +29,7 @@ class AddressMerge:
         for row in dataset:
             self.insert_addresses(row, array_for_csv)
 
-        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(array_for_csv, "addresse.csv")
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(array_for_csv, "ImportKunden/addresse.csv")
 
 
 
