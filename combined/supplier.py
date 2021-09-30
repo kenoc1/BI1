@@ -37,19 +37,23 @@ class Supplier:
             address_id = config.DUMMY_ADDRESS
             supplier_name = item["BEZEICHNUNG"]
             mail = config.DUMMY_MAIL
-            if not self.db_master.supplier_present_check_with_description(supplier_name):
-                new_id = self.db_master.insert_lieferant_row_only_required(address_id, supplier_name, mail)
-                f2_master_supplier_connection.append([new_id, item['HERSTELLER_ID']])
-                # ToDo: Herkunft
-            else:
-                pass
-                # ToDO: Herkunft prüfen und ggf. hinzufügen
+
+            supplier_present_id = self.db_master.supplier_present_check_with_description(supplier_name)
+
+            if not supplier_present_id:
+                supplier_present_id = self.db_master.insert_lieferant_row_only_required(address_id, supplier_name, mail)
+                print(address_id, supplier_name, mail)
+                f2_master_supplier_connection.append([supplier_present_id, item['HERSTELLER_ID']])
+            if not self.db_master.source_present_check_supplier(supplier_present_id, config.SOURCE_F2):
+                self.db_master.insert_source_supplier(supplier_present_id, config.SOURCE_F2)
+                print(supplier_present_id, config.SOURCE_F2)
+
         if f2_master_supplier_connection:
-            key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_supplier_connection,                                                                       )
+            key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_supplier_connection, config.SUPPLIER_CON_FILE_NAME)
 
 
 # testing
-Supplier()
+# Supplier()
 
 # prod
-# Supplier().insert_hersteller_to_lieferanten()
+Supplier().insert_hersteller_to_lieferanten()
