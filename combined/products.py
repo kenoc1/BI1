@@ -59,10 +59,13 @@ class Products:
     def __init__(self):
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
-        self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_CAT_CON_FILE_NAME)
+        self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_SUB_CAT_CON_FILE_NAME)
         self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.SUPPLIER_CON_FILE_NAME)
+        # self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.BRAND_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
+        # print(self._get_new_supplier_id(33))
+        # print(self._get_new_product_class_id(1))
 
     @staticmethod
     def _convert_mwst(mwst: float):
@@ -74,6 +77,9 @@ class Products:
 
     def _get_new_supplier_id(self, f2_supplier_id: str):
         return util.search_for_id(self.con_sup, f2_supplier_id)
+
+    def _get_new_brand_id(self, f2_brand_id: str):
+        return util.search_for_id(self.con_brand, f2_brand_id)
 
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []
@@ -87,10 +93,9 @@ class Products:
             product_name = product["BEZEICHNUNG"]
             sku = product["SKU"]
             discount = 0
-            # discount = config.DUMMY_DISCOUNT
 
             # Marken als Enität hinzufuegen
-            brand_name = self.db_f2.get_brand_name(product["MARKE_ID"])
+            brand_id = self._get_new_brand_id(product["MARKE_ID"])
 
             # Preis umrechnen Einheit
             purchasing_price = util.ib_dollar_to_euro(
@@ -111,14 +116,15 @@ class Products:
             product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
 
             if not product_present_id:
-                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
-                                                                         sku, discount, size_fit,
-                                                                         purchasing_price, selling_price, mwst)
-                product_present_id = 1
+                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id,
+                                                                                     product_name,
+                                                                                     sku, discount, size_fit,
+                                                                                     purchasing_price, selling_price,
+                                                                                     mwst, brand_id, config.SOURCE_F2)
                 f2_master_products_connection.append([product_present_id, product_id_f2])
 
             if not self.db_master.source_present_check_product(product_present_id):
-                self.db_master.insert_source_product()
+                self.db_master.insert_source_product(product_present_id, config.SOURCE_F2)
 
         key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
                                                                    config.PRODUCTS_CON_FILE_NAME)
@@ -149,11 +155,12 @@ class Products:
         key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_brands_connection,
                                                                    config.BRAND_CON_FILE_NAME)
 
+
 # testing
 # Products()
 
 # prod
-# products = Products()
+products = Products()
 # products.insert_brands()
-# products.insert_products_from_f2_to_master()
+products.insert_products_from_f2_to_master()
 # products.insert_product_price_history()

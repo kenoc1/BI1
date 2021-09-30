@@ -1,4 +1,5 @@
 .env
 venv
 .idea
-/csv-files/produkte.csv
+/data/csv-files/produkte.csv
+/spielwiese.py

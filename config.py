@@ -1,6 +1,7 @@
 import os
 import cx_Oracle
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -31,14 +32,15 @@ PRODUCT_TYP_F2 = ["gewichtsbasiert", "stueckbasiert"]
 PREIS_TYP_F2 = ["Einkauf", "Verkauf"]
 PREIS_TYP = ["EINKAUFSPREIS", "LISTENVERKAUFSPREIS"]
 DUMMY_MAIL = "nicht vorhanden"
-DUMMY_ADDRESS = 0
+DUMMY_ADDRESS = 12194
 GEWICHTSBASIERT_EINHEIT_STUECK = "1kg"
 SOURCE_F2 = 2
 SOURCE_OS = 1
 # DUMMY_DISCOUNT = 0
 
-
-PRODUCTS_CON_FILE_NAME = "f2_master_lieferant_hersteller_con.csv"
-PRODUCT_CAT_CON_FILE_NAME = "f2_master_kategorie_con.csv"  # ToDO validate file name @tobi
-SUPPLIER_CON_FILE_NAME = "f2_master_lieferant_hersteller_con.csv"
-BRAND_CON_FILE_NAME = "f2_master_marke_con.csv"
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ALLOCATION_CSV_DICT = ROOT_DIR / Path("data/allocation_csvs/")
+PRODUCTS_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_products_con.csv"
+PRODUCT_SUB_CAT_CON_FILE_NAME = ALLOCATION_CSV_DICT / "subcategories_ids_old_to_new.csv"
+SUPPLIER_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_lieferant_hersteller_con.csv"
+BRAND_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_marke_con.csv"

@@ -103,9 +103,16 @@ def ib_lbs_to_kg(ib_lbs: float) -> float:
 
 
 def search_for_id(arr, wanted_id) -> int:
-    # ToDo: testing!!!
-    rows = np.where(arr[1] == wanted_id)
-    return arr[rows][0][0]
+    # ToDo: make pretty
+    # print(arr[0][1])
+    # print(float(wanted_id))
+    # rows = np.where(arr[0] == float(wanted_id))
+    # print(arr[rows])
+    # print(arr[rows][0][0])
+    for item in arr:
+        if item[1] == wanted_id:
+            return item[0]
+    raise Exception()
 
 
 class Util:
@@ -117,3 +124,19 @@ class Util:
         # print(sale_date)
         # print(delivery_date)
         # print(adjustment_date)
+
+
+# util = Util()
+
+
+def oz_to_ibs(oz: float) -> float:
+    return ((oz * 28.35) / 1000) * 2
+
+
+def number_str_to_float(incorrect_value: str) -> float:
+    correct_value = incorrect_value.replace(",", ".")
+    return float(correct_value)
+
+
+def cm_to_inch(cm: float) -> float:
+    return cm / 2.54

@@ -1,4 +1,5 @@
 import csv
+
 import util
 from db_service import DB_F2
 
@@ -12,7 +13,7 @@ class ProductLoader:
     @staticmethod
     def load_food_categories():
         food_categories = []
-        with open('../csv-files/produkt_kategorien.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkt_kategorien.csv', newline='') as csvfile:
             categories = csv.reader(csvfile, delimiter=';')
             if categories:
                 for category in categories:
@@ -22,7 +23,7 @@ class ProductLoader:
 
     def load_product_csv_into_database(self):
         food_categories = self.load_food_categories()
-        with open('../csv-files/produkte.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkte.csv', newline='') as csvfile:
             products = csv.reader(csvfile, delimiter=';')
             for product in products:
                 if product[0] in food_categories:
