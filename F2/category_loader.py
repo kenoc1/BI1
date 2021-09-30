@@ -1,4 +1,5 @@
 import csv
+
 from db_service import DB_F2
 
 
@@ -9,7 +10,7 @@ class CategoryLoader:
 
     @staticmethod
     def load_food_subcategories():
-        with open('../csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
             categories = csv.reader(csvfile, delimiter=';')
             subcategories = []
             if categories:
@@ -26,7 +27,7 @@ class CategoryLoader:
                 return cat[1]
 
     def load_category_to_product_into_database(self):
-        with open('../csv-files/produkte.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkte.csv', newline='') as csvfile:
             products = csv.reader(csvfile, delimiter=';')
             for product in products[1:]:
                 product_id = self.db.get_product_id_by_name(product_name=product[3])
@@ -36,7 +37,7 @@ class CategoryLoader:
                                                    category_id=category_id)
 
     def load_category_to_category_into_database(self):
-        with open('../csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
             categories = csv.reader(csvfile, delimiter=';')
             for category in categories:
                 category_id = self.db.get_category_id_by_name(category_name=category[1])
@@ -48,7 +49,7 @@ class CategoryLoader:
                                                              ocat_id=2)
 
     def load_subcategory_csv_into_database(self):
-        with open('../csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
+        with open('../data/csv-files/produkt_kategorien_uebersetzt.csv', newline='') as csvfile:
             categories = csv.reader(csvfile, delimiter=';')
             for category in categories:
                 if category[4] in ['Food', 'Drink'] or category[2] in ['Elektrisch']:

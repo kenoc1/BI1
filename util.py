@@ -117,3 +117,20 @@ class Util:
         # print(sale_date)
         # print(delivery_date)
         # print(adjustment_date)
+
+
+# util = Util()
+
+
+def oz_to_ibs(oz: float) -> float:
+    return ((oz * 28.35) / 1000) * 2
+
+
+def number_str_to_float(incorrect_value: str) -> float:
+    correct_value = incorrect_value.replace(",", ".")
+    return float(correct_value)
+
+
+def cm_to_inch(cm: float) -> float:
+    return cm / 2.54
+
