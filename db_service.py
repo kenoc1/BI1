@@ -871,3 +871,11 @@ class DB_MASTER:
             newest_id = newest_id_wrapper.getvalue()
             self.con_master.commit()
             return int(newest_id[0])
+
+    def insert_bestellung_to_zahlungsart(self, bestellungid: int, zahlungsart_id: int):
+        sql = (
+            "insert into ZAHLUNGSART_BESTELLUNG(BESTELLUNG_ID, BESTELLUNG_ID , ZAHLUNGSART_ID) "
+            "values(:bestellungid, :bestellungid, :zahlungsart_id) ")
+        with self.con_master.cursor() as cursor:
+            cursor.execute(sql, [bestellungid, zahlungsart_id])
+            self.con_master.commit()

@@ -15,33 +15,9 @@ class Bestellung:
     def _verkauf_to_bestellung(self):
         f2_sales: list[dict] = self.f2_con.select_all_sales()
         for sale in f2_sales:
+            # TODO Preise umrechnen
             new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
             self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
-            # Bruttosumme und Nettosumme in Bon/Rechnung
-
-            # bon_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
-            #                      elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
-            # if bon_element:
-            #     comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
-            #     file_writer.write_to_csv([], [comb_bon_id, bon_element.get("BON_NUMMER")], "bon_ids_new_to_old.csv")
-            #
-            # rechnung_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
-            #                           elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
-            #
-            # if rechnung_element:
-            #     comb_rechnung_id: int = self._create_rechnung(rechnung_element, new_bestellung_id)
-            #     file_writer.write_to_csv([], [comb_rechnung_id, rechnung_element.get("RECHNUNG_NUMMER")],
-            #                              "rechnung_ids_new_to_old.csv")
-            #
-            # lieferschein_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
-            #                               elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
-            # if lieferschein_element:
-            #     comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
-            #     file_writer.write_to_csv([], [comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")],
-            #                              "lieferschein_ids_new_to_old.csv")
-
-            # TODO Zahlungsart hinzufuegen
-            # TODO Zahlungsart-Bestellung hinzufuegen
             # TODO Bestellposition hinzufuegen
 
     # def _get_warenkorb(self, kunden_id: int) -> list[dict]:
@@ -72,7 +48,30 @@ class Bestellung:
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
-        pass
+        bon_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
+                             elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+        if bon_element:
+            comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
+            file_writer.write_to_csv([], [comb_bon_id, bon_element.get("BON_NUMMER")], "bon_ids_new_to_old.csv")
+            self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
+                                                               zahlungsart_id=41 if bon_element.get(
+                                                                   "ZAHLUNGSART") == "Bar" else 3)
+        rechnung_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
+                                  elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+
+        if rechnung_element:
+            comb_rechnung_id: int = self._create_rechnung(rechnung_element, new_bestellung_id)
+            file_writer.write_to_csv([], [comb_rechnung_id, rechnung_element.get("RECHNUNG_NUMMER")],
+                                     "rechnung_ids_new_to_old.csv")
+            self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
+                                                               zahlungsart_id=2)
+
+        lieferschein_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
+                                      elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+        if lieferschein_element:
+            comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
+            file_writer.write_to_csv([], [comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")],
+                                     "lieferschein_ids_new_to_old.csv")
 
     def _create_bon(self, bon: dict, bestellung_id: int) -> int:
         return self.combined_con.insert_bon(bestellungid=bestellung_id, gegebenesgeld=bon.get("GEGEBENES_GELD"),
