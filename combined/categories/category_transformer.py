@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 import cx_Oracle
 
@@ -53,15 +52,15 @@ class CategoryTransformer:
 
     @staticmethod
     def _write_manual_check_to_file(content: dict):
-        file_writer.write_to_csv_with_path(header=[],
-                                           rows=[[content]],
-                                           filepath=Path().cwd().parent.parent / 'data' / 'csv-manual_check' / 'subcategories_to_manually_check.csv')
+        file_writer.write_to_csv(header=[],
+                                 rows=[[content]],
+                                 filepath='subcategories_to_manually_check.csv')
 
     @staticmethod
     def _write_id_allocation_to_file(row: list):
-        file_writer.write_to_csv_with_path(header=[],
-                                           rows=[row],
-                                           filepath=Path().cwd().parent.parent / 'data' / 'csv-allocation_csvs' / 'subcategories_ids_old_to_new.csv')
+        file_writer.write_to_csv(header=[],
+                                 rows=[row],
+                                 filepath='../../data/allocation_csvs/subcategories_ids_new_to_old.csv')
 
     def _map_subkategorien(self):
         """
@@ -77,13 +76,13 @@ class CategoryTransformer:
                     if not self._exists_subkategorie(english_subkategorie_name=translated_name):
                         new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
                         # new_id: int = 0
-                        self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), new_id])
+                        self._write_id_allocation_to_file([new_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])
                         self.category_loader.insert_subkategorien_data_source_allocation(new_id, config.HERKUNFT_ID_F2)
                     else:
                         self._write_manual_check_to_file(subkategorie_entry)
                 else:
                     existing_id = self._query_subkategorie_by_name(translated_name)[0].get("PRODUKT_SUBKATEGORIE_ID")
-                    self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), existing_id])
+                    self._write_id_allocation_to_file([existing_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])
                     self.category_loader.insert_subkategorien_data_source_allocation(existing_id, config.HERKUNFT_ID_F2)
             except NoExcelIdFoundForGermanCategoryName:
                 print("Not translation found for: {}".format(subkategorie_entry.__str__()))
