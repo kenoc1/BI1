@@ -1,5 +1,8 @@
 import cx_Oracle
 import config
+from combined.ImportKunden.AnredenFinder import AnredenFinder
+from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
+
 
 class Mitarbeiter_Merge:
     def __init__(self):
@@ -65,12 +68,16 @@ class Mitarbeiter_Merge:
             print('Error occurred:')
             print(error)
 
+    def getCombinedAdressId(self):
+        test = read_f2_to_comb_id_allocation_to_file("addresse.csv")
+        print(test)
+
     def getMitarbeiterF2(self):
         try:
             # get alle Mitarbeiter in F2
             with self.con_f2.cursor() as cursor:
                 cursor.execute(
-                    """select Vorname, Nachname, ADRESS_ID, GEHALT
+                    """select Vorname, Nachname, GEHALT
                         from MITARBEITER""")
                 MitarbeiterList = cursor.fetchall()
                 for i in MitarbeiterList:
@@ -134,11 +141,28 @@ class Mitarbeiter_Merge:
             print('Error occurred:')
             print(error)
 
+
     def insertProvision(self):
         try:
             with self.con_master.cursor() as cursor:
                 cursor.execute("""INSERT INTO Provision(Provisionssatz)
                                     VALUE ({ProvisionList})""")
+            self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+
+    def insertMitarbeiter(self):
+        MitarbeiterList = object.getMitarbeiterF2()
+        try:
+            with self.con_master.cursor() as cursor:
+               for Mitarbeiter in MitarbeiterList:
+                    vorname = Mitarbeiter[0]
+                    nachname = Mitarbeiter[1]
+
+                    cursor.execute(f"""INSERT INTO Mitarbeiter(Anrede, Vorname, Nachname, Email, Gehalt, EINTRITTSDATUM)
+                                            VALUE ({AnredenFinder(vorname)}, )""")
             self.con_master.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
@@ -150,8 +174,12 @@ object = Mitarbeiter_Merge()
 GetMitarbeiterListe = object.getMitarbeiterF2()
 GetFunktionListe = object.getFunktionF2()
 GetZuweisungFuktionMitarbeiterListe = object.getZuweisungFunktionMitarbeiterF2()
-templiste = object.insertProvision(object.getProvisionF2())
+#templiste = object.insertProvision(object.getProvisionF2())
 #templiste = object.insertFunktionen()
 print (GetMitarbeiterListe)
 print (GetFunktionListe)
 print (GetZuweisungFuktionMitarbeiterListe)
+
+test = AnredenFinder()
+test.finde_Anrede("Fenja")
+print (test.finde_Anrede("Mustafa"))
