@@ -87,7 +87,6 @@ class Products:
             product_name = product["BEZEICHNUNG"]
             sku = product["SKU"]
             discount = 0
-            # discount = config.DUMMY_DISCOUNT
 
             # Marken als Enität hinzufuegen
             brand_name = self.db_f2.get_brand_name(product["MARKE_ID"])
@@ -111,14 +110,15 @@ class Products:
             product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
 
             if not product_present_id:
-                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id, product_name,
-                                                                         sku, discount, size_fit,
-                                                                         purchasing_price, selling_price, mwst)
-                product_present_id = 1
+                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id,
+                                                                                     product_name,
+                                                                                     sku, discount, size_fit,
+                                                                                     purchasing_price, selling_price,
+                                                                                     mwst, config.SOURCE_F2)
                 f2_master_products_connection.append([product_present_id, product_id_f2])
 
             if not self.db_master.source_present_check_product(product_present_id):
-                self.db_master.insert_source_product()
+                self.db_master.insert_source_product(product_present_id, config.SOURCE_F2)
 
         key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
                                                                    config.PRODUCTS_CON_FILE_NAME)
