@@ -1,9 +1,9 @@
 import csv
 
 
-class genderFinder:
-    global genderMap
-    genderMap = []
+class AnredenFinder:
+    global geschlechts_map
+    geschlechts_map = []
 
     def __init__(self):
         # open file for reading
@@ -14,14 +14,19 @@ class genderFinder:
             # for every row, write the name and gender in map
             for row in csvReader:
                 dict1 = {row[0]: row[1]}
-                genderMap.append(dict1)
+                geschlechts_map.append(dict1)
 
-    def checkGender(self, nameToTest):
-        for csvDatum in genderMap:
+    def finde_geschlecht(self, nameToTest):
+        for csvDatum in geschlechts_map:
             if csvDatum.get(nameToTest):
                 return csvDatum.get(nameToTest)
         return "undefiniert"
 
+    def finde_Anrede(self, nameToTest):
+        if(self.finde_geschlecht(nameToTest)=='männlich'):
+            return 'Herr'
+        elif (self.finde_geschlecht(nameToTest)=='weiblich'):
+            return 'Frau'
+        else:
+            return 'Herr / Frau'
 
-finder = genderFinder()
-print(finder.checkGender("Max"))
