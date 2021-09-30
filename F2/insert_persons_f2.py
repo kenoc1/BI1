@@ -1,12 +1,13 @@
-import time
-from random import random, seed, gauss, randint, uniform
-import config
+from random import random, randint
+
 import cx_Oracle
-import names
+
+import config
 import util
 from db_service import DB_F2
 
-con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2, encoding="UTF-8")
+con = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+                        encoding="UTF-8")
 print("Database version:", con.version)
 
 
@@ -97,7 +98,7 @@ def insert_kunden(range_number):
     address_id_max = db.get_address_id_max()
     for n in range(range_number):
         db.insert_kunde_row(util.generate_firstname(), util.generate_lastname(),
-                            util.random_date('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
+                            util.random_date_for_priceloader('1/1/1970 1:30 PM', '1/1/2005 4:50 AM', random()),
                             _random_address_id(address_id_min, address_id_max),
                             _random_address_id(address_id_min, address_id_max))
 

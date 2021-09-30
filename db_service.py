@@ -1,14 +1,14 @@
-import time
 from collections import Counter
-from random import random, seed, gauss, randint, uniform
+from random import randint
 import config
 import cx_Oracle
-import names
+import combined.string_equality_tester as string_equality_tester
 
 
 class DB_F2:
     def __init__(self):
-        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2, dsn=config.DB_CON_DSN_F2,
+        self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
+                                        dsn=config.DB_CON_DSN_F2,
                                         encoding="UTF-8")
         print("Database version:", self.con_f2.version)
 
@@ -43,6 +43,18 @@ class DB_F2:
 
     def select_all_worker_functions(self):
         return self._select_all_dict("FUNKTION")
+
+    def select_all_hersteller(self):
+        return self._select_all_dict("HERSTELLER")
+
+    def select_all_produkte(self):
+        return self._select_all_dict("PRODUKT")
+
+    def select_all_preise(self):
+        return self._select_all_dict("PREIS")
+
+    def select_all_marken(self):
+        return self._select_all_dict("MARKE")
 
     def _select_all_dict(self, table_name):
         try:
@@ -128,6 +140,18 @@ class DB_F2:
                 row = cursor.fetchone()
             if row:
                 return row[0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_supplier_id_with_brand_id(self, brand_id: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute("""select HERSTELLER_ID from MARKE WHERE MARKE_ID = :brand_id""",
+                               brand_id=brand_id)
+                row = cursor.fetchone()
+            if row:
+                return int(row[0])
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
@@ -231,9 +255,9 @@ class DB_F2:
                'values(:sale_id,:product_id,:weight)')
         # try:
         #     # create a cursor
-        #     with self.con.cursor() as cursor:
+        #     with self.con_f2.cursor() as cursor:
         #         cursor.execute(sql, [50704, 2913, 10])
-        #         self.con.commit()
+        #         self.con_f2.commit()
         # except cx_Oracle.Error as error:
         #     print('Error occurred:')
         #     print(error)
@@ -530,6 +554,200 @@ class DB_F2:
             else:
                 False
 
+    def product_present(self, product_id):
+        with self.con_f2.cursor() as cursor:
+            cursor.execute("""select * from PRODUKT WHERE PRODUKT_ID = :product_id""", product_id=product_id)
+            row = cursor.fetchone()
+            if row:
+                return True
+            else:
+                False
+
+    def insert_price(self, betrag, beginn, typ, produktid):
+        sql = ("insert into PREIS(BETRAG, GUELTIGKEITS_BEGINN,  TYP, PRODUKT_ID) "
+               "values(:betrag,to_date(:beginn,'MM/DD/YYYY HH:MI AM'), :typ, :produktid) ")
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [betrag, beginn, typ, produktid])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_product_id_by_name(self, productname: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select PRODUKT_ID from PRODUKT WHERE BEZEICHNUNG = :name", name=productname)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # def insert_dimension(self, pwidth: float, pheight: float, pdepth: float, pid: int):
+    #     sql = ("update PRODUKT "
+    #            "set PRODUKT_HOEHE=:pheight, PRODUKT_TIEFE= :pdepth , PRODUKT_BREITE =:pwidth "
+    #            "where PRODUKT_ID = :pid")
+    #     try:
+    #         # create a cursor
+    #         with self.con_f2.cursor() as cursor:
+    #             cursor.execute(sql, [pheight, pdepth, pwidth, pid])
+    #             self.con_f2.commit()
+    #     except cx_Oracle.Error as error:
+    #         print('Error occurred:')
+    #         print(error)
+
+    def insert_lagereinheit(self, nummer, zeile, spalte, breite, tiefe, hoehe, typ):
+        sql = (
+                "insert into LAGER_EINHEIT(REGAL_NUMMER, REGALZEILE,  REGALSPALTE, REGALBREITE, REGALTIEFE, REGALHÖHE, TYP) "
+                "values(:regalnummer, :regalzeile, :regalspalte, :regalbreite, :regaltiefe,:regalhoehe, :typ) " + \
+                "returning LAGERPLATZ_ID into :python_var")
+        try:
+            with self.con_f2.cursor() as cursor:
+                newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+                cursor.execute(sql, [nummer, zeile, spalte, breite, tiefe, hoehe, typ, newest_id_wrapper])
+                newest_id = newest_id_wrapper.getvalue()
+                self.con_f2.commit()
+                return int(newest_id[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_products(self):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"""select * from PRODUKT""")
+                print("Fetching all products from database")
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_categoryid_from_productid(self, productid: int) -> int:
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(
+                    f"select PRODUKTKATEGORIE_ID from ZUWEISUNG_PRODUKT_PRODUKTKATEGORIE WHERE PRODUKT_ID = :id",
+                    id=productid)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product_to_lagereinheit(self, productid: int, lagerid: int):
+        sql = (
+            "insert into ZUWEISUNG_PRODUKT_LAGERPLATZ(PRODUKT_ID, LAGERPLATZ_ID) "
+            "values(:productid, :lagerid) ")
+        try:
+            # create a cursor
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [productid, lagerid])
+                # commit work
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_brand_id(self, brand_name: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select MARKE_ID from MARKE WHERE BEZEICHNUNG = :name", name=brand_name)
+                rows = cursor.fetchall()
+                return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_brand_name(self, brand_id: int) -> str:
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select BEZEICHNUNG from MARKE WHERE MARKE_ID = :brand_id", brand_id=brand_id)
+                rows = cursor.fetchall()
+                return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product(self, nettogewicht: float, umsatzsteuer: float, bezeichnung: str, sku: int, art: str, marke: str,
+                       bruttogewicht: float, pwidth: float, pheight: float, pdepth: float):
+        try:
+            sql = (
+                'insert into PRODUKT(NETTOGEWICHT, UMSATZSTEUERSATZ, BEZEICHNUNG, SKU, TYP, MARKE_ID, BRUTTOGEWICHT, PRODUKT_HOEHE, PRODUKT_TIEFE , PRODUKT_BREITE) '
+                'values(:nettogewicht,:umsatzsteuer,:bezeichnung,:sku, :typ, :marke, :bruttogewicht, :pheight, :pdepth, :pwidth)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [nettogewicht, umsatzsteuer, bezeichnung, sku, art, marke, bruttogewicht, pwidth,
+                                     pheight, pdepth])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_subcategory(self, description: str, age_restriction: int):
+        try:
+            sql = (
+                'insert into PRODUKTKATEGORIE(BEZEICHNUNG, ALTERFREIGABE) '
+                'values(:bezeichnung, :alters)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [description, age_restriction])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product_subcategory(self, product_id: int, cat_id: int):
+        try:
+            sql = (
+                'insert into ZUWEISUNG_PRODUKT_PRODUKTKATEGORIE(PRODUKT_ID, PRODUKTKATEGORIE_ID) '
+                'values(:productid, :catid)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [product_id, cat_id])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_product_id_by_name(self, product_name: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select PRODUKT_ID from PRODUKT WHERE BEZEICHNUNG = :name", name=product_name)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def get_category_id_by_name(self, category_name: str):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(f"select PRODUKTKATEGORIE_ID from PRODUKTKATEGORIE WHERE BEZEICHNUNG = :name",
+                               name=category_name)
+                rows = cursor.fetchall()
+                if rows:
+                    return rows[0][0]
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_oberkategorie_subcategory(self, subcat_id: int, ocat_id: int):
+        try:
+            sql = (
+                'insert into ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) '
+                'values(:catid, :ocatid)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [subcat_id, ocat_id])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
 
 class DB_MASTER:
     def __init__(self):
@@ -537,6 +755,162 @@ class DB_MASTER:
                                             dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
         print("Database version:", self.con_master.version)
 
-# class DB_OS:
-#     def __init__(self):
-#         return
+    def select_table(self, table_name: str):
+        try:
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""select * from {table_name}""")
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_lieferant_row(self, address_id, supplier_name, mail, tel_number, url, contact_fname, contact_lname,
+                             ranking, iban):
+        sql = (
+            'insert into LIEFERANT(ADRESSE_ID, LIEFERANT_NAME, EMAIL, TELEFONNUMMER, '
+            'URL, KONTAKT_NACHNAME, KONTAKT_VORNAME, RANKING, IBAN) '
+            "values(:address_id,:supplier_name,:mail,:tel_number,:url,:contact_fname,"
+            ":contact_lname,:ranking,:iban)")
+        try:
+            # create a cursor
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [address_id, supplier_name, mail, tel_number, url, contact_fname, contact_lname,
+                                     ranking, iban])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_lieferant_row_only_required(self, address_id, supplier_name, mail):
+        try:
+            # create a cursor
+            with self.con_master.cursor() as cursor:
+                new_id = cursor.var(cx_Oracle.NUMBER)
+                sql = ('insert into LIEFERANT(ADRESSE_ID, LIEFERANT_NAME, EMAIL)'
+                       "values(:address_id,:supplier_name,:mail)"
+                       "returning VERKAUFS_ID into :4")
+                cursor.execute(sql, [address_id, supplier_name, mail, new_id])
+                self.con_master.commit()
+                return int(new_id.getvalue()[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # def insert_product_row_only_required_old(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
+    #                                          purchasing_price, selling_price, mwst, brand_name) -> int:
+    #     try:
+    #         with self.con_master.cursor() as cursor:
+    #             new_id = cursor.var(cx_Oracle.NUMBER)
+    #             sql = (
+    #                 'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, MARKE) '
+    #                 'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :brand_name)'
+    #                 "returning PRODUKT_ID into :11")
+    #             cursor.execute(sql,
+    #                            [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
+    #                             selling_price, mwst, brand_name, new_id])
+    #             self.con_master.commit()
+    #             return int(new_id.getvalue()[0])
+    #     except cx_Oracle.Error as error:
+    #         print('Error occurred:')
+    #         print(error)
+
+    def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
+                                         purchasing_price, selling_price, mwst) -> int:
+        try:
+            with self.con_master.cursor() as cursor:
+                new_id = cursor.var(cx_Oracle.NUMBER)
+                sql = (
+                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ) '
+                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst)'
+                    "returning PRODUKT_ID into :10")
+                cursor.execute(sql,
+                               [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
+                                selling_price, mwst, new_id])
+                self.con_master.commit()
+                return int(new_id.getvalue()[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_product_price_history(self, product_id, price, typ, start_date):
+        try:
+            sql = (
+                'insert into PREISHISTORIE(PRODUKT_ID, BETRAG, TYP, START_TIMESTAMP) '
+                'values(:product_id,:price,:typ,:start_date)')
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [product_id, price, typ, start_date])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def insert_brand_row(self, supplier_id, brand_name) -> int:
+        try:
+            with self.con_master.cursor() as cursor:
+                new_id = cursor.var(cx_Oracle.NUMBER)
+                sql = (
+                    'insert into MARKE(LIEFERANT_ID, BEZEICHNUNG)'
+                    'values(:supplier_id,:brand_name)'
+                    "returning PRODUKT_ID into :3")
+                cursor.execute(sql, [supplier_id, brand_name, new_id])
+                self.con_master.commit()
+                return int(new_id.getvalue()[0])
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # source inserts ---------------------------------------------------------------------------------------
+    def insert_source_product(self, product_id, source_id):
+        try:
+            sql = (
+                'insert into DATENHERKUNFT_PRODUKT(PRODUKT_ID, DATENHERKUNFT_ID)'
+                'values(:product_id,:source_id)')
+            with self.con_master.cursor() as cursor:
+                cursor.execute(sql, [product_id, source_id])
+                self.con_master.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    # checks for present items ---------------------------------------------------------------------------------------
+    def product_present_check_with_sku(self, sku: str, supplier_id: int):
+        sku = string_equality_tester.uniform_string(str(sku))
+        with self.con_master.cursor() as cursor:
+            # sql = (
+            #   "select PRODUKT_ID, LIEFERANT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID= :supplier_id"
+            #  "values(:supplier)"
+            # )
+            cursor.execute(
+                """select PRODUKT_ID from PRODUKT WHERE LOWER(REPLACE(SKU, ' ','')) = :sku AND LIEFERANT_ID = :supplier_id""",
+                sku=sku,
+                supplier_id=supplier_id)
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            else:
+                False
+
+    def supplier_present_check_with_description(self, supplier_name: str):
+        supplier_name = string_equality_tester.uniform_string(supplier_name)
+        with self.con_master.cursor() as cursor:
+            cursor.execute("""select * from LIEFERANT WHERE LOWER(REPLACE(LIEFERANT_NAME, ' ','')) = :supplier_name""",
+                           supplier_name=supplier_name)
+            row = cursor.fetchone()
+            if row:
+                return True
+            else:
+                False
+
+    def source_present_check_product(self, product_id: int):
+        with self.con_master.cursor() as cursor:
+            cursor.execute("""select * from DATENHERKUNFT_PRODUKT WHERE PRODUKT_ID = :product_id""",
+                           product_id=product_id)
+            row = cursor.fetchone()
+            if row:
+                return True
+            else:
+                return False

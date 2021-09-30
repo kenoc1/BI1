@@ -1,10 +1,10 @@
 import time
 from random import random, seed, gauss, randint, uniform
 import config
-import cx_Oracle
 import names
 from datetime import timedelta, datetime
 import math
+import numpy as np
 
 
 def _str_time_prop(start, end, time_format, prop) -> str:
@@ -14,6 +14,10 @@ def _str_time_prop(start, end, time_format, prop) -> str:
     ptime = stime + prop * (etime - stime)
 
     return time.strftime(time_format, time.localtime(ptime))
+
+
+def generate_mail_with_company_name(company_name: str):
+    return f"info@{company_name}.net"
 
 
 def generate_firstname() -> str:
@@ -61,6 +65,49 @@ def roundup(x):
     return int(math.ceil(x / 10.0)) * 10
 
 
+def get_random_price(original_price: float) -> float:
+    return original_price * generate_deviation_factor()
+
+
+def generate_deviation_factor() -> float:
+    return uniform(0.8, 1.2)
+
+
+def random_date_for_priceloader(start, end, prop) -> str:
+    return _str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
+
+
+def oz_to_ibs(oz: float) -> float:
+    return ((oz * 28.35) / 1000) * 2
+
+
+def number_str_to_float(incorrect_value: str) -> float:
+    correct_value = incorrect_value.replace(",", ".")
+    return float(correct_value)
+
+
+def cm_to_inch(cm: float) -> float:
+    return cm / 2.54
+
+
+def inch_to_cm(inch: float) -> float:
+    return inch * 2.54
+
+
+def ib_dollar_to_euro(ib_dollar: float) -> float:
+    return ib_dollar / 2
+
+
+def ib_lbs_to_kg(ib_lbs: float) -> float:
+    return ib_lbs / 2
+
+
+def search_for_id(arr, wanted_id) -> int:
+    # ToDo: testing!!!
+    rows = np.where(arr[1] == wanted_id)
+    return arr[rows][0][0]
+
+
 class Util:
     def __init__(self):
         print("util init...")
@@ -70,5 +117,3 @@ class Util:
         # print(sale_date)
         # print(delivery_date)
         # print(adjustment_date)
-
-# util = Util()
