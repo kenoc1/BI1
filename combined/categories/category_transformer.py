@@ -3,8 +3,10 @@ from pathlib import Path
 
 import cx_Oracle
 
+import config
 from combined import file_writer
 from combined.categories.category_extractor import CategoryExtractor
+from combined.categories.category_loader import CategoryLoader
 from combined.custom_exceptions import NoExcelIdFoundForGermanCategoryName
 from combined.string_equality_tester import compare
 from db_service import DB_MASTER
@@ -18,6 +20,7 @@ class CategoryTransformer:
         self.category_extractor.load_data()
         self.category_translator = _SubcategoryTranslator(german_csv=self.category_extractor.german_category_csv,
                                                           english_csv=self.category_extractor.english_category_csv)
+        self.category_loader = CategoryLoader()
 
     def _is_oberkategorie_mappable(self, english_oberkategorie_name: str) -> bool:
         pass
@@ -72,16 +75,16 @@ class CategoryTransformer:
                     german_subkategorie_name=subkategorie_entry.get("BEZEICHNUNG"))
                 if not self._is_subkategorie_mappable(english_subkategorie_name=translated_name):
                     if not self._exists_subkategorie(english_subkategorie_name=translated_name):
-                        # TODO new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
-                        new_id: int = 0
+                        new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
+                        # new_id: int = 0
                         self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), new_id])
-                        # TODO Zuordnung in Zuweisungstabelle speichern
+                        self.category_loader.insert_subkategorien_data_source_allocation(new_id, config.HERKUNFT_ID_F2)
                     else:
                         self._write_manual_check_to_file(subkategorie_entry)
                 else:
                     existing_id = self._query_subkategorie_by_name(translated_name)[0].get("PRODUKT_SUBKATEGORIE_ID")
                     self._write_id_allocation_to_file([subkategorie_entry.get("PRODUKTKATEGORIE_ID"), existing_id])
-                    # TODO Zuordnung in Zuweisungstabelle speichern
+                    self.category_loader.insert_subkategorien_data_source_allocation(existing_id, config.HERKUNFT_ID_F2)
             except NoExcelIdFoundForGermanCategoryName:
                 print("Not translation found for: {}".format(subkategorie_entry.__str__()))
                 self._write_manual_check_to_file(subkategorie_entry)

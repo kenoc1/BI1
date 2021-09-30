@@ -1,4 +1,5 @@
 import os
+
 import cx_Oracle
 from dotenv import load_dotenv
 
@@ -28,3 +29,5 @@ FUNCTIONS_F2 = ["Einkäufer",
 
 TIME_FORMAT_F2 = '%m/%d/%Y %I:%M %p'
 PAYMENT_METHODS_F2 = ["Bar", "Karte"]
+
+HERKUNFT_ID_F2 = 2

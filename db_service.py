@@ -768,7 +768,6 @@ class DB_MASTER:
             print(error)
 
     def select_subcat_where_bezeichnung(self, bezeichnung: str) -> list:
-
         with self.con_master.cursor() as cursor:
             cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
                            bezeichnung=bezeichnung)
@@ -791,6 +790,10 @@ class DB_MASTER:
             self.con_master.commit()
             return int(newest_id[0])
 
-# class DB_OS:
-#     def __init__(self):
-#         return
+    def insert_product_subcategory(self, cat_id: int, herkunft_id: int):
+        sql = (
+            'insert into DATENHERKUNFT_PRODUKT_SUBKATEGORIE(PRODUKT_SUBKATEGORIE_ID, DATENHERKUNFT_ID)'
+            'values(:catid, :herkunftid)')
+        with self.con_master.cursor() as cursor:
+            cursor.execute(sql, [cat_id, herkunft_id])
+            self.con_master.commit()
