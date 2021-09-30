@@ -1,0 +1,9 @@
+ALTER TABLE LAGERPLATZ
+ADD Regalzeile NUMBER;
+
+
+
+
+
+
+
