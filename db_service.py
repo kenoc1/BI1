@@ -776,6 +776,9 @@ class DB_MASTER:
             print('Error occurred:')
             print(error)
 
+    def select_all_warenkoerbe(self):
+        return self._select_all_dict("WARENKORB")
+
     def select_subcat_where_bezeichnung(self, bezeichnung: str) -> list:
         with self.con_master.cursor() as cursor:
             cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
