@@ -1,4 +1,5 @@
 import os
+
 import cx_Oracle
 from dotenv import load_dotenv
 from pathlib import Path
