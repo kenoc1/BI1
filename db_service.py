@@ -840,17 +840,17 @@ class DB_MASTER:
     #         print(error)
 
     def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
-                                         purchasing_price, selling_price, mwst, source_system) -> int:
+                                         purchasing_price, selling_price, mwst, brand_id, source_system) -> int:
         try:
             with self.con_master.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
                 sql = (
-                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, DATENHERKUNFT_ID) '
-                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :source_system)'
-                    "returning PRODUKT_ID into :11")
+                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, MARKE_ID, DATENHERKUNFT_ID) '
+                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :brand_id, :source_system)'
+                    "returning PRODUKT_ID into :12")
                 cursor.execute(sql,
                                [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
-                                selling_price, mwst, source_system, new_id])
+                                selling_price, mwst, source_system, brand_id, new_id])
                 self.con_master.commit()
                 return int(new_id.getvalue()[0])
         except cx_Oracle.Error as error:
@@ -914,7 +914,7 @@ class DB_MASTER:
         with self.con_master.cursor() as cursor:
             cursor.execute(
                 """select * from DATENHERKUNFT_PRODUKT WHERE PRODUKT_ID = :product_id AND DATENHERKUNFT_ID = :source_id""",
-                product_id=product_id,  source_id=source_id)
+                product_id=product_id, source_id=source_id)
             row = cursor.fetchone()
             if row:
                 return True
