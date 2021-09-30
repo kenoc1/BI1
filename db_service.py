@@ -54,6 +54,12 @@ class DB_F2:
     def select_all_sales(self):
         return self._select_all_dict("VERKAUF")
 
+    def select_all_rechnung(self):
+        return self._select_all_dict("RECHNUNG")
+
+    def select_all_lieferschein(self):
+        return self._select_all_dict("LIEFERSCHEIN")
+
     def _select_all_dict(self, table_name):
         try:
             with self.con_f2.cursor() as cursor:
@@ -821,6 +827,44 @@ class DB_MASTER:
         with self.con_master.cursor() as cursor:
             newest_id_wrapper = cursor.var(cx_Oracle.STRING)
             cursor.execute(sql, [warenkorb_id, status, bestelldatum, datenherkunft, mitarbeiter_id, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_rechnung(self, bestellungid: int, rechnungsdatum, summe_netto: float, summe_brutto: float):
+        sql = (
+                "insert into RECHNUNG(BESTELLUNG_ID, RECHNUNGSDATUM, SUMME_NETTO, SUMME_BRUTTO) "
+                "values(:bestellungid, :rechnungsdatum, :summe_netto, :summe_brutto) " + \
+                "returning RECHNUNG_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql, [bestellungid, rechnungsdatum, summe_netto, summe_brutto, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_bon(self, bestellungid: int, gegebenesgeld: float, rueckgeld: float, summe_netto: float,
+                   summe_brutto: float):
+        sql = (
+                "insert into BON(BESTELLUNG_ID, GEGEBENES_GELD, RUECKGELD,SUMME_NETTO, SUMME_BRUTTO) "
+                "values(:bestellungid, :gegebenesgeld, :rueckgeld, :summe_netto, :summe_brutto) " + \
+                "returning BON_NUMMER into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql, [bestellungid, gegebenesgeld, rueckgeld, summe_netto, summe_brutto, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_lieferschein(self, bestellungid: int, lieferkosten: float, lieferdatum):
+        sql = (
+                "insert into LIEFERSCHEIN(BESTELLUNG_ID, LIEFERKOSTEN , LIEFERDATUM) "
+                "values(:bestellungid, :lieferkosten, :lieferdatum) " + \
+                "returning LIEFERSCHEIN_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql,
+                           [bestellungid, lieferkosten, lieferdatum, newest_id_wrapper])
             newest_id = newest_id_wrapper.getvalue()
             self.con_master.commit()
             return int(newest_id[0])
