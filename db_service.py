@@ -51,6 +51,9 @@ class DB_F2:
     def select_all_produktkategorien(self):
         return self._select_all_dict("PRODUKTKATEGORIE")
 
+    def select_all_sales(self):
+        return self._select_all_dict("VERKAUF")
+
     def _select_all_dict(self, table_name):
         try:
             with self.con_f2.cursor() as cursor:
@@ -797,3 +800,27 @@ class DB_MASTER:
         with self.con_master.cursor() as cursor:
             cursor.execute(sql, [cat_id, herkunft_id])
             self.con_master.commit()
+
+    def select_warenkorb_by_kundenid(self, kunden_id: int) -> list:
+        with self.con_master.cursor() as cursor:
+            cursor.execute(f"""select * from WARENKORB WHERE KUNDEN_ID = :kundenid""",
+                           bezeichnung=kunden_id)
+            cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+            rows = cursor.fetchall()
+            if rows:
+                return rows
+            else:
+                return []
+
+    def insert_bestellung(self, warenkorb_id: int, status: str, bestelldatum, datenherkunft: int,
+                          mitarbeiter_id: int) -> int:
+        sql = (
+                "insert into BESTELLUNG(WARENKORB_ID, STATUS, BESTELLDATUM, DATENHERKUNFT_ID, MITARBEITER_ID) "
+                "values(:warenkorb_id, :status, :bestelldatum, :datenherkunft, :mitarbeiterid) " + \
+                "returning BESTELLUNG_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql, [warenkorb_id, status, bestelldatum, datenherkunft, mitarbeiter_id, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
