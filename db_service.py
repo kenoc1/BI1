@@ -1,5 +1,8 @@
 from collections import Counter
 from random import randint
+
+import cx_Oracle
+
 import config
 import cx_Oracle
 import combined.string_equality_tester as string_equality_tester
@@ -55,6 +58,12 @@ class DB_F2:
 
     def select_all_marken(self):
         return self._select_all_dict("MARKE")
+
+    def select_all_produktoberkategorien(self):
+        return self._select_all_dict("PRODUKTOBERKATEGORIE")
+
+    def select_all_produktkategorien(self):
+        return self._select_all_dict("PRODUKTKATEGORIE")
 
     def _select_all_dict(self, table_name):
         try:
@@ -748,6 +757,18 @@ class DB_F2:
             print('Error occurred:')
             print(error)
 
+    def select_all_oberkategorie(self, subcat_id: int, ocat_id: int):
+        try:
+            sql = (
+                'select  ZUWEISUNG_KATEGORIE_OBERKATEGORIE(PRODUKTKATEGORIE_ID, PRODUKTOBERKATEGORIE_ID) '
+                'values(:catid, :ocatid)')
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(sql, [subcat_id, ocat_id])
+                self.con_f2.commit()
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
 
 class DB_MASTER:
     def __init__(self):
@@ -819,17 +840,17 @@ class DB_MASTER:
     #         print(error)
 
     def insert_product_row_only_required(self, supplier_id, product_class_id, product_name, sku, discount, size_fit,
-                                         purchasing_price, selling_price, mwst, source_system) -> int:
+                                         purchasing_price, selling_price, mwst, brand_id, source_system) -> int:
         try:
             with self.con_master.cursor() as cursor:
                 new_id = cursor.var(cx_Oracle.NUMBER)
                 sql = (
-                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, DATENHERKUNFT_ID) '
-                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :source_system)'
-                    "returning PRODUKT_ID into :11")
+                    'insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, SKU, ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, MARKE_ID, DATENHERKUNFT_ID) '
+                    'values(:supplier_id,:product_class_id,:product_name,:sku, :discount, :size_fit, :purchasing_price, :selling_price, :mwst, :brand_id, :source_system)'
+                    "returning PRODUKT_ID into :12")
                 cursor.execute(sql,
                                [supplier_id, product_class_id, product_name, sku, discount, size_fit, purchasing_price,
-                                selling_price, mwst, source_system, new_id])
+                                selling_price, mwst, source_system, brand_id, new_id])
                 self.con_master.commit()
                 return int(new_id.getvalue()[0])
         except cx_Oracle.Error as error:
@@ -893,7 +914,7 @@ class DB_MASTER:
         with self.con_master.cursor() as cursor:
             cursor.execute(
                 """select * from DATENHERKUNFT_PRODUKT WHERE PRODUKT_ID = :product_id AND DATENHERKUNFT_ID = :source_id""",
-                product_id=product_id,  source_id=source_id)
+                product_id=product_id, source_id=source_id)
             row = cursor.fetchone()
             if row:
                 return True
@@ -940,3 +961,45 @@ class DB_MASTER:
                 return row[0]
             else:
                 False
+
+    def _select_all_dict(self, table_name: str) -> list:
+        try:
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""select * from {table_name}""")
+                cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+                rows = cursor.fetchall()
+                if rows:
+                    return rows
+                else:
+                    return []
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+    def select_subcat_where_bezeichnung(self, bezeichnung: str) -> list:
+
+        with self.con_master.cursor() as cursor:
+            cursor.execute(f"""select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = :bezeichnung""",
+                           bezeichnung=bezeichnung)
+            cursor.rowfactory = lambda *args: dict(zip([d[0] for d in cursor.description], args))
+            rows = cursor.fetchall()
+            if rows:
+                return rows
+            else:
+                return []
+
+    def insert_subcategory(self, subcat_name: str):
+        sql = (
+                "insert into PRODUKT_SUBKATEGORIE(BEZEICHNUNG) "
+                "values(:bezeichnung) " + \
+                "returning PRODUKT_SUBKATEGORIE_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql, [subcat_name, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+# class DB_OS:
+#     def __init__(self):
+#         return
