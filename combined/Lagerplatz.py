@@ -2,6 +2,9 @@ import cx_Oracle
 import config
 import random
 
+from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
+from util import search_for_id
+
 
 class Lagerplatz:
 
@@ -52,13 +55,27 @@ class Lagerplatz:
             print('Error occurred:')
             print(error)
 
-    #def getProductMappingList(self, lagerplatzliste):
-        #anpassen da die neuen ProduktIDs in der neuen Datenbank benoetigt werden
-        # wir brauchen eine mapping tabelle bei dcen produkten damit die Produkte exakt zugeordnet werden können
+    def changeProductID(self, lagerplatzliste):
         #ändere productID in der Liste gegen neue
+        produktliste = read_f2_to_comb_id_allocation_to_file("products.csv")
+
+        for lagerplatz in lagerplatzliste:
+            lagerplatz[0] = search_for_id(produktliste, lagerplatz[0])
+
+        return lagerplatzliste
 
     def berechneMenge(self, produkt):
-        #hier noch gewichtprodukte berücksichtigen
+
+        #if produkt = gewichtsbasiert dann anders berechnen
+        #alte Product ID verwenden
+
+        if(self.isgewichtsbasiert(produkt)):
+            #berechnung implementieren
+            #differenz * Nettogewicht /2)
+            einkauefe = self.getAnzahlEinkaufe(produkt)
+            verkaeufe = self.getAnzahlVerkaufe(produkt)
+
+
         einkauefe = self.getAnzahlEinkaufe(produkt)
         verkaeufe = self.getAnzahlVerkaufe(produkt)
 
@@ -68,7 +85,26 @@ class Lagerplatz:
         aktuelleMenge = einkauefe - verkaeufe
         if aktuelleMenge < 0:
             aktuelleMenge = int(random.random() * 20 + 1)
-        return aktuelleMenge
+            return aktuelleMenge
+
+    def isgewichtsbasiert(self, produkt):
+
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(
+                    f"""select PRODUKT_ID from PRODUKT WHERE TYP = 'gewichtsbasiert'""")
+                produktid = cursor.fetchall()
+                if produktid == None:
+                    return False
+                else:
+                    return True
+
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+
+
+        return True
 
     def insertLagerplaetze(self, lager_ID, produkt_ID, regal_reihe, ragel_spalte, akt_menge, regal_zeile):
         try:
@@ -87,7 +123,9 @@ class Lagerplatz:
 
 lagerplatzobjekt = Lagerplatz()
 lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.getLagerplaetzeF2("Verkaufsflaeche")
+lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.changeProductID(lagerplatzListe_Verkaufsflaeche)
 lagerplatzListe_Lagerflaeche = lagerplatzobjekt.getLagerplaetzeF2("Lagerflaeche")
+lagerplatzListe_Lagerflaeche = lagerplatzobjekt.changeProductID(lagerplatzListe_Lagerflaeche)
 
 i = 0
 for lagerplatz in lagerplatzListe_Verkaufsflaeche:
@@ -98,7 +136,7 @@ for lagerplatz in lagerplatzListe_Verkaufsflaeche:
     i = i + 1
     print(temp)
 
-
+i=0
 for lagerplatz in lagerplatzListe_Lagerflaeche:
     temp2 = [31, lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
                    lagerplatzobjekt.berechneMenge(lagerplatz[0])]
