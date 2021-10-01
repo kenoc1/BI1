@@ -102,7 +102,6 @@ class Bestellung:
     def _create_bestellposition(self, verkauf: dict, new_bestellung_id: int):
         gewichtsbasierte_produkte: list[dict] = [elem for elem in self.f2_gewichtsbasiert_im_verkauf if
                                                  elem.get("VERKAUFS_ID") == verkauf.get("VERKAUFS_ID")]
-        # TODO umrechnen
         [eintrag.update({"ANZAHL_MENGE": self._calculate_menge_from_gewicht(eintrag.get("GEWICHT"))}) for eintrag in
          gewichtsbasierte_produkte]
         stueckbasierte_produkte: list[dict] = [elem for elem in self.f2_stueckzahlbasiert_im_verkauf if
@@ -113,8 +112,8 @@ class Bestellung:
                                                          produkt_im_verkauf.get("PRODUKT_ID")),
                                                      menge=produkt_im_verkauf.get("ANZAHL_MENGE"))
 
-    def _calculate_menge_from_gewicht(self, menge: float) -> int:
-        pass
+    def _calculate_menge_from_gewicht(self, menge: float) -> float:
+        return menge / 2
 
     def _get_new_productid(self, old_id: int) -> int:
         # TODO neue produktid holen
