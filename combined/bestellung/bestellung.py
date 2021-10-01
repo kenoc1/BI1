@@ -1,3 +1,7 @@
+import sys
+
+import cx_Oracle
+
 from combined import file_writer
 from db_service import DB_F2, DB_MASTER
 
@@ -11,14 +15,21 @@ class Bestellung:
         self.f2_bondaten: list[dict] = self.f2_con.select_all_bons()
         self.f2_lieferschein: list[dict] = self.f2_con.select_all_lieferschein()
         self.comb_warenkoerbe: list[dict] = self.combined_con.select_all_warenkoerbe()
+        self.f2_gewichtsbasiert_im_verkauf = self.f2_con.select_all_gewichtsbasiert_verkauf()
+        self.f2_stueckzahlbasiert_im_verkauf = self.f2_con.select_all_stueckzahlbasiert_verkauf()
 
     def _verkauf_to_bestellung(self):
-        f2_sales: list[dict] = self.f2_con.select_all_sales()
-        for sale in f2_sales:
-            # TODO Preise umrechnen
-            new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
-            self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
-            # TODO Bestellposition hinzufuegen
+        try:
+            f2_sales: list[dict] = self.f2_con.select_all_sales()
+            for sale in f2_sales:
+                # TODO Preise umrechnen
+                new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
+                self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
+                self._create_bestellposition(new_bestellung_id=new_bestellung_id, verkauf=sale)
+        except cx_Oracle.Error as error:
+            print('Database error occurred:')
+            print(error)
+            sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
     # def _get_warenkorb(self, kunden_id: int) -> list[dict]:
     #     try:
@@ -48,8 +59,9 @@ class Bestellung:
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
+        #  TODO neue und alte IDs speichern
         bon_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
-                             elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                  elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
             comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
             file_writer.write_to_csv([], [comb_bon_id, bon_element.get("BON_NUMMER")], "bon_ids_new_to_old.csv")
@@ -57,7 +69,7 @@ class Bestellung:
                                                                zahlungsart_id=41 if bon_element.get(
                                                                    "ZAHLUNGSART") == "Bar" else 3)
         rechnung_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
-                                  elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                       elem.get("VERKAUFS_ID") == new_bestellung_id), None)
 
         if rechnung_element:
             comb_rechnung_id: int = self._create_rechnung(rechnung_element, new_bestellung_id)
@@ -67,7 +79,7 @@ class Bestellung:
                                                                zahlungsart_id=2)
 
         lieferschein_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
-                                      elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                           elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if lieferschein_element:
             comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
             file_writer.write_to_csv([], [comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")],
@@ -87,6 +99,27 @@ class Bestellung:
                                                      lieferdatum=lieferschein.get("LIEFERDATUM"),
                                                      lieferkosten=lieferschein.get("LIEFER_KOSTEN"))
 
+    def _create_bestellposition(self, verkauf: dict, new_bestellung_id: int):
+        gewichtsbasierte_produkte: list[dict] = [elem for elem in self.f2_gewichtsbasiert_im_verkauf if
+                                                 elem.get("VERKAUFS_ID") == verkauf.get("VERKAUFS_ID")]
+        # TODO umrechnen
+        [eintrag.update({"ANZAHL_MENGE": self._calculate_menge_from_gewicht(eintrag.get("GEWICHT"))}) for eintrag in
+         gewichtsbasierte_produkte]
+        stueckbasierte_produkte: list[dict] = [elem for elem in self.f2_stueckzahlbasiert_im_verkauf if
+                                               elem.get("VERKAUFS_ID") == verkauf.get("VERKAUFS_ID")]
+        for produkt_im_verkauf in gewichtsbasierte_produkte + stueckbasierte_produkte:
+            self.combined_con.insert_bestellposition(bestellungid=new_bestellung_id,
+                                                     produktid=self._get_new_productid(
+                                                         produkt_im_verkauf.get("PRODUKT_ID")),
+                                                     menge=produkt_im_verkauf.get("ANZAHL_MENGE"))
+
+    def _calculate_menge_from_gewicht(self, menge: float) -> int:
+        pass
+
+    def _get_new_productid(self, old_id: int) -> int:
+        # TODO neue produktid holen
+        pass
+
     def _get_com_kundenid_by_f2_kundenid(self, f2_kunden_id: int):
         # TODO csv einlesen und auswerten
         return 0
@@ -98,6 +131,3 @@ class Bestellung:
     def get_dummy_kunde_id(self):
         # TODO statische Filial2 Dummy-kunden id herausfinden
         return 0
-
-# TODO Zahlungsart
-# TODO Bestellung

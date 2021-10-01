@@ -60,6 +60,12 @@ class DB_F2:
     def select_all_lieferschein(self):
         return self._select_all_dict("LIEFERSCHEIN")
 
+    def select_all_gewichtsbasiert_verkauf(self):
+        return self._select_all_dict("GEWICHTBASIERTES_PRODUKT_IM_VERKAUF")
+
+    def select_all_stueckzahlbasiert_verkauf(self):
+        return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_VERKAUF")
+
     def _select_all_dict(self, table_name):
         try:
             with self.con_f2.cursor() as cursor:
@@ -851,7 +857,7 @@ class DB_MASTER:
         sql = (
                 "insert into BON(BESTELLUNG_ID, GEGEBENES_GELD, RUECKGELD,SUMME_NETTO, SUMME_BRUTTO) "
                 "values(:bestellungid, :gegebenesgeld, :rueckgeld, :summe_netto, :summe_brutto) " + \
-                "returning BON_NUMMER into :python_var")
+                "returning BON_ID into :python_var")
         with self.con_master.cursor() as cursor:
             newest_id_wrapper = cursor.var(cx_Oracle.STRING)
             cursor.execute(sql, [bestellungid, gegebenesgeld, rueckgeld, summe_netto, summe_brutto, newest_id_wrapper])
@@ -874,8 +880,16 @@ class DB_MASTER:
 
     def insert_bestellung_to_zahlungsart(self, bestellungid: int, zahlungsart_id: int):
         sql = (
-            "insert into ZAHLUNGSART_BESTELLUNG(BESTELLUNG_ID, BESTELLUNG_ID , ZAHLUNGSART_ID) "
-            "values(:bestellungid, :bestellungid, :zahlungsart_id) ")
+            "insert into ZAHLUNGSART_BESTELLUNG(BESTELLUNG_ID , ZAHLUNGSART_ID) "
+            "values(:bestellungid, :zahlungsart_id) ")
         with self.con_master.cursor() as cursor:
             cursor.execute(sql, [bestellungid, zahlungsart_id])
+            self.con_master.commit()
+
+    def insert_bestellposition(self, bestellungid: int, produktid: int, menge: int):
+        sql = (
+            "insert into ZAHLUNGSART_BESTELLUNG(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
+            "values(:bestellungid, :produktid, :menge) ")
+        with self.con_master.cursor() as cursor:
+            cursor.execute(sql, [bestellungid, produktid, menge])
             self.con_master.commit()
