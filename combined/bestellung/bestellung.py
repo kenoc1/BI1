@@ -36,8 +36,8 @@ class Bestellung:
         f2_mitarbeiter_id: int = f2_verkauf_entry.get("MITARBEITER_ID")
         com_mitarbeiter_id: int = self._get_com_mitarbeiterid_by_f2_mitarbeiterid(f2_mitarbeiter_id)
         # warenkorb_id: int = self._get_warenkorb(com_kunden_id).__getitem__(0).get("WARENKORB_ID")
-        warenkorb_id: int = [elem.get("WARENKORB_ID") for elem in self.comb_warenkoerbe if
-                             elem.get("KUNDE_ID") == com_kunden_id].__getitem__(0)
+        warenkorb_id: int = next((elem.get("WARENKORB_ID") for elem in self.comb_warenkoerbe if
+                                  elem.get("KUNDE_ID") == com_kunden_id), None)
         new_bestellung_id: int = self.combined_con.insert_bestellung(warenkorb_id=warenkorb_id,
                                                                      status="Abgeschlossen",
                                                                      bestelldatum=verkaufsdatum,
@@ -48,16 +48,16 @@ class Bestellung:
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
-        bon_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
-                             elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+        bon_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
+                             elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
             comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
             file_writer.write_to_csv([], [comb_bon_id, bon_element.get("BON_NUMMER")], "bon_ids_new_to_old.csv")
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=41 if bon_element.get(
                                                                    "ZAHLUNGSART") == "Bar" else 3)
-        rechnung_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
-                                  elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+        rechnung_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
+                                  elem.get("VERKAUFS_ID") == new_bestellung_id), None)
 
         if rechnung_element:
             comb_rechnung_id: int = self._create_rechnung(rechnung_element, new_bestellung_id)
@@ -66,8 +66,8 @@ class Bestellung:
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=2)
 
-        lieferschein_element: dict = [elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
-                                      elem.get("VERKAUFS_ID") == new_bestellung_id].__getitem__(0)
+        lieferschein_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
+                                      elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if lieferschein_element:
             comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
             file_writer.write_to_csv([], [comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")],
