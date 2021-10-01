@@ -18,6 +18,7 @@ class Lagerplatz:
                                               encoding="UTF-8")
         self.importliste = []
 
+#-----------------datenbankaufrufe-----------------
     def getLagerplaetzeF2(self, typ):
         # gibt Liste mit ProduktID_F2 und weiteren Attributen zurück
         try:
@@ -55,46 +56,27 @@ class Lagerplatz:
             print('Error occurred:')
             print(error)
 
-    def changeProductID(self, lagerplatzliste):
-        #ändere productID in der Liste gegen neue
-        produktliste = read_f2_to_comb_id_allocation_to_file("products.csv")
+    def getNettogewicht(self, produkt):
+        try:
+            with self.con_f2.cursor() as cursor:
+                cursor.execute(
+                    f"""select NETTOGEWICHT from PRODUKT WHERE PRODUKT_ID = {produkt}""")
+                nettogewicht = cursor.fetchall()
+                return nettogewicht[0][0]
 
-        for lagerplatz in lagerplatzliste:
-            lagerplatz[0] = search_for_id(produktliste, lagerplatz[0])
-
-        return lagerplatzliste
-
-    def berechneMenge(self, produkt):
-
-        #if produkt = gewichtsbasiert dann anders berechnen
-        #alte Product ID verwenden
-
-        if(self.isgewichtsbasiert(produkt)):
-            #berechnung implementieren
-            #differenz * Nettogewicht /2)
-            einkauefe = self.getAnzahlEinkaufe(produkt)
-            verkaeufe = self.getAnzahlVerkaufe(produkt)
-
-
-        einkauefe = self.getAnzahlEinkaufe(produkt)
-        verkaeufe = self.getAnzahlVerkaufe(produkt)
-
-        if einkauefe == None:
-            return int(random.random() * 20 + 1)
-
-        aktuelleMenge = einkauefe - verkaeufe
-        if aktuelleMenge < 0:
-            aktuelleMenge = int(random.random() * 20 + 1)
-            return aktuelleMenge
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
 
     def isgewichtsbasiert(self, produkt):
 
         try:
             with self.con_f2.cursor() as cursor:
                 cursor.execute(
-                    f"""select PRODUKT_ID from PRODUKT WHERE TYP = 'gewichtsbasiert'""")
-                produktid = cursor.fetchall()
-                if produktid == None:
+                    f"""select TYP from PRODUKT WHERE  PRODUKT_ID = {produkt}""")
+                temp = cursor.fetchall()
+                typ = temp[0][0]
+                if typ == "stueckbasiert":
                     return False
                 else:
                     return True
@@ -103,8 +85,56 @@ class Lagerplatz:
             print('Error occurred:')
             print(error)
 
+#----------------berechnungen--------------------
+    def changeProductID(self):
+        #ändere productID in der Liste gegen neue
+        #ToDO: Die Methode testen wenn Keno die csv bereit hat
+        produktliste = read_f2_to_comb_id_allocation_to_file("products.csv")
 
-        return True
+        for lagerplatz in self.importliste:
+            lagerplatz[0] = search_for_id(produktliste, lagerplatz[0])
+
+
+    def berechneMenge(self, produkt):
+        # alte Product ID verwenden
+        einkauefe = self.getAnzahlEinkaufe(produkt)
+        verkaeufe = self.getAnzahlVerkaufe(produkt)
+
+        if(self.isgewichtsbasiert(produkt)):
+            return self.berechneGewichtsbasierteMenge(produkt, einkauefe, verkaeufe)
+
+        else:
+            return self.berechneStueckzahlbasierteMenge(einkauefe, verkaeufe)
+
+
+    def berechneGewichtsbasierteMenge(self, produkt, einkauefe,verkaeufe):
+
+        if einkauefe == None:
+            return float(random.random() * 20 + 1)
+
+        nettogewicht = self.getNettogewicht(produkt)
+        menge = (einkauefe - verkaeufe) * nettogewicht / 2
+
+        if menge < 0:
+            menge = float(random.random() * 20 + 1)
+            return menge
+        else:
+            menge = (einkauefe - verkaeufe) * nettogewicht / 2
+            return menge
+
+    def berechneStueckzahlbasierteMenge(self, einkauefe, verkaeufe):
+
+        menge = einkauefe - verkaeufe
+        if einkauefe == None:
+            return int(random.random() * 20 + 1)
+        elif menge < 0:
+            menge = int(random.random() * 20 + 1)
+            return menge
+        else:
+            return menge
+
+
+#------insert Lagerplätze-------
 
     def insertLagerplaetze(self, lager_ID, produkt_ID, regal_reihe, ragel_spalte, akt_menge, regal_zeile):
         try:
@@ -121,26 +151,29 @@ class Lagerplatz:
 
 
 
+
+#------main-------
+#ToDo:lager ID anpassen
 lagerplatzobjekt = Lagerplatz()
 lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.getLagerplaetzeF2("Verkaufsflaeche")
-lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.changeProductID(lagerplatzListe_Verkaufsflaeche)
 lagerplatzListe_Lagerflaeche = lagerplatzobjekt.getLagerplaetzeF2("Lagerflaeche")
-lagerplatzListe_Lagerflaeche = lagerplatzobjekt.changeProductID(lagerplatzListe_Lagerflaeche)
 
-i = 0
+zaehler = 0
 for lagerplatz in lagerplatzListe_Verkaufsflaeche:
     temp = [31, lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
                    lagerplatzobjekt.berechneMenge(lagerplatz[0])]
 
     lagerplatzobjekt.importliste.append(temp)
-    i = i + 1
+    zaehler = zaehler + 1
     print(temp)
 
-i=0
+zaehler = 0
 for lagerplatz in lagerplatzListe_Lagerflaeche:
-    temp2 = [31, lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
+    temp2 = [32, lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
                    lagerplatzobjekt.berechneMenge(lagerplatz[0])]
 
     lagerplatzobjekt.importliste.append(temp2)
-    i = i + 1
+    zaehler = zaehler + 1
     print(temp2)
+
+#lagerplatzobjekt.changeProductID()
