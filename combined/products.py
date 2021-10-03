@@ -62,6 +62,7 @@ class Products:
         self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_SUB_CAT_CON_FILE_NAME)
         self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.SUPPLIER_CON_FILE_NAME)
         self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.BRAND_CON_FILE_NAME)
+        self.con_products = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCTS_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
         # print(self._get_new_supplier_id(33))
@@ -80,6 +81,9 @@ class Products:
 
     def _get_new_brand_id(self, f2_brand_id: str):
         return util.search_for_id(self.con_brand, f2_brand_id)
+
+    def _get_new_product_id(self, f2_product_id: str):
+        return util.search_for_id(self.con_products, f2_product_id)
 
     def insert_products_from_f2_to_master(self):
         f2_master_products_connection = []
@@ -117,30 +121,37 @@ class Products:
             product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
 
             if not product_present_id:
-                product_present_id = self.db_master.insert_product_row_only_required(supplier_id, product_class_id,
-                                                                                     product_name,
-                                                                                     sku, ean, discount, size_fit,
-                                                                                     purchasing_price, selling_price,
-                                                                                     mwst, brand_id, config.SOURCE_F2)
-                f2_master_products_connection.append([product_present_id, product_id_f2])
+                product_present_id = self.db_master.insert_product_row_only_required(supplier_id=supplier_id,
+                                                                                     product_class_id=product_class_id,
+                                                                                     product_name=product_name,
+                                                                                     sku=sku, ean=ean,
+                                                                                     discount=discount,
+                                                                                     size_fit=size_fit,
+                                                                                     purchasing_price=purchasing_price,
+                                                                                     selling_price=selling_price,
+                                                                                     mwst=mwst, brand_id=brand_id,
+                                                                                     source_system=config.SOURCE_F2)
+                if product_present_id:
+                    f2_master_products_connection.append([product_present_id, product_id_f2])
 
-            if not self.db_master.source_present_check_product(product_present_id):
-                self.db_master.insert_source_product(product_present_id, config.SOURCE_F2)
+            # if not self.db_master.source_present_check_product(product_id=product_present_id, source_id=config.SOURCE_F2):
+            #     self.db_master.insert_source_product(product_present_id, config.SOURCE_F2)
 
         key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
                                                                    config.PRODUCTS_CON_FILE_NAME)
 
     def insert_product_price_history(self):
         prices = self.db_f2.select_all_preise()
-        for price in prices:
-            print(price)
-            product_id = price["PRODUKT_ID"]
-            price = price["BETRAG"]
-            if price["TYP"] == config.PREIS_TYP_F2[0]:
+        for price_item in prices:
+            print(price_item)
+            f2_product_id = price_item["PRODUKT_ID"]
+            product_id = self._get_new_product_id(f2_product_id)
+            price = price_item["BETRAG"]
+            if price_item["TYP"] == config.PREIS_TYP_F2[0]:
                 typ = config.PREIS_TYP[0]
             else:
                 typ = config.PREIS_TYP[1]
-            start_date = price["GUELTIGKEITS_BEGINN"]
+            start_date = price_item["GUELTIGKEITS_BEGINN"]
             self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
                                                         start_date=start_date)
 
@@ -163,5 +174,5 @@ class Products:
 # prod
 products = Products()
 # products.insert_brands()
-products.insert_products_from_f2_to_master()
+# products.insert_products_from_f2_to_master()
 # products.insert_product_price_history()

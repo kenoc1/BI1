@@ -7,7 +7,7 @@ Folgende Dateien wurden zum Einfügen und Generieren für F2 verwendet:
 - lager_loader.py
 - price_loader.py
 
-Die Datei config.py enthält Konstanten sowie läd Geheimnisse für den Verbindungsaufbau.
+Die Datei config.py enthält Konstanten sowie lädt Geheimnisse für den Verbindungsaufbau.
 
 Die Datei db_service.py enthält eine Klasse DB mit der jegliche Kommunikation mit der Datenbank abgewickelt wurde.
 
