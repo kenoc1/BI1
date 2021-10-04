@@ -5,3 +5,17 @@
 "{'PRODUKTKATEGORIE_ID': 340, 'BEZEICHNUNG': 'Akkuschrauber', 'ALTERFREIGABE': 0}"
 "{'PRODUKTKATEGORIE_ID': 341, 'BEZEICHNUNG': 'Tabel-PCs', 'ALTERFREIGABE': 0}"
 "{'PRODUKTKATEGORIE_ID': 342, 'BEZEICHNUNG': 'Gummi-Süßigkeiten', 'ALTERFREIGABE': 0}"
+########################
+Cordless screwdrivers   121
+Tablet-Computer         122
+Gummy Candy             123
+
+coffee  268  7
+coffee  324 90
+gemuse  274 13
+gemuse  310 61
+
+7,268
+90,324
+13,274
+61,310
