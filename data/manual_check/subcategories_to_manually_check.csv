@@ -6,9 +6,9 @@
 "{'PRODUKTKATEGORIE_ID': 341, 'BEZEICHNUNG': 'Tabel-PCs', 'ALTERFREIGABE': 0}"
 "{'PRODUKTKATEGORIE_ID': 342, 'BEZEICHNUNG': 'Gummi-Süßigkeiten', 'ALTERFREIGABE': 0}"
 ########################
-Cordless screwdrivers   121
-Tablet-Computer         122
-Gummy Candy             123
+Cordless screwdrivers   111 vorher 340
+Tablet-Computer         112 vorher 341
+Gummy Candy             113 vorher 342
 
 coffee  268  7
 coffee  324 90
@@ -19,3 +19,6 @@ gemuse  310 61
 90,324
 13,274
 61,310
+
+Computers 49
+Tools 				50

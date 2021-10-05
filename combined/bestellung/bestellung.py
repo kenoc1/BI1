@@ -59,7 +59,6 @@ class Bestellung:
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
-        #  TODO neue und alte IDs speichern
         bon_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
                                   elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
@@ -120,11 +119,11 @@ class Bestellung:
         pass
 
     def _get_com_kundenid_by_f2_kundenid(self, f2_kunden_id: int):
-        # TODO csv einlesen und auswerten
+        # TODO neue kundenid holen
         return 0
 
     def _get_com_mitarbeiterid_by_f2_mitarbeiterid(self, f2_kunden_id: int):
-        # TODO csv einlesen und auswerten
+        # TODO neue mitarbeiterid holen
         return 0
 
     def get_dummy_kunde_id(self):
