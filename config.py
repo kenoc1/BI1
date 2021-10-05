@@ -44,3 +44,7 @@ PRODUCTS_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_products_con.csv"
 PRODUCT_SUB_CAT_CON_FILE_NAME = ALLOCATION_CSV_DICT / "subcategories_ids_old_to_new.csv"
 SUPPLIER_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_lieferant_hersteller_con.csv"
 BRAND_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_marke_con.csv"
+ADRESS_CON_FILE_NAME = ALLOCATION_CSV_DICT / "adresse.csv"
+
+CSV_FILES_DICT = ROOT_DIR / Path("data/csv-files")
+VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"

@@ -1,17 +1,19 @@
 import cx_Oracle
-from numpy import genfromtxt
 
 import config
 from combined.ImportKunden.Kunde import Kunde
 from combined.ImportKunden.AnredenFinder import AnredenFinder
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
+from util import search_for_id
 
 
 class ImportKunden:
     def __init__(self):
+        self.anreden_finder = AnredenFinder()
         # Liste in der die selektierten Kunden gespeichert werden
         self.kunden_tupel = []
         self.kunden_objekte = []
+        self.adressenMapping = read_f2_to_comb_id_allocation_to_file(config.ADRESS_CON_FILE_NAME)
 
         # DB-Verbindung zu F2
         self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
@@ -35,7 +37,7 @@ class ImportKunden:
         try:
             with self.con_f2.cursor() as cursor:
                 cursor.execute(
-                    """SELECT KUNDE.KUNDEN_ID, KUNDE.VORNAME, KUNDE.NACHNAME, KUNDE.GEBURTSDATUM FROM KUNDE""")
+                    """SELECT KUNDE.KUNDEN_ID, KUNDE.VORNAME, KUNDE.NACHNAME, KUNDE.GEBURTSDATUM, KUNDE.RECHNUNGS_ADRESSE_ID, KUNDE.LIEFER_ADRESSE_ID FROM KUNDE""")
                 dataset = cursor.fetchall()
                 if (dataset):
                     self.kunden_tupel = dataset
@@ -46,21 +48,22 @@ class ImportKunden:
     # Erzeugt aus den zuvor importierten Kunden_Tupeln eine Liste von Kunden_Objekten mit den entsprechenden Attributen
     def get_kunden_objekte(self):
         self.select_kunden()
-        anreden_finder = AnredenFinder()
+
         dummy_mail = 'Keine E-Mail'
         for tupel in self.kunden_tupel:
             kunde = Kunde()
             # Anrede herausfinden
             kunde.set_id_filiale(tupel[0])
             kunde.set_vorname(tupel[1])
-            kunde.set_anrede(anreden_finder.finde_Anrede(kunde.vorname))
+            kunde.set_anrede(self.anreden_finder.finde_Anrede(kunde.vorname))
             kunde.set_nachname(tupel[2])
             kunde.set_geburtsdatum(tupel[3])
             kunde.set_email(dummy_mail)
+            kunde.set_rechnungsadresse_id(self.getCombinedAdressId(tupel[4]))
+            kunde.set_lieferadresse_id(self.getCombinedAdressId(tupel[5]))
             self.kunden_objekte.append(kunde)
 
         return self.kunden_objekte
 
-
-
-
+    def getCombinedAdressId(self, filiale_id):
+        return search_for_id(self.adressenMapping, filiale_id)

@@ -28,7 +28,7 @@ class AddressMerge:
             self.insert_addresses(row, array_for_csv)
 
         # create csv for allocation
-        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(array_for_csv, "addresse.csv")
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(array_for_csv, "adresse.csv")
 
     # load addresses from f2 database and return dataset
     def get_addresses(self):

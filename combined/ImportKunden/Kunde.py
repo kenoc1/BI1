@@ -10,8 +10,8 @@ class Kunde:
         self.nachname: str
         self.geburtsdatum: str
         self.email: str ='nicht vorhanden'
-        self.rechnungsadresse_id: Adresse
-        self.lieferadresse_id: Adresse
+        self.rechnungsadresse_id: int = -1
+        self.lieferadresse_id: int = -1
 
     def set_vorname(self, vorname):
         self.vorname = vorname
@@ -22,11 +22,11 @@ class Kunde:
     def set_anrede(self, anrede):
         self.anrede = anrede
 
-    def set_rechnungsadresse(self, adresse: Adresse):
-        self.rechnungsadresse = adresse
+    def set_rechnungsadresse_id(self, adresse):
+        self.rechnungsadresse_id = int(adresse)
 
-    def set_lieferadresse(self, adresse: Adresse):
-        self.lieferadresse = adresse
+    def set_lieferadresse_id(self, adresse):
+        self.lieferadresse_id = int(adresse)
 
     def set_email(self, email):
         self.email = email
