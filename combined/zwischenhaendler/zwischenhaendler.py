@@ -32,13 +32,14 @@ class ZwischenhaendlerMerger:
                                                                                       vname=lieferant.get(
                                                                                           "VORNAME_ANSPRECHPARTNER"),
                                                                                       adresseid=new_address_id)
-            # TODO ID-CSV schreiben
+            self._write_zwischenhaendler_id_file([new_address_id, lieferant.get("ADRESS_ID")])
             self.combined_con.insert_datenherkunft_zwischenhaendler(zwischenhaendler_id=comb_zwischenhaendler_id,
                                                                     datenherkunft_id=2)
 
     def _merge_einkauf(self) -> None:
         for einkauf in self.f2_einkaeufe:
             new_einkauf_id: int = self._insert_einkauf(einkauf)
+            self._write_einkauf_id_file([new_einkauf_id, einkauf.get("EINKAUF_ID")])
             self._insert_einkauf_produkt(einkauf=einkauf, comb_einkauf_id=new_einkauf_id)
 
     @staticmethod
@@ -48,7 +49,6 @@ class ZwischenhaendlerMerger:
     def _insert_einkauf(self, einkauf: dict) -> int:
         comb_lieferant_id: int = self._get_new_lieferant_id(f2_lieferant_id=einkauf.get("LIEFERANT_ID"))
         comb_mitarbeiter_id: int = self._get_new_mitarbeiter_id(f2_mitarbeiter_id=einkauf.get("MITARBEITER_ID"))
-        # TODO ID-CSV schreiben
         return self.combined_con.insert_einkauf(einkauf.get("EINKAUFSDATUM"), comb_lieferant_id, comb_mitarbeiter_id, 2)
 
     def _insert_einkauf_produkt(self, einkauf: dict, comb_einkauf_id: int) -> None:
@@ -74,3 +74,15 @@ class ZwischenhaendlerMerger:
 
     def _get_new_address_id(self, f2_address_id: int) -> int:
         return util.search_for_id(self.address_id_allcoation, f2_address_id)
+
+    @staticmethod
+    def _write_einkauf_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=rows,
+                                          filepath=config.EINKAUF_CON_FILE_NAME)
+
+    @staticmethod
+    def _write_zwischenhaendler_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=rows,
+                                          filepath=config.ZWISCHENHAENDLER_CON_FILE_NAME)
