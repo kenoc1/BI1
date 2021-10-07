@@ -3,7 +3,7 @@ import sys
 import cx_Oracle
 
 import config
-from combined import file_writer
+from combined import key_allocation_saver
 from combined.categories.category_extractor import CategoryExtractor
 from combined.categories.category_loader import CategoryLoader
 from combined.custom_exceptions import NoExcelIdFoundForGermanCategoryName
@@ -52,15 +52,15 @@ class CategoryTransformer:
 
     @staticmethod
     def _write_manual_check_to_file(content: dict):
-        file_writer.write_to_csv(header=[],
-                                 rows=[[content]],
-                                 filepath='subcategories_to_manually_check.csv')
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[[content]],
+                                          filepath=config.MANUAL_PRODUCT_SUB_CAT_CON_FILE_NAME)
 
     @staticmethod
     def _write_id_allocation_to_file(row: list):
-        file_writer.write_to_csv(header=[],
-                                 rows=[row],
-                                 filepath='../../data/allocation_csvs/subcategories_ids_new_to_old.csv')
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[row],
+                                          filepath=config.PRODUCT_SUB_CAT_CON_FILE_NAME)
 
     def _map_subkategorien(self):
         """
