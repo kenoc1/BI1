@@ -1,4 +1,7 @@
+import util
 from db_service import DB_F2, DB_MASTER
+from combined import key_allocation_reader, key_allocation_saver
+import config
 
 
 class ZwischenhaendlerMerger:
@@ -10,6 +13,14 @@ class ZwischenhaendlerMerger:
         self.f2_einkaeufe: list[dict] = self.f2_con.select_all_einkaeufe()
         self.f2_gewichtsbasiert_einkauf: list[dict] = self.f2_con.select_all_einkaeufe_gewichtsbasiert()
         self.f2_stueckbasiert_einkauf: list[dict] = self.f2_con.select_all_einkaeufe_stueckbasiert()
+        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.PRODUCTS_CON_FILE_NAME)
+        self.address_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.ADDRESS_CON_FILE_NAME)
+        self.supplier_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.SUPPLIER_CON_FILE_NAME)
+        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.MITARBEITER_CON_FILE_NAME)
 
     def _insert_zwischenhaendler(self) -> None:
         for lieferant in self.f2_lieferanten:
@@ -24,24 +35,11 @@ class ZwischenhaendlerMerger:
             # TODO ID-CSV schreiben
             self.combined_con.insert_datenherkunft_zwischenhaendler(zwischenhaendler_id=comb_zwischenhaendler_id,
                                                                     datenherkunft_id=2)
-            # Datenherkunft insert
-
-    def _get_new_address_id(self, f2_address_id: int) -> int:
-        pass
 
     def _merge_einkauf(self) -> None:
         for einkauf in self.f2_einkaeufe:
             new_einkauf_id: int = self._insert_einkauf(einkauf)
             self._insert_einkauf_produkt(einkauf=einkauf, comb_einkauf_id=new_einkauf_id)
-
-    def _get_new_product_id(self, f2_product_id: int) -> int:
-        pass
-
-    def _get_new_lieferant_id(self, f2_lieferant_id: int) -> int:
-        pass
-
-    def _get_new_mitarbeiter_id(self, f2_mitarbeiter_id: int) -> int:
-        pass
 
     @staticmethod
     def _calculate_menge_from_gewicht(menge: float) -> float:
@@ -64,3 +62,15 @@ class ZwischenhaendlerMerger:
             self.combined_con.insert_einkauf_produkt(einkaufid=comb_einkauf_id,
                                                      produktid=produkt_im_einkauf.get("PRODUKT_ID"),
                                                      menge=produkt_im_einkauf.get("ANZAHL_PRODUKTE"))
+
+    def _get_new_product_id(self, f2_product_id: int) -> int:
+        return util.search_for_id(self.product_id_allcoation, f2_product_id)
+
+    def _get_new_lieferant_id(self, f2_lieferant_id: int) -> int:
+        return util.search_for_id(self.supplier_id_allcoation, f2_lieferant_id)
+
+    def _get_new_mitarbeiter_id(self, f2_mitarbeiter_id: int) -> int:
+        return util.search_for_id(self.mitarbeiter_id_allcoation, f2_mitarbeiter_id)
+
+    def _get_new_address_id(self, f2_address_id: int) -> int:
+        return util.search_for_id(self.address_id_allcoation, f2_address_id)
