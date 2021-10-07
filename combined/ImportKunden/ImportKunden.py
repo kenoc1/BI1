@@ -13,7 +13,7 @@ class ImportKunden:
         # Liste in der die selektierten Kunden gespeichert werden
         self.kunden_tupel = []
         self.kunden_objekte = []
-        self.adressenMapping = read_f2_to_comb_id_allocation_to_file(config.ADRESS_CON_FILE_NAME)
+        self.adressenMapping = read_f2_to_comb_id_allocation_to_file(config.ADDRESS_CON_FILE_NAME)
 
         # DB-Verbindung zu F2
         self.con_f2 = cx_Oracle.connect(user=config.DB_CON_USER_F2, password=config.DB_CON_PW_F2,
