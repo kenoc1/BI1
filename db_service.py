@@ -66,6 +66,18 @@ class DB_F2:
     def select_all_stueckzahlbasiert_verkauf(self):
         return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_VERKAUF")
 
+    def select_all_lieferant(self):
+        return self._select_all_dict("LIEFERANT")
+
+    def select_all_einkaeufe(self):
+        return self._select_all_dict("EINKAUF")
+
+    def select_all_einkaeufe_gewichtsbasiert(self):
+        return self._select_all_dict("GEWICHTBASIERTES_PRODUKT_IM_EINKAUF")
+
+    def select_all_einkaeufe_stueckbasiert(self):
+        return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_EINKAUF")
+
     def _select_all_dict(self, table_name):
         try:
             with self.con_f2.cursor() as cursor:
@@ -892,4 +904,51 @@ class DB_MASTER:
             "values(:bestellungid, :produktid, :menge) ")
         with self.con_master.cursor() as cursor:
             cursor.execute(sql, [bestellungid, produktid, menge])
+            self.con_master.commit()
+
+    def insert_einkauf(self, datum: str, lieferantid: int, mitarbeiterid: int, datenherkunftid: int) -> int:
+        sql = (
+                "insert into EINKAUF (EINKAUFSDATUM, LIEFERANT_ID, MITARBEITER_ID, DATENHERKUNFT_ID)"
+                "values(:datum, :lieferantid, :mitarbeiterid, datenherkunftid) " + \
+                "returning EINKAUF_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql,
+                           [datum, lieferantid, mitarbeiterid, datenherkunftid, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_einkauf_produkt(self, einkaufid: int, produktid: int, menge: int) -> int:
+        sql = (
+                "insert into EINKAUF_PRODUKT (EINKAUF_ID, PRODUKT_ID, MENGE)"
+                "values(:einkaufid, :produktid, :menge) " + \
+                "returning EINKAUF_PRODUKT_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql,
+                           [einkaufid, produktid, menge, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_zwischenhaendler(self, name: str, email: str, nname: str, vname: str, adresseid: int) -> int:
+        sql = (
+                "insert into ZWISCHENHAENDLER (NAME, EMAIL, NNAME_ANSPRECHPARTNER, VNAME_ANSPRECHPARTNER, ADRESSE_ID)"
+                "values(:name, :email, :nname, vname, adresseid) " + \
+                "returning ZWISCHENHAENDLER_ID into :python_var")
+        with self.con_master.cursor() as cursor:
+            newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+            cursor.execute(sql,
+                           [name, email, nname, vname, adresseid, newest_id_wrapper])
+            newest_id = newest_id_wrapper.getvalue()
+            self.con_master.commit()
+            return int(newest_id[0])
+
+    def insert_datenherkunft_zwischenhaendler(self, zwischenhaendler_id: int, datenherkunft_id: int):
+        sql = (
+            "insert into DATENHERKUNFT_ZWISCHENHAENDLER(ZWISCHENHAENDLER_ID, DATENHERKUNFT_ID) "
+            "values(:zwischenhaendler_id, :datenherkunft_id) ")
+        with self.con_master.cursor() as cursor:
+            cursor.execute(sql, [zwischenhaendler_id, datenherkunft_id])
             self.con_master.commit()
