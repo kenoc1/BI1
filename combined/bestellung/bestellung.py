@@ -19,11 +19,11 @@ class Bestellung:
         self.comb_warenkoerbe: list[dict] = self.combined_con.select_all_warenkoerbe()
         self.f2_gewichtsbasiert_im_verkauf = self.f2_con.select_all_gewichtsbasiert_verkauf()
         self.f2_stueckzahlbasiert_im_verkauf = self.f2_con.select_all_stueckzahlbasiert_verkauf()
-        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.PRODUCTS_CON_FILE_NAME)
-        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.MITARBEITER_CON_FILE_NAME)
-        self.kunden_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.kunden_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.KUNDEN_CON_FILE_NAME)
 
     def _verkauf_to_bestellung(self):

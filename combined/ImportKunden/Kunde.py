@@ -1,6 +1,3 @@
-from combined.ImportKunden.Adresse import Adresse
-
-
 class Kunde:
     def __init__(self):
         self.id_combined: int
@@ -9,7 +6,7 @@ class Kunde:
         self.vorname: str
         self.nachname: str
         self.geburtsdatum: str
-        self.email: str ='nicht vorhanden'
+        self.email: str = 'nicht vorhanden'
         self.rechnungsadresse_id: int = -1
         self.lieferadresse_id: int = -1
 
@@ -39,9 +36,3 @@ class Kunde:
 
     def set_id_combined(self, id):
         self.id_combined = id
-
-
-
-
-
-

@@ -1,8 +1,6 @@
 import config
-import util
-from db_service import DB_F2, DB_MASTER
 import key_allocation_saver
-import string_equality_tester
+from db_service import DB_F2, DB_MASTER
 
 
 # --- OS Lieferant---
@@ -50,6 +48,7 @@ class Supplier:
 
         if f2_master_supplier_connection:
             key_allocation_saver.write_to_csv(rows=f2_master_supplier_connection,
+                                              header=[],
                                               filepath=config.SUPPLIER_CON_FILE_NAME)
 
 

@@ -2,7 +2,7 @@ import cx_Oracle
 import config
 import random
 
-from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
+from combined.key_allocation_reader import read_f2_to_comb_id_allocation_from_file
 from util import search_for_id
 
 
@@ -118,7 +118,7 @@ class Lagerplatz:
     # ----------------berechnungen--------------------
     def changeProductID(self):
         # aendere productID in der Liste gegen neue
-        produktliste = read_f2_to_comb_id_allocation_to_file(config.PRODUCTS_CON_FILE_NAME)
+        produktliste = read_f2_to_comb_id_allocation_from_file(config.PRODUCTS_CON_FILE_NAME)
 
         for lagerplatz in self.importliste:
             lagerplatz[1] = search_for_id(produktliste, lagerplatz[1])

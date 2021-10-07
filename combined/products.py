@@ -59,10 +59,10 @@ class Products:
     def __init__(self):
         self.db_f2 = DB_F2()
         self.db_master = DB_MASTER()
-        self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCT_SUB_CAT_CON_FILE_NAME)
-        self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.SUPPLIER_CON_FILE_NAME)
-        self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.BRAND_CON_FILE_NAME)
-        self.con_products = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(config.PRODUCTS_CON_FILE_NAME)
+        self.con_cat = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.PRODUCT_SUB_CAT_CON_FILE_NAME)
+        self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.SUPPLIER_CON_FILE_NAME)
+        self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.BRAND_CON_FILE_NAME)
+        self.con_products = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.PRODUCTS_CON_FILE_NAME)
         # testing
         # print(self.db_master.product_present_check_with_sku("22576443552", 19))
         # print(self._get_new_supplier_id(33))

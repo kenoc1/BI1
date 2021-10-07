@@ -15,9 +15,9 @@ class InsertKunden:
     def insert_kunden(self, kunden_liste):
         csv_kunden_liste = []
         with self.con_master.cursor() as cursor:
-            if (kunden_liste):
+            if kunden_liste:
                 for kunde in kunden_liste:
-                    if (self.kunde_existiert(kunde)):
+                    if self.kunde_existiert(kunde):
                         # Kunde ist schon vorhanden, nur Eintrag in die Zwischentabelle
                         print('Kunde mit der ID ', kunde.id_combined, 'existiert bereits, wird übersprungen.')
                         cursor.execute(
@@ -40,12 +40,12 @@ class InsertKunden:
                             self.con_master.commit()
 
                             # Beziehungen zu Adressen hinzufügen
-                            if (kunde.lieferadresse_id):
+                            if kunde.lieferadresse_id:
                                 lieferadresse = "Lieferadresse"
                                 cursor.execute(
                                     f"""INSERT INTO KUNDE_ADRESSE(ADRESSE_ID, KUNDE_ID, ADRESSART) VALUES ({kunde.lieferadresse_id},{kunde.id_combined}, '{lieferadresse}')""")
                                 self.con_master.commit()
-                            if (kunde.rechnungsadresse_id):
+                            if kunde.rechnungsadresse_id:
                                 rechnungsadresse = "Rechnungsadresse"
                                 cursor.execute(
                                     f"""INSERT INTO KUNDE_ADRESSE(ADRESSE_ID, KUNDE_ID, ADRESSART) VALUES ({kunde.rechnungsadresse_id},{kunde.id_combined}, '{rechnungsadresse}')""")
@@ -74,12 +74,12 @@ class InsertKunden:
                 cursor.execute(
                     f"""SELECT K.KUNDE_ID FROM KUNDE K WHERE K.VORNAME = '{kunde.vorname}' AND K.NACHNAME = '{kunde.nachname}'""")
                 dataset = cursor.fetchall()
-                if (dataset):
+                if dataset:
                     # Vor- und Nachname sind bereits vorhanden, Rechnungsadresse prüfen
                     cursor.execute(
                         f"""SELECT COUNT(K.KUNDE_ID) FROM KUNDE_ADRESSE KA WHERE KA.KUNDE_ID = '{kunde.id_combined}' AND KA.ADRESSE_ID = {kunde.rechnungsadresse_id} AND KA.ADRESSART = 'Rechnungsadresse'""")
                     dataset = cursor.fetchall()
-                if (dataset):
+                if dataset:
                     # Rechnungsadresse passt auch, also existiert Kunde
                     kunde_existiert = True
                     kunde.set_id_combined(dataset[0][0])

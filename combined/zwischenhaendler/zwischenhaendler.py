@@ -13,13 +13,13 @@ class ZwischenhaendlerMerger:
         self.f2_einkaeufe: list[dict] = self.f2_con.select_all_einkaeufe()
         self.f2_gewichtsbasiert_einkauf: list[dict] = self.f2_con.select_all_einkaeufe_gewichtsbasiert()
         self.f2_stueckbasiert_einkauf: list[dict] = self.f2_con.select_all_einkaeufe_stueckbasiert()
-        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.PRODUCTS_CON_FILE_NAME)
-        self.address_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.address_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.ADDRESS_CON_FILE_NAME)
-        self.supplier_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.supplier_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.SUPPLIER_CON_FILE_NAME)
-        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.MITARBEITER_CON_FILE_NAME)
 
     def _insert_zwischenhaendler(self) -> None:

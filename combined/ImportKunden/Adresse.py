@@ -13,15 +13,14 @@ class Adresse:
     def set_plz(self, plz):
         self.plz = plz
 
-    def set_plz(self, ort):
+    def set_ort(self, ort):
         self.ort = ort
 
-    def set_ort(self, strasse):
+    def set_strasse(self, strasse):
         self.strasse = strasse
 
-    def set_strasse(self, nummer):
+    def set_nummer(self, nummer):
         self.nummer = nummer
 
     def set_art(self, art):
         self.art = art
-
