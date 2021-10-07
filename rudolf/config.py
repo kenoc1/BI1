@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
+
 import cx_Oracle
 from dotenv import load_dotenv
-from pathlib import Path
 
 load_dotenv()
 
@@ -60,3 +61,5 @@ LIEFERSCHEIN_CON_FILE_NAME = ALLOCATION_CSV_DICT / "lieferschein.csv"
 MANUAL_PRODUCT_SUB_CAT_CON_FILE_NAME = MANUAL_CSV_DICT / "subcategories_ids_new_to_old.csv"
 
 VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"
+
+ADDRESS_DB_TABLE = "adresse"
