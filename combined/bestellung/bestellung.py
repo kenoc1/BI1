@@ -4,7 +4,7 @@ import cx_Oracle
 
 import config
 import util
-from combined import file_writer, key_allocation_reader
+from combined import key_allocation_reader, key_allocation_saver
 from db_service import DB_F2, DB_MASTER
 
 
@@ -53,8 +53,7 @@ class Bestellung:
                                                                      bestelldatum=verkaufsdatum,
                                                                      datenherkunft=2,
                                                                      mitarbeiter_id=com_mitarbeiter_id)
-        file_writer.write_to_csv([], [new_bestellung_id, f2_verkauf_entry.get("VERKAUFS_ID")],
-                                 "bestellung_ids_new_to_old.csv")
+        self._write_bestellung_id_file([new_bestellung_id, f2_verkauf_entry.get("VERKAUFS_ID")])
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
@@ -62,7 +61,7 @@ class Bestellung:
                                   elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
             comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
-            file_writer.write_to_csv([], [comb_bon_id, bon_element.get("BON_NUMMER")], "bon_ids_new_to_old.csv")
+            self._write_bon_id_file([comb_bon_id, bon_element.get("BON_NUMMER")])
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=41 if bon_element.get(
                                                                    "ZAHLUNGSART") == "Bar" else 3)
@@ -71,8 +70,7 @@ class Bestellung:
 
         if rechnung_element:
             comb_rechnung_id: int = self._create_rechnung(rechnung_element, new_bestellung_id)
-            file_writer.write_to_csv([], [comb_rechnung_id, rechnung_element.get("RECHNUNG_NUMMER")],
-                                     "rechnung_ids_new_to_old.csv")
+            self._write_rechnung_id_file([comb_rechnung_id, rechnung_element.get("RECHNUNG_NUMMER")])
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=2)
 
@@ -80,8 +78,7 @@ class Bestellung:
                                            elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if lieferschein_element:
             comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
-            file_writer.write_to_csv([], [comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")],
-                                     "lieferschein_ids_new_to_old.csv")
+            self._write_lieferschein_id_file([comb_lieferschein_id, lieferschein_element.get("LIEFERSCHEIN_NUMMER")])
 
     def _create_bon(self, bon: dict, bestellung_id: int) -> int:
         return self.combined_con.insert_bon(bestellungid=bestellung_id, gegebenesgeld=bon.get("GEGEBENES_GELD"),
@@ -124,3 +121,27 @@ class Bestellung:
 
     def get_dummy_kunde_id(self) -> int:
         return 6435
+
+    @staticmethod
+    def _write_bestellung_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[rows],
+                                          filepath=config.BESTELLUNG_CON_FILE_NAME)
+
+    @staticmethod
+    def _write_bon_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[rows],
+                                          filepath=config.BON_CON_FILE_NAME)
+
+    @staticmethod
+    def _write_rechnung_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[rows],
+                                          filepath=config.RECHNUNG_CON_FILE_NAME)
+
+    @staticmethod
+    def _write_lieferschein_id_file(rows: list):
+        key_allocation_saver.write_to_csv(header=[],
+                                          rows=[rows],
+                                          filepath=config.LIEFERSCHEIN_CON_FILE_NAME)
