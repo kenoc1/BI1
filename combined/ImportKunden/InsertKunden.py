@@ -4,7 +4,6 @@ import cx_Oracle
 
 import config
 from combined import key_allocation_saver
-from combined.ImportKunden.Kunde import Kunde
 
 
 class InsertKunden:
@@ -77,13 +76,13 @@ class InsertKunden:
                 dataset = cursor.fetchall()
                 if (dataset):
                     # Vor- und Nachname sind bereits vorhanden, Rechnungsadresse prüfen
-                    kunde.set_id_combined(dataset)
                     cursor.execute(
                         f"""SELECT COUNT(K.KUNDE_ID) FROM KUNDE_ADRESSE KA WHERE KA.KUNDE_ID = '{kunde.id_combined}' AND KA.ADRESSE_ID = {kunde.rechnungsadresse_id} AND KA.ADRESSART = 'Rechnungsadresse'""")
                     dataset = cursor.fetchall()
                 if (dataset):
                     # Rechnungsadresse passt auch, also existiert Kunde
                     kunde_existiert = True
+                    kunde.set_id_combined(dataset[0][0])
                 return kunde_existiert
 
         except cx_Oracle.Error as error:
