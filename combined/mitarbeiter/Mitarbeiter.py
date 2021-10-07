@@ -2,7 +2,7 @@ import cx_Oracle
 
 import config
 import util
-from combined.ImportKunden.AnredenFinder import AnredenFinder
+from combined.customers.AnredenFinder import AnredenFinder
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_from_file
 
 

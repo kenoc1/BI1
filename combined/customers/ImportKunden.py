@@ -1,8 +1,8 @@
 import cx_Oracle
 
 import config
-from combined.ImportKunden.Kunde import Kunde
-from combined.ImportKunden.AnredenFinder import AnredenFinder
+from combined.customers.Kunde import Kunde
+from combined.customers.AnredenFinder import AnredenFinder
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_from_file
 from util import search_for_id
 

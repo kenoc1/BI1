@@ -4,8 +4,8 @@ import cx_Oracle
 
 import config
 from combined import key_allocation_saver
-from combined.categories.category_extractor import CategoryExtractor
-from combined.categories.category_loader import CategoryLoader
+from combined.category.category_extractor import CategoryExtractor
+from combined.category.category_loader import CategoryLoader
 from combined.custom_exceptions import NoExcelIdFoundForGermanCategoryName
 from combined.string_equality_tester import compare
 from db_service import DB_MASTER

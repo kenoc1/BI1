@@ -1,5 +1,5 @@
-from combined.ImportKunden.ImportKunden import ImportKunden
-from combined.ImportKunden.InsertKunden import InsertKunden
+from combined.customers.ImportKunden import ImportKunden
+from combined.customers.InsertKunden import InsertKunden
 
 if __name__ == "__main__":
     importer = ImportKunden()
