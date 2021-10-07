@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+<div class="container" style="display: flex; justify-content: center; align-items: center; height: 100vh">
+
+    <div>
+        <button class="glow-on-hover" type="button" data-toggle="modal"
+                data-target="#sprintChange">ETL-Prozess starten
+        </button>
+
+        <div class="d-none">
+            <h1>Ausgabe: </h1>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="sprintChange">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title collapse show multi-collapse text-light" id="modal-heading">Willst du wirklich
+                    diesen Prozess starten?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Abbrechen">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {# {% include 'subtemplates/loading.html' %} #}
+                <h4 class="bg-danger text-white rounded p-2 collapse show multi-collapse">Achtung! Es handelt sich bei
+                    dieser Ausführung um einen
+                    unwiederuflichen Prozess der bei Bestätigung gestartet wird. Die Ausführung kann mehrere Stunden
+                    dauern.</h4>
+            </div>
+
+            <div class="modal-footer collapse show multi-collapse" id="modal-footer">
+                <span id="unlockButtonIcon" data-feather="lock"></span>
+                <input checked class="mr-3" type="checkbox" id="unlockSprintBox" name="unlockButton"
+                       onchange="unlockSprintButton()">
+                <a href="/start_etl_process">
+                    <button disabled id="submitSprint" type="button" class="btn btn-danger" data-toggle="collapse"
+                            data-target=".multi-collapse" aria-expanded="false"
+                            aria-controls="loadingDiv modal-footer modal-heading">Ja, Prozess starten
+                    </button>
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
