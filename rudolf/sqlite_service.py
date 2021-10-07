@@ -95,6 +95,13 @@ class SQLiteService:
                                 f2_id INTEGER UNIQUE
                             );
                         """)
+                self.con.execute("""
+                            CREATE TABLE if not exists funktion (
+                                funktion_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                comb_id INTEGER,
+                                f2_id INTEGER UNIQUE
+                            );
+                        """)
         except sl.OperationalError as oe:
             print("DB Error")
             print(oe)

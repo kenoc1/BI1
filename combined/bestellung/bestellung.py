@@ -26,14 +26,14 @@ class Bestellung:
         self.kunden_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.KUNDEN_CON_FILE_NAME)
 
-    def _verkauf_to_bestellung(self):
+    def verkauf_to_bestellung(self):
         try:
             f2_sales: list[dict] = self.f2_con.select_all_sales()
             for sale in f2_sales:
-                # TODO Preise umrechnen
                 new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
                 self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
                 self._create_bestellposition(new_bestellung_id=new_bestellung_id, verkauf=sale)
+                print("Crated Bestellung: {}".format(str(sale)))
         except cx_Oracle.Error as error:
             print('Database error occurred:')
             print(error)
@@ -57,7 +57,7 @@ class Bestellung:
         return new_bestellung_id
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int):
-        bon_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_bondaten if
+        bon_element: dict = next((elem for elem in self.f2_bondaten if
                                   elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
             comb_bon_id: int = self._create_bon(bon_element, new_bestellung_id)
@@ -65,7 +65,7 @@ class Bestellung:
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=41 if bon_element.get(
                                                                    "ZAHLUNGSART") == "Bar" else 3)
-        rechnung_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_rechnungsdaten if
+        rechnung_element: dict = next((elem for elem in self.f2_rechnungsdaten if
                                        elem.get("VERKAUFS_ID") == new_bestellung_id), None)
 
         if rechnung_element:
@@ -74,7 +74,7 @@ class Bestellung:
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=2)
 
-        lieferschein_element: dict = next((elem.get("VERKAUFS_ID") for elem in self.f2_lieferschein if
+        lieferschein_element: dict = next((elem for elem in self.f2_lieferschein if
                                            elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if lieferschein_element:
             comb_lieferschein_id: int = self._create_lieferschein(lieferschein_element, new_bestellung_id)
@@ -145,3 +145,7 @@ class Bestellung:
         key_allocation_saver.write_to_csv(header=[],
                                           rows=[rows],
                                           filepath=config.LIEFERSCHEIN_CON_FILE_NAME)
+
+
+if __name__ == "__main__":
+    b = Bestellung().verkauf_to_bestellung()

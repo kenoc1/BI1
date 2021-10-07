@@ -63,3 +63,6 @@ MANUAL_PRODUCT_SUB_CAT_CON_FILE_NAME = MANUAL_CSV_DICT / "subcategories_ids_new_
 VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"
 
 ADDRESS_DB_TABLE = "adresse"
+LIEFERANT_HERSTELLER_TABLE = "lieferant_hersteller"
+WORKER_POSITION_TABLE = "funktion"
+WORKER_TABLE = "mitarbeiter"

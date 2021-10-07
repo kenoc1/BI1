@@ -7,23 +7,25 @@ import cx_Oracle
 from rudolf import config
 from rudolf.oracle_service import F2DBService, CombDBService
 from rudolf.rudolf_exceptions import NoExcelIdFoundForGermanCategoryName
+from rudolf.sqlite_service import SQLiteService
 from rudolf.util import compare_strings
 
 
 class CategoryExtractor:
 
     def __init__(self):
-        self.db = F2DBService()
+        self.con_f2 = F2DBService()
+        self.con_rudolf = SQLiteService()
 
     @staticmethod
     def _make_csv_line_into_list(line: list) -> list[str]:
         return ''.join(line).split(";")
 
     def _load_oberkategorien_from_database(self) -> None:
-        self._oberkategorien: list = self.db.select_all_produktoberkategorien()
+        self._oberkategorien: list = self.con_f2.select_all_produktoberkategorien()
 
     def _load_subkategorien_from_database(self) -> None:
-        self._subkategorien: list = self.db.select_all_produktkategorien()
+        self._subkategorien: list = self.con_f2.select_all_produktkategorien()
 
     def load_data(self) -> None:
         self._load_oberkategorien_from_database()
@@ -128,13 +130,13 @@ class CategoryTransformer:
                     if not self._exists_subkategorie(english_subkategorie_name=translated_name):
                         new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
                         self._write_id_allocation_to_file([new_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])
-                        self.category_loader.insert_subkategorien_data_source_allocation(new_id, config.HERKUNFT_ID_F2)
+                        self.category_loader.insert_subkategorien_data_source_allocation(new_id, config.SOURCE_F2)
                     else:
                         self._write_manual_check_to_file(subkategorie_entry)
                 else:
                     existing_id = self._query_subkategorie_by_name(translated_name)[0].get("PRODUKT_SUBKATEGORIE_ID")
                     self._write_id_allocation_to_file([existing_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])
-                    self.category_loader.insert_subkategorien_data_source_allocation(existing_id, config.HERKUNFT_ID_F2)
+                    self.category_loader.insert_subkategorien_data_source_allocation(existing_id, config.SOURCE_F2)
             except NoExcelIdFoundForGermanCategoryName:
                 print("Not translation found for: {}".format(subkategorie_entry.__str__()))
                 self._write_manual_check_to_file(subkategorie_entry)
