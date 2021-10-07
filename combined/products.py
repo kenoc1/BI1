@@ -118,7 +118,9 @@ class Products:
             else:
                 size_fit = 1
 
-            product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id)
+            product_present_id = self.db_master.product_present_check_with_sku(sku, supplier_id, purchasing_price,
+                                                                               selling_price,
+                                                                               source_system=config.SOURCE_F2)
 
             if not product_present_id:
                 product_present_id = self.db_master.insert_product_row_only_required(supplier_id=supplier_id,
@@ -170,9 +172,6 @@ class Products:
         key_allocation_saver.write_to_csv(rows=f2_master_brands_connection,
                                           filepath=config.BRAND_CON_FILE_NAME)
 
-
-# testing
-# Products()
 
 # prod
 products = Products()

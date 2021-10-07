@@ -960,17 +960,19 @@ class DB_MASTER:
             else:
                 False
 
-    def product_present_check_with_sku(self, sku: str, supplier_id: int):
+    def product_present_check_with_sku(self, sku: str, supplier_id: int, purchasing_price, selling_price,
+                                       source_system):
         sku = string_equality_tester.uniform_string(str(sku))
         with self.con_master.cursor() as cursor:
-            # sql = (
-            #   "select PRODUKT_ID, LIEFERANT_ID from PRODUKT WHERE SKU = :sku AND LIEFERANT_ID= :supplier_id"
-            #  "values(:supplier)"
-            # )
             cursor.execute(
-                """select PRODUKT_ID from PRODUKT WHERE LOWER(REPLACE(SKU, ' ','')) = :sku AND LIEFERANT_ID = :supplier_id""",
+                """select PRODUKT_ID from PRODUKT WHERE LOWER(REPLACE(SKU, ' ','')) = :sku 
+                AND LIEFERANT_ID = :supplier_id AND EINKAUFSPREIS = :purchasing_price 
+                AND LISTENVERKAUFSPREIS = :selling_price AND DATENHERKUNFT_ID = :source_system""",
                 sku=sku,
-                supplier_id=supplier_id)
+                supplier_id=supplier_id,
+                purchasing_price=purchasing_price,
+                selling_price=selling_price,
+                source_system=source_system)
             row = cursor.fetchone()
             if row:
                 return row[0]
