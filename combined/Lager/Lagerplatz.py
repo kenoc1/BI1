@@ -110,32 +110,8 @@ class Lagerplatz:
     def get_new_product_id(self):
         # aendere productID in der Liste gegen neue
         produktliste = read_f2_to_comb_id_allocation_from_file(config.PRODUCTS_CON_FILE_NAME)
-
         for lagerplatz in self.importliste:
             lagerplatz[1] = search_for_id(produktliste, lagerplatz[1])
-
-    def berechne_menge(self, produkt):
-        # alte Product ID verwenden
-        einkauefe = self.get_anzahl_einkaeufe(produkt)
-        verkaeufe = self.get_anzahl_verkaeufe(produkt)
-
-        if self.is_gewichtsbasiert(produkt):
-            return self.berechne_gewichtsbasierte_menge(produkt, einkauefe, verkaeufe)
-        else:
-            return self.berechne_stueckzahlbasierte_menge(einkauefe, verkaeufe)
-
-    def berechne_gewichtsbasierte_menge(self, produkt, einkauefe, verkaeufe):
-        if einkauefe is None:
-            einkauefe = 0
-        nettogewicht = self.get_nettogewicht(produkt)
-        menge = (einkauefe - verkaeufe) * nettogewicht / 2
-        return round(menge, 2)
-
-    def berechne_stueckzahlbasierte_menge(self, einkauefe, verkaeufe):
-        if einkauefe is None:
-            einkauefe = 0
-        menge = einkauefe - verkaeufe
-        return menge
 
     # ------insert Lagerplätze-------
 
@@ -158,21 +134,18 @@ class Lagerplatz:
 # ------main-------
 if __name__ == "__main__":
     lagerplatzobjekt = Lagerplatz()
-    lagerplatz_liste_verkaufsflaeche = lagerplatzobjekt.get_lagerplaetze_f2("Verkaufsflaeche")
-    lagerplatz_liste_lagerflaeche = lagerplatzobjekt.get_lagerplaetze_f2("Lagerflaeche")
+    f2_verkaufsflaechen = lagerplatzobjekt.get_lagerplaetze_f2("Verkaufsflaeche")
+    f2_lagerflaechen = lagerplatzobjekt.get_lagerplaetze_f2("Lagerflaeche")
 
     zaehler = 0
-    for lagerplatz in lagerplatz_liste_verkaufsflaeche:
-        temp = [lagerplatzobjekt.get_lager_id(1), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
-                lagerplatzobjekt.berechne_menge(lagerplatz[0])]
-
+    for lagerplatz in f2_verkaufsflaechen:
+        temp = [lagerplatzobjekt.get_lager_id(1), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], -100000]
         lagerplatzobjekt.importliste.append(temp)
         zaehler = zaehler + 1
 
     zaehler = 0
-    for lagerplatz in lagerplatz_liste_lagerflaeche:
-        temp2 = [lagerplatzobjekt.get_lager_id(2), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
-                 lagerplatzobjekt.berechne_menge(lagerplatz[0])]
+    for lagerplatz in f2_lagerflaechen:
+        temp2 = [lagerplatzobjekt.get_lager_id(2), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], -100000]
         lagerplatzobjekt.importliste.append(temp2)
         zaehler = zaehler + 1
 
