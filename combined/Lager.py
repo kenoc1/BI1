@@ -54,7 +54,7 @@ class Lager:
         try:
             with self.con_combined.cursor() as cursor:
                 cursor.execute(f"""insert into LAGER (ADRESSE_ID, LADERAMPEN, LAGERART, DATENHERKUNFT_ID)
-                                    values ({dummyAdressID}, 2, 'innen', {datenherkunftsID}) """)
+                                    values ({dummyAdressID}, 2, 'vorrat', {datenherkunftsID}) """)
                 self.con_combined.commit()
                 print("Lager hinzugefuegt" + dummyAdressID + " 1," 'innen' + datenherkunftsID)
         except cx_Oracle.Error as error:

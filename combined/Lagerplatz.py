@@ -89,7 +89,7 @@ class Lagerplatz:
         try:
             with self.con_combined.cursor() as cursor:
                 cursor.execute(
-                    f"""select LAGERPLATZ_ID from LAGERPLATZ WHERE PRODUKT_ID = {produkt_ID} AND LAGER_ID = {lager_ID}""")
+                    f"""select LAGERPLATZ_ID from LAGERPLATZ WHERE PRODUKT_ID = {produkt_ID} AND LAGERART = {lager_ID}""")
                 lagerplatzID = cursor.fetchall()
                 if lagerplatzID == None:
                     return False
@@ -100,14 +100,14 @@ class Lagerplatz:
             print('Error occurred:')
             print(error)
 
-    def getLagerID(self, anzLaderampen):
-        #holt die LagerID anhand der Laderampen
-        #Verkaufsflächen = 1
-        #Lagerflächen = 2
+    def getLagerID(self, LagerTyp):
+        #holt die LagerID anhand des Lagertyps
+        #Verkaufsflächen = Innen
+        #Lagerflächen = vorrat
         try:
             with self.con_combined.cursor() as cursor:
                 cursor.execute(
-                    f"""select LAGER_ID from LAGER WHERE LADERAMPEN = {anzLaderampen} AND DATENHERKUNFT_ID = 2""")
+                    f"""select LAGER_ID from LAGER WHERE LAGERART = {LagerTyp} AND DATENHERKUNFT_ID = 2""")
                 lagerID = cursor.fetchall()
                 return lagerID[0][0]
 
@@ -186,7 +186,7 @@ lagerplatzListe_Lagerflaeche = lagerplatzobjekt.getLagerplaetzeF2("Lagerflaeche"
 
 zaehler = 0
 for lagerplatz in lagerplatzListe_Verkaufsflaeche:
-    temp = [lagerplatzobjekt.getLagerID(1), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
+    temp = [lagerplatzobjekt.getLagerID("innen"), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
             lagerplatzobjekt.berechneMenge(lagerplatz[0])]
 
     lagerplatzobjekt.importliste.append(temp)
@@ -194,7 +194,7 @@ for lagerplatz in lagerplatzListe_Verkaufsflaeche:
 
 zaehler = 0
 for lagerplatz in lagerplatzListe_Lagerflaeche:
-    temp2 = [lagerplatzobjekt.getLagerID(2), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
+    temp2 = [lagerplatzobjekt.getLagerID("vorrat"), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
              lagerplatzobjekt.berechneMenge(lagerplatz[0])]
     lagerplatzobjekt.importliste.append(temp2)
     zaehler = zaehler + 1
