@@ -75,7 +75,6 @@ class CategoryTransformer:
                 if not self._is_subkategorie_mappable(english_subkategorie_name=translated_name):
                     if not self._exists_subkategorie(english_subkategorie_name=translated_name):
                         new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
-                        # new_id: int = 0
                         self._write_id_allocation_to_file([new_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])
                         self.category_loader.insert_subkategorien_data_source_allocation(new_id, config.HERKUNFT_ID_F2)
                     else:

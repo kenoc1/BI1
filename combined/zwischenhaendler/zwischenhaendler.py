@@ -18,7 +18,7 @@ class ZwischenhaendlerMerger:
         self.address_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.ADDRESS_CON_FILE_NAME)
         self.supplier_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
-            file_name=config.SUPPLIER_CON_FILE_NAME)
+            file_name=config.ZWISCHENHAENDLER_CON_FILE_NAME)
         self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.MITARBEITER_CON_FILE_NAME)
 
@@ -35,12 +35,24 @@ class ZwischenhaendlerMerger:
             self._write_zwischenhaendler_id_file([comb_zwischenhaendler_id, lieferant.get("LIEFERANT_ID")])
             self.combined_con.insert_datenherkunft_zwischenhaendler(zwischenhaendler_id=comb_zwischenhaendler_id,
                                                                     datenherkunft_id=2)
+            print("Inserted Lieferant: {}".format(lieferant))
 
     def merge_einkauf(self) -> None:
         for einkauf in self.f2_einkaeufe:
-            new_einkauf_id: int = self._insert_einkauf(einkauf)
-            self._write_einkauf_id_file([new_einkauf_id, einkauf.get("EINKAUF_ID")])
-            self._insert_einkauf_produkt(einkauf=einkauf, comb_einkauf_id=new_einkauf_id)
+            if not self._is_einkauf_empty(einkauf):
+                new_einkauf_id: int = self._insert_einkauf(einkauf)
+                self._write_einkauf_id_file([new_einkauf_id, einkauf.get("EINKAUFS_ID")])
+                self._insert_einkauf_produkt(f2_einkauf=einkauf, comb_einkauf_id=new_einkauf_id)
+                print("Inserted Einkauf: {}".format(einkauf))
+            else:
+                self._write_einkauf_id_file([None, einkauf.get("EINKAUFS_ID")])
+
+    def _is_einkauf_empty(self, einkauf: dict) -> bool:
+        return len([gb_ek for gb_ek in self.f2_gewichtsbasiert_einkauf if
+                    gb_ek.get("EINKAUFS_ID") == einkauf.get("EINKAUFS_ID")] +
+                   [sb_ek for sb_ek in
+                    self.f2_stueckbasiert_einkauf if
+                    sb_ek.get("EINKAUFS_ID") == einkauf.get("EINKAUFS_ID")]) < 1
 
     @staticmethod
     def _calculate_menge_from_gewicht(menge: float) -> float:
@@ -51,16 +63,17 @@ class ZwischenhaendlerMerger:
         comb_mitarbeiter_id: int = self._get_new_mitarbeiter_id(f2_mitarbeiter_id=einkauf.get("MITARBEITER_ID"))
         return self.combined_con.insert_einkauf(einkauf.get("EINKAUFSDATUM"), comb_lieferant_id, comb_mitarbeiter_id, 2)
 
-    def _insert_einkauf_produkt(self, einkauf: dict, comb_einkauf_id: int) -> None:
+    def _insert_einkauf_produkt(self, f2_einkauf: dict, comb_einkauf_id: int) -> None:
         gewichtsbasiert: list[dict] = [gb_ek for gb_ek in self.f2_gewichtsbasiert_einkauf if
-                                       gb_ek.get("EINKAUFS_ID") == einkauf.get("EINKAUFS_ID")]
+                                       gb_ek.get("EINKAUFS_ID") == f2_einkauf.get("EINKAUFS_ID")]
         [eintrag.update({"ANZAHL_PRODUKTE": self._calculate_menge_from_gewicht(eintrag.get("GEWICHT"))}) for eintrag
          in gewichtsbasiert]
         stueckbasiert: list[dict] = [sb_ek for sb_ek in self.f2_stueckbasiert_einkauf if
-                                     sb_ek.get("EINKAUFS_ID") == einkauf.get("EINKAUFS_ID")]
+                                     sb_ek.get("EINKAUFS_ID") == f2_einkauf.get("EINKAUFS_ID")]
         for produkt_im_einkauf in gewichtsbasiert + stueckbasiert:
+            comb_product_id: int = self._get_new_product_id(produkt_im_einkauf.get("PRODUKT_ID"))
             self.combined_con.insert_einkauf_produkt(einkaufid=comb_einkauf_id,
-                                                     produktid=produkt_im_einkauf.get("PRODUKT_ID"),
+                                                     produktid=comb_product_id,
                                                      menge=produkt_im_einkauf.get("ANZAHL_PRODUKTE"))
 
     def _get_new_product_id(self, f2_product_id: int) -> int:
@@ -90,4 +103,5 @@ class ZwischenhaendlerMerger:
 
 if __name__ == "__main__":
     zwischenhaendler_merger = ZwischenhaendlerMerger()
-    zwischenhaendler_merger.merge_zwischenhaendler()
+    # zwischenhaendler_merger.merge_zwischenhaendler()
+    zwischenhaendler_merger.merge_einkauf()

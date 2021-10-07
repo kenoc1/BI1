@@ -1141,8 +1141,8 @@ class DB_MASTER:
 
     def insert_einkauf(self, datum: str, lieferantid: int, mitarbeiterid: int, datenherkunftid: int) -> int:
         sql = (
-                "insert into EINKAUF (EINKAUFSDATUM, LIEFERANT_ID, MITARBEITER_ID, DATENHERKUNFT_ID)"
-                "values(:datum, :lieferantid, :mitarbeiterid, datenherkunftid) " + \
+                "insert into EINKAUF (EINKAUFSDATUM, ZWISCHENHAENDLER_ID, MITARBEITER_ID, DATENHERKUNFT_ID)"
+                "values(:datum, :lieferantid, :mitarbeiterid, :datenherkunftid) " + \
                 "returning EINKAUF_ID into :python_var")
         with self.con_master.cursor() as cursor:
             newest_id_wrapper = cursor.var(cx_Oracle.STRING)
