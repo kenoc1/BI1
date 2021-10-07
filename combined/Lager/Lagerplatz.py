@@ -1,7 +1,8 @@
-import cx_Oracle
-import config
 import random
 
+import cx_Oracle
+
+import config
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_from_file
 from util import search_for_id
 
@@ -128,37 +129,24 @@ class Lagerplatz:
         einkauefe = self.getAnzahlEinkaufe(produkt)
         verkaeufe = self.getAnzahlVerkaufe(produkt)
 
-        if (self.isgewichtsbasiert(produkt)):
-            return self.berechneGewichtsbasierteMenge(produkt, einkauefe, verkaeufe)
+        if self.isgewichtsbasiert(produkt):
+            return self.berechne_gewichtsbasierte_menge(produkt, einkauefe, verkaeufe)
 
         else:
-            return self.berechneStueckzahlbasierteMenge(einkauefe, verkaeufe)
+            return self.berechne_stueckzahlbasierte_menge(einkauefe, verkaeufe)
 
-    def berechneGewichtsbasierteMenge(self, produkt, einkauefe, verkaeufe):
-
-        if einkauefe == None:
-            return round(float(random.random() * 20 + 1), 2)
-
+    def berechne_gewichtsbasierte_menge(self, produkt, einkauefe, verkaeufe):
+        if einkauefe is None:
+            einkauefe = 0
         nettogewicht = self.getNettogewicht(produkt)
         menge = (einkauefe - verkaeufe) * nettogewicht / 2
+        return round(menge, 2)
 
-        if menge < 0:
-            menge = float(random.random() * 20 + 1)
-            return round(menge, 2)
-        else:
-            menge = (einkauefe - verkaeufe) * nettogewicht / 2
-            return round(menge, 2)
-
-    def berechneStueckzahlbasierteMenge(self, einkauefe, verkaeufe):
-
+    def berechne_stueckzahlbasierte_menge(self, einkauefe, verkaeufe):
+        if einkauefe is None:
+            einkauefe = 0
         menge = einkauefe - verkaeufe
-        if einkauefe == None:
-            return int(random.random() * 20 + 1)
-        elif menge < 0:
-            menge = int(random.random() * 20 + 1)
-            return menge
-        else:
-            return menge
+        return menge
 
     # ------insert Lagerplätze-------
 
