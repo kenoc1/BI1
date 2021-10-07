@@ -4,7 +4,7 @@ from combined import key_allocation_saver
 from combined.ImportKunden.AnredenFinder import AnredenFinder
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
 from util import search_for_id
-import sys
+
 
 
 class Mitarbeiter_Merge:
@@ -19,56 +19,6 @@ class Mitarbeiter_Merge:
         self.con_master = cx_Oracle.connect(user=config.DB_CON_USER_COMBINED, password=config.DB_CON_PW_COMBINED,
                                             dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
         print("Database version:", self.con_master.version)
-
-    # def addProvisionTable(self):
-    # add new Table "Provision" im Combined DB
-    #   try:
-    #      with self.con_master.cursor() as cursor:
-    #         cursor.execute("""create table Provision ("Provison_ID" NUMBER constraint TABLE_NAME_PK primary key,
-    #                                                      "Provisionssatz" NUMBER(5,2))""")
-    #        self.con_master.commit()
-    # add FOREIGN KEY to Provision to Mitarbeiter
-    #    with self.con_master.cursor() as cursor:
-    #       cursor.execute("""ALTER TABLE Provision
-    #                         ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-    #    self.con_master.commit()
-    # add Zuweisung Prvocion_Mitarbeiter
-    # with self.con_master.cursor() as cursor:
-    #  cursor.execute("""create table Zuweisung_Provision_Mitarbeiter ("Provison_ID" NUMBER constraint TABLE_NAME_PK primary key,
-    #                                                                  "Mitarbeiter_ID" number constraint TABLE_NAME_PK primary key)""")
-    # self.con_master.commit()
-    # add FOREIGN KEY to Zuweisung_Provision_Mitarbeiter
-    # with self.con_master.cursor() as cursor:
-    #   cursor.execute("""ALTER TABLE Zuweisung_Provision_Mitarbeiter
-    #                              ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-    #                             ADD FOREIGN KEY (Provision_ID) REFERENCES Provision (Provision_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-    # self.con_master.commit()
-
-    # except cx_Oracle.Error as error:
-    #   print('Error occurred:')
-    #  print(error)
-
-    #    def addFunktionTable(self):
-    #        # add new Table Funktion
-    #        try:
-    #            with self.con_master.cursor() as cursor:
-    #               cursor.execute("""create table Funktion ("Funktion_ID" NUMBER constraint TABLE_NAME_PK primary key,
-    #	                                                            "BEZEICHNUNG" VARCHAR2(128) )""")
-    #               self.con_master.commit()
-    #            with self.con_master.cursor() as cursor:
-    #                cursor.execute("""CREATE TABLE Zuweisung_Mitarbeiter_Funktion (Mitarbeiter_ID Number NOT NULL,
-    #                                                               Funktion_ID VARCHAR2 NOT NULL,
-    #                                                               PRIMARY KEY (Mitarbeiter_ID, Funktion_ID))""")
-    #                # add FOREIGN KEY to Funktion to Mitarbeiter
-    #                self.con_master.commit()
-    #            with self.con_master.cursor() as cursor:
-    #                cursor.execute("""ALTER TABLE Zuweisung_Mitarbeiter_Funktion
-    #                                    ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-    #                                    ADD FOREIGN KEY (Funktion_ID) REFERENCES Funktion (Funktion_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-    #                self.con_master.commit()
-    #        except cx_Oracle.Error as error:
-    #            print('Error occurred:')
-    #            print(error)
 
     def generiere_mitarbeiter_csv(self, mitarbeiter_liste):
         id_mapping = []
@@ -95,19 +45,6 @@ class Mitarbeiter_Merge:
             print('Error occurred:')
             print(error)
 
-    #
-    # def getProvisionF2(self):
-    #     try:
-    #         # get alle Provision in F2
-    #         with self.con_f2.cursor() as cursor:
-    #             cursor.execute(
-    #                 """select Mitarbeiter_ID, PROVISIONSSATZ
-    #                     from MITARBEITER""")
-    #             ProvisionList = cursor.fetchall()
-    #             return ProvisionList
-    #     except cx_Oracle.Error as error:
-    #         print('Error occurred:')
-    #         print(error)
 
     def getFunktionF2(self):
         try:
@@ -154,34 +91,6 @@ class Mitarbeiter_Merge:
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
-
-    # def provisionssatz_existiert(self, mitarbeiter):
-    #
-    #     try:
-    #         with self.con_master.cursor() as cursor:
-    #             provisionssatz_existiert = False
-    #             cursor.execute(
-    #                 f"""SELECT Provisaion_ID FROM Provision WHERE Provisionssatz = '{mitarbeiter[5]}'""")
-    #             dataset = cursor.fetchall()
-    #             if (dataset):
-    #                 mitarbeiter[7] = dataset[0][0]
-    #                 provisionssatz_existiert = True
-    #             return provisionssatz_existiert
-    #
-    #     except cx_Oracle.Error as error:
-    #         print('Error occurred:')
-    #         print(error)
-
-    # def insertProvision(self, mitarbeiter):
-    #     try:
-    #         with self.con_master.cursor() as cursor:
-    #                 #print(Provision[1])
-    #                 cursor.execute(f"""INSERT INTO Provision(Mitarbeiter_ID, Provisionssatz)
-    #                                VALUES ('{mitarbeiter[6]}', '{mitarbeiter[5]}')""")
-    #         self.con_master.commit()
-    #     except cx_Oracle.Error as error:
-    #         print('Error occurred:')
-    #         print(error)
 
     def mitarbeiter_existiert(self, mitarbeiter):
         try:
@@ -231,7 +140,6 @@ class Mitarbeiter_Merge:
                     eintrittsdatum = "3333-01-01"
                     anredeFinder = AnredenFinder()
                     anrede = anredeFinder.finde_Anrede(vorname)
-                    # print (vorname, nachname, adressId,gehalt, eintrittsdatum)
                     sql = f"""INSERT INTO MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID)
                                             VALUES ('{anrede}','{vorname}', '{nachname}', '{email}', {gehalt}, TO_DATE('{eintrittsdatum}','yyyy-mm-dd'), {adressId})
                                             returning MITARBEITER_ID into :python_var"""
@@ -242,8 +150,6 @@ class Mitarbeiter_Merge:
                                        [newest_id_wrapper])
                         mitarbeiter_ID = newest_id_wrapper.getvalue()
                         self.con_master.commit()
-                    print(mitarbeiter_ID[0])
-                    print('HAllo')
                     with self.con_master.cursor() as cursor:
                         cursor.execute(
                             f"""INSERT INTO DATENHERKUNFT_MITARBEITER(MITARBEITER_ID, DATENHERKUNFT_ID) VALUES({mitarbeiter_ID[0]}, 2)""")
@@ -275,15 +181,3 @@ class Mitarbeiter_Merge:
 object2 = Mitarbeiter_Merge()
 object2.start()
 
-# def insert_zwischenhaendler(self, name: str, email: str, nname: str, vname: str, adresseid: int) -> int:
-#     sql = (
-#             "insert into ZWISCHENHAENDLER (NAME, EMAIL, NNAME_ANSPRECHPARTNER, VNAME_ANSPRECHPARTNER, ADRESSE_ID)"
-#             "values(:name, :email, :nname, vname, adresseid) " + \
-#             "returning ZWISCHENHAENDLER_ID into :python_var")
-#     with self.con_master.cursor() as cursor:
-#         newest_id_wrapper = cursor.var(cx_Oracle.STRING)
-#         cursor.execute(sql,
-#                        [name, email, nname, vname, adresseid, newest_id_wrapper])
-#         newest_id = newest_id_wrapper.getvalue()
-#         self.con_master.commit()
-#         return int(newest_id[0])
