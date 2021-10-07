@@ -938,6 +938,28 @@ class DB_MASTER:
                 return False
 
     # checks for present items ------------------------------------------------------------------------------
+    def price_present(self, product_id, price, typ, start_date):
+        with self.con_master.cursor() as cursor:
+            cursor.execute(
+                """select PRODUKT_ID from PREISHISTORIE WHERE PRODUKT_ID = :product_id AND BETRAG = :price AND START_TIMESTAMP = :start_date AND TYP = :typ""",
+                product_id=product_id, price=price, typ=typ, start_date=start_date)
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            else:
+                False
+
+    def brand_present(self, supplier_id, brand_name):
+        with self.con_master.cursor() as cursor:
+            cursor.execute(
+                """select MARKE_ID from MARKE WHERE LIEFERANT_ID = :supplier_id AND BEZEICHNUNG = :brand_name""",
+                supplier_id=supplier_id, brand_name=brand_name)
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            else:
+                False
+
     def product_present_check_with_sku(self, sku: str, supplier_id: int):
         sku = string_equality_tester.uniform_string(str(sku))
         with self.con_master.cursor() as cursor:

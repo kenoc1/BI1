@@ -137,8 +137,8 @@ class Products:
             # if not self.db_master.source_present_check_product(product_id=product_present_id, source_id=config.SOURCE_F2):
             #     self.db_master.insert_source_product(product_present_id, config.SOURCE_F2)
 
-        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_products_connection,
-                                                                   config.PRODUCTS_CON_FILE_NAME)
+        key_allocation_saver.write_to_csv(rows=f2_master_products_connection,
+                                          filepath=config.PRODUCTS_CON_FILE_NAME)
 
     def insert_product_price_history(self):
         prices = self.db_f2.select_all_preise()
@@ -152,8 +152,10 @@ class Products:
             else:
                 typ = config.PREIS_TYP[1]
             start_date = price_item["GUELTIGKEITS_BEGINN"]
-            self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
-                                                        start_date=start_date)
+            if not self.db_master.price_present(product_id=product_id, price=price, typ=typ,
+                                                start_date=start_date):
+                self.db_master.insert_product_price_history(product_id=product_id, price=price, typ=typ,
+                                                            start_date=start_date)
 
     def insert_brands(self):
         f2_master_brands_connection = []
@@ -162,10 +164,11 @@ class Products:
             print(brand)
             supplier_id = self._get_new_supplier_id(brand["HERSTELLER_ID"])
             brand_name = brand["BEZEICHNUNG"]
-            new_id = self.db_master.insert_brand_row(supplier_id=supplier_id, brand_name=brand_name)
-            f2_master_brands_connection.append([new_id, brand["MARKE_ID"]])
-        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(f2_master_brands_connection,
-                                                                   config.BRAND_CON_FILE_NAME)
+            if not self.db_master.brand_present(supplier_id=supplier_id, brand_name=brand_name):
+                new_id = self.db_master.insert_brand_row(supplier_id=supplier_id, brand_name=brand_name)
+                f2_master_brands_connection.append([new_id, brand["MARKE_ID"]])
+        key_allocation_saver.write_to_csv(rows=f2_master_brands_connection,
+                                          filepath=config.BRAND_CON_FILE_NAME)
 
 
 # testing
