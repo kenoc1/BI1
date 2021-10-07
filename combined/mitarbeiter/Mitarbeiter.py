@@ -81,7 +81,7 @@ class MitarbeiterMerge:
             print('Error occurred:')
             print(error)
 
-    def insertFunktionen(self):
+    def insert_funkionen(self):
         funktion_list = self.get_all_f2_funktion()
         try:
             with self.con_master.cursor() as cursor:
@@ -175,7 +175,7 @@ class MitarbeiterMerge:
     # self.generiere_mitarbeiter_csv(csv_mitarbeiter_liste)
 
     def start(self):
-        self.insertFunktionen()
+        self.insert_funkionen()
         self.insert_mitarbeiter()
 
 

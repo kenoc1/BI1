@@ -1168,7 +1168,7 @@ class DB_MASTER:
     def insert_zwischenhaendler(self, name: str, email: str, nname: str, vname: str, adresseid: int) -> int:
         sql = (
                 "insert into ZWISCHENHAENDLER (NAME, EMAIL, NNAME_ANSPRECHPARTNER, VNAME_ANSPRECHPARTNER, ADRESSE_ID)"
-                "values(:name, :email, :nname, vname, adresseid) " + \
+                "values(:name, :email, :nname, :vname, :adresseid) " + \
                 "returning ZWISCHENHAENDLER_ID into :python_var")
         with self.con_master.cursor() as cursor:
             newest_id_wrapper = cursor.var(cx_Oracle.STRING)

@@ -22,7 +22,7 @@ class ZwischenhaendlerMerger:
         self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.MITARBEITER_CON_FILE_NAME)
 
-    def _insert_zwischenhaendler(self) -> None:
+    def merge_zwischenhaendler(self) -> None:
         for lieferant in self.f2_lieferanten:
             new_address_id: int = self._get_new_address_id(f2_address_id=lieferant.get("ADRESS_ID"))
             comb_zwischenhaendler_id: int = self.combined_con.insert_zwischenhaendler(name=lieferant.get("NAME"),
@@ -32,11 +32,11 @@ class ZwischenhaendlerMerger:
                                                                                       vname=lieferant.get(
                                                                                           "VORNAME_ANSPRECHPARTNER"),
                                                                                       adresseid=new_address_id)
-            self._write_zwischenhaendler_id_file([new_address_id, lieferant.get("ADRESS_ID")])
+            self._write_zwischenhaendler_id_file([comb_zwischenhaendler_id, lieferant.get("LIEFERANT_ID")])
             self.combined_con.insert_datenherkunft_zwischenhaendler(zwischenhaendler_id=comb_zwischenhaendler_id,
                                                                     datenherkunft_id=2)
 
-    def _merge_einkauf(self) -> None:
+    def merge_einkauf(self) -> None:
         for einkauf in self.f2_einkaeufe:
             new_einkauf_id: int = self._insert_einkauf(einkauf)
             self._write_einkauf_id_file([new_einkauf_id, einkauf.get("EINKAUF_ID")])
@@ -78,11 +78,16 @@ class ZwischenhaendlerMerger:
     @staticmethod
     def _write_einkauf_id_file(rows: list):
         key_allocation_saver.write_to_csv(header=[],
-                                          rows=rows,
+                                          rows=[rows],
                                           filepath=config.EINKAUF_CON_FILE_NAME)
 
     @staticmethod
     def _write_zwischenhaendler_id_file(rows: list):
         key_allocation_saver.write_to_csv(header=[],
-                                          rows=rows,
+                                          rows=[rows],
                                           filepath=config.ZWISCHENHAENDLER_CON_FILE_NAME)
+
+
+if __name__ == "__main__":
+    zwischenhaendler_merger = ZwischenhaendlerMerger()
+    zwischenhaendler_merger.merge_zwischenhaendler()
