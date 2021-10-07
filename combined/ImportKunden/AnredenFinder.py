@@ -31,4 +31,4 @@ class AnredenFinder:
         elif (self.finde_geschlecht(nameToTest)=='weiblich'):
             return 'Frau'
         else:
-            return 'Herr / Frau'
+            return 'k.A.'
