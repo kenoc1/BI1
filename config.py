@@ -1,5 +1,4 @@
 import os
-
 import cx_Oracle
 from dotenv import load_dotenv
 from pathlib import Path
@@ -33,7 +32,6 @@ PRODUCT_TYP_F2 = ["gewichtsbasiert", "stueckbasiert"]
 PREIS_TYP_F2 = ["Einkauf", "Verkauf"]
 PREIS_TYP = ["EINKAUFSPREIS", "LISTENVERKAUFSPREIS"]
 DUMMY_MAIL = "nicht vorhanden"
-DUMMY_EAN = "nicht vorhanden"
 DUMMY_ADDRESS = 12194
 GEWICHTSBASIERT_EINHEIT_STUECK = "1kg"
 SOURCE_F2 = 2
@@ -42,6 +40,9 @@ SOURCE_OS = 1
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 ALLOCATION_CSV_DICT = ROOT_DIR / Path("data/allocation_csvs/")
+CSV_FILES_DICT = ROOT_DIR / Path("data/csv-files")
+MANUAL_CSV_DICT = ROOT_DIR / Path("data/manual_check/")
+
 PRODUCTS_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_products_con.csv"
 PRODUCT_SUB_CAT_CON_FILE_NAME = ALLOCATION_CSV_DICT / "subcategories_ids_new_to_old.csv"
 SUPPLIER_CON_FILE_NAME = ALLOCATION_CSV_DICT / "f2_master_lieferant_hersteller_con.csv"
@@ -55,6 +56,8 @@ BESTELLUNG_CON_FILE_NAME = ALLOCATION_CSV_DICT / "bestellung.csv"
 BON_CON_FILE_NAME = ALLOCATION_CSV_DICT / "bon.csv"
 RECHNUNG_CON_FILE_NAME = ALLOCATION_CSV_DICT / "rechnung.csv"
 LIEFERSCHEIN_CON_FILE_NAME = ALLOCATION_CSV_DICT / "lieferschein.csv"
+ADRESS_CON_FILE_NAME = ALLOCATION_CSV_DICT / "adresse.csv"
 
-MANUAL_CSV_DICT = ROOT_DIR / Path("data/manual_check/")
 MANUAL_PRODUCT_SUB_CAT_CON_FILE_NAME = MANUAL_CSV_DICT / "subcategories_ids_new_to_old.csv"
+
+VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"
