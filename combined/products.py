@@ -171,11 +171,12 @@ class Products:
                                           filepath=config.BRAND_CON_FILE_NAME)
 
 
-# testing
-# Products()
+if __name__ == "__main__":
+    # testing
+    # Products()
 
-# prod
-products = Products()
-# products.insert_brands()
-# products.insert_products_from_f2_to_master()
-# products.insert_product_price_history()
+    # prod
+    products = Products()
+    # products.insert_brands()
+    # products.insert_products_from_f2_to_master()
+    # products.insert_product_price_history()

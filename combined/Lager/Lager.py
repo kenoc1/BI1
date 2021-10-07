@@ -141,14 +141,14 @@ class Lager_Merge:
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
+if __name__ == "__main__":
+    object = Lager_Merge()
+    # templiste = object.insertNewAdress()
+    # templiste = object.addRegalzeile()
+    # templiste = object.addDiscription()
+    templiste = object.getLagerEinheitenLagerflaeche()
+    templiste = object.getLagerEinheitenVerkaufsflaeche()
+    templiste = object.getAnzahlStueckzahlProdukt()
+    templiste = object.getGewichtGewichtProdukt()
 
-object = Lager_Merge()
-#templiste = object.insertNewAdress()
-#templiste = object.addRegalzeile()
-#templiste = object.addDiscription()
-templiste = object.getLagerEinheitenLagerflaeche()
-templiste = object.getLagerEinheitenVerkaufsflaeche()
-templiste = object.getAnzahlStueckzahlProdukt()
-templiste = object.getGewichtGewichtProdukt()
-
-print(templiste)
+    print(templiste)

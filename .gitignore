@@ -3,3 +3,4 @@ venv
 .idea
 /data/csv-files/produkte.csv
 /spielwiese.py
+alinaTest.py

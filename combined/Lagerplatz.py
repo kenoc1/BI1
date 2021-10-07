@@ -101,9 +101,9 @@ class Lagerplatz:
             print(error)
 
     def getLagerID(self, anzLaderampen):
-        #holt die LagerID anhand der Laderampen
-        #Verkaufsflächen = 1
-        #Lagerflächen = 2
+        # holt die LagerID anhand der Laderampen
+        # Verkaufsflächen = 1
+        # Lagerflächen = 2
         try:
             with self.con_combined.cursor() as cursor:
                 cursor.execute(
@@ -164,7 +164,7 @@ class Lagerplatz:
 
     def insertLagerplaetze(self, lager_ID, produkt_ID, regal_zeile, regal_nummer, regal_spalte, akt_menge):
 
-        if(self.LagerplatzExist(lager_ID, produkt_ID) == False):
+        if (self.LagerplatzExist(lager_ID, produkt_ID) == False):
             try:
                 # add new Verkaufsflaeche as column in combined DB
                 with self.con_combined.cursor() as cursor:
@@ -180,30 +180,31 @@ class Lagerplatz:
 
 
 # ------main-------
-lagerplatzobjekt = Lagerplatz()
-lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.getLagerplaetzeF2("Verkaufsflaeche")
-lagerplatzListe_Lagerflaeche = lagerplatzobjekt.getLagerplaetzeF2("Lagerflaeche")
+if __name__ == "__main__":
+    lagerplatzobjekt = Lagerplatz()
+    lagerplatzListe_Verkaufsflaeche = lagerplatzobjekt.getLagerplaetzeF2("Verkaufsflaeche")
+    lagerplatzListe_Lagerflaeche = lagerplatzobjekt.getLagerplaetzeF2("Lagerflaeche")
 
-zaehler = 0
-for lagerplatz in lagerplatzListe_Verkaufsflaeche:
-    temp = [lagerplatzobjekt.getLagerID(1), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
-            lagerplatzobjekt.berechneMenge(lagerplatz[0])]
+    zaehler = 0
+    for lagerplatz in lagerplatzListe_Verkaufsflaeche:
+        temp = [lagerplatzobjekt.getLagerID(1), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
+                lagerplatzobjekt.berechneMenge(lagerplatz[0])]
 
-    lagerplatzobjekt.importliste.append(temp)
-    zaehler = zaehler + 1
+        lagerplatzobjekt.importliste.append(temp)
+        zaehler = zaehler + 1
 
-zaehler = 0
-for lagerplatz in lagerplatzListe_Lagerflaeche:
-    temp2 = [lagerplatzobjekt.getLagerID(2), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
-             lagerplatzobjekt.berechneMenge(lagerplatz[0])]
-    lagerplatzobjekt.importliste.append(temp2)
-    zaehler = zaehler + 1
+    zaehler = 0
+    for lagerplatz in lagerplatzListe_Lagerflaeche:
+        temp2 = [lagerplatzobjekt.getLagerID(2), lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3],
+                 lagerplatzobjekt.berechneMenge(lagerplatz[0])]
+        lagerplatzobjekt.importliste.append(temp2)
+        zaehler = zaehler + 1
 
-print("Liste erstellt")
-lagerplatzobjekt.changeProductID()
+    print("Liste erstellt")
+    lagerplatzobjekt.changeProductID()
 
-for lagerplatz in lagerplatzobjekt.importliste:
-    lagerplatzobjekt.insertLagerplaetze(lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], lagerplatz[4],
-                                        lagerplatz[5])
-    print("insert:", lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], lagerplatz[4],
-          lagerplatz[5])
+    for lagerplatz in lagerplatzobjekt.importliste:
+        lagerplatzobjekt.insertLagerplaetze(lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], lagerplatz[4],
+                                            lagerplatz[5])
+        print("insert:", lagerplatz[0], lagerplatz[1], lagerplatz[2], lagerplatz[3], lagerplatz[4],
+              lagerplatz[5])

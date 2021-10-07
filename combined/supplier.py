@@ -49,11 +49,13 @@ class Supplier:
                 print(supplier_present_id, config.SOURCE_F2)
 
         if f2_master_supplier_connection:
-            key_allocation_saver.write_to_csv(rows=f2_master_supplier_connection, filepath=config.SUPPLIER_CON_FILE_NAME)
+            key_allocation_saver.write_to_csv(rows=f2_master_supplier_connection,
+                                              filepath=config.SUPPLIER_CON_FILE_NAME)
 
 
-# testing
-# Supplier()
+if __name__ == "__main__":
+    # testing
+    # Supplier()
 
-# prod
-Supplier().insert_hersteller_to_lieferanten()
+    # prod
+    Supplier().insert_hersteller_to_lieferanten()

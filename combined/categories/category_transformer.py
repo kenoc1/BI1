@@ -121,5 +121,6 @@ class _SubcategoryTranslator:
         return english_subkategorie_name
 
 
-ct = CategoryTransformer()
-ct.run()
+if __name__ == "__main__":
+    ct = CategoryTransformer()
+    ct.run()

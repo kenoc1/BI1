@@ -62,8 +62,9 @@ class Lager:
             print(error)
 
 
-lagerobjekt = Lager()
-dummyAdressID = lagerobjekt.getDummyAdresse()
-datenherkunftsID = lagerobjekt.getHerkunftsID()
-lagerobjekt.insertLager_Verkaufsflaechen(dummyAdressID, datenherkunftsID)
-lagerobjekt.insertLager_Lagerflaechen(dummyAdressID, datenherkunftsID)
+if __name__ == "__main__":
+    lagerobjekt = Lager()
+    dummyAdressID = lagerobjekt.getDummyAdresse()
+    datenherkunftsID = lagerobjekt.getHerkunftsID()
+    lagerobjekt.insertLager_Verkaufsflaechen(dummyAdressID, datenherkunftsID)
+    lagerobjekt.insertLager_Lagerflaechen(dummyAdressID, datenherkunftsID)

@@ -79,13 +79,13 @@ class Zwischenhaendler_Merge:
         LieferantList = object.getLieferantF2()
         try:
             with self.con_master.cursor() as cursor:
-               for Lieferant in LieferantList:
+                for Lieferant in LieferantList:
                     name = Lieferant[1]
                     email = Lieferant[2]
                     adressId = self.findAdressId(Lieferant[5])
                     nameAnsprechpartner = Lieferant[3]
                     nachnameAnsprechpartner = Lieferant[4]
-                    #print (name, email, adressId,nameAnsprechpartner, nachnameAnsprechpartner)
+                    # print (name, email, adressId,nameAnsprechpartner, nachnameAnsprechpartner)
                     cursor.execute(f"""INSERT INTO Zwischenhaendler(Name, Email, Name_Ansprechpartner, Vorname_Ansprechpartner, Adress_ID)
                                             VALUE ({name}, {email}, , {nameAnsprechpartner}, {nachnameAnsprechpartner} {adressId})""")
             self.con_master.commit()
@@ -97,11 +97,11 @@ class Zwischenhaendler_Merge:
         EinkaufList = object.getEinkauf()
         try:
             with self.con_master.cursor() as cursor:
-               for Einkauf in EinkaufList:
+                for Einkauf in EinkaufList:
                     einkaufdatum = Einkauf[1]
-# Frage             lieferantId = Einkauf[2]
-# Frage             MitarbeiterId = Einkauf[3]
-                    #print
+                    # Frage             lieferantId = Einkauf[2]
+                    # Frage             MitarbeiterId = Einkauf[3]
+                    # print
                     cursor.execute(f"""INSERT INTO Einkauf(Einkaufsdatum)
                                             VALUE ({einkaufdatum}""")
             self.con_master.commit()
@@ -109,6 +109,8 @@ class Zwischenhaendler_Merge:
             print('Error occurred:')
             print(error)
 
-#Frage Einkauf_Produkt
 
-object = Zwischenhaendler_Merge
+if __name__ == "__main__":
+    # Frage Einkauf_Produkt
+
+    object = Zwischenhaendler_Merge

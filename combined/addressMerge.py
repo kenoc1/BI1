@@ -55,7 +55,7 @@ class AddressMerge:
 
         # test if address already exists
         if self.address_exist(row):
-            #get id of existing address
+            # get id of existing address
             combined_address_id = self.get_id_of_existing_address(row)
 
             # add old and new id to array
@@ -65,7 +65,7 @@ class AddressMerge:
                 # alter the table DATENHERKUNG_ADRESSE
                 with self.con_master.cursor() as cursor:
                     cursor.execute(
-                    f"""INSERT INTO DATENHERKUNFT_ADRESSE (DATENHERKUNFT_ID, ADRESSE_ID) VALUES(2, {combined_address_id})""")
+                        f"""INSERT INTO DATENHERKUNFT_ADRESSE (DATENHERKUNFT_ID, ADRESSE_ID) VALUES(2, {combined_address_id})""")
                     self.con_master.commit()
             except cx_Oracle.Error as error:
                 print('Error occurred:')
@@ -74,7 +74,8 @@ class AddressMerge:
             try:
                 # else insert the new address
                 with self.con_master.cursor() as cursor:
-                    cursor.execute(f"""INSERT INTO ADRESSE(LAND, PLZ, ORT, STRASSE, HAUSNUMMER, BUNDESLAND) VALUES('Deutschland', '{local_area_code}', '{city}', '{street}', '{number}', '{area}')""")
+                    cursor.execute(
+                        f"""INSERT INTO ADRESSE(LAND, PLZ, ORT, STRASSE, HAUSNUMMER, BUNDESLAND) VALUES('Deutschland', '{local_area_code}', '{city}', '{street}', '{number}', '{area}')""")
                     self.con_master.commit()
 
                 with self.con_master.cursor() as cursor:
@@ -128,7 +129,8 @@ class AddressMerge:
         try:
             # search for address in database and return id
             with self.con_master.cursor() as cursor:
-                cursor.execute(f"""SELECT ADRESSE_ID FROM ADRESSE WHERE STRASSE='{street}' AND PLZ='{local_area_code}' AND ORT='{city}' AND HAUSNUMMER='{number}'""")
+                cursor.execute(
+                    f"""SELECT ADRESSE_ID FROM ADRESSE WHERE STRASSE='{street}' AND PLZ='{local_area_code}' AND ORT='{city}' AND HAUSNUMMER='{number}'""")
                 result = cursor.fetchone()
                 return result[0]
 
@@ -137,6 +139,8 @@ class AddressMerge:
             print(error)
         return 0
 
-# create object
-addressMerge = AddressMerge()
-addressMerge.start()
+
+if __name__ == "__main__":
+    # create object
+    addressMerge = AddressMerge()
+    addressMerge.start()
