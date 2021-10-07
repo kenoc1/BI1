@@ -1,3 +1,7 @@
+ALTER TABLE LAGERPLATZ
+ADD Regalzeile NUMBER;
+
+
 -- PREIS
 drop table PREISHISTORIE /
 
