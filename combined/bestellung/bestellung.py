@@ -2,7 +2,9 @@ import sys
 
 import cx_Oracle
 
-from combined import file_writer
+import config
+import util
+from combined import file_writer, key_allocation_reader
 from db_service import DB_F2, DB_MASTER
 
 
@@ -17,6 +19,12 @@ class Bestellung:
         self.comb_warenkoerbe: list[dict] = self.combined_con.select_all_warenkoerbe()
         self.f2_gewichtsbasiert_im_verkauf = self.f2_con.select_all_gewichtsbasiert_verkauf()
         self.f2_stueckzahlbasiert_im_verkauf = self.f2_con.select_all_stueckzahlbasiert_verkauf()
+        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.PRODUCTS_CON_FILE_NAME)
+        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.MITARBEITER_CON_FILE_NAME)
+        self.kunden_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_to_file(
+            file_name=config.KUNDEN_CON_FILE_NAME)
 
     def _verkauf_to_bestellung(self):
         try:
@@ -31,14 +39,6 @@ class Bestellung:
             print(error)
             sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
-    # def _get_warenkorb(self, kunden_id: int) -> list[dict]:
-    #     try:
-    #         return self.combined_con.select_warenkorb_by_kundenid(kunden_id=kunden_id)
-    #     except cx_Oracle.Error as error:
-    #         print('Database error occurred:')
-    #         print(error)
-    #         sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
-
     def _create_bestellung(self, f2_verkauf_entry: dict):
         verkaufsdatum = f2_verkauf_entry.get("VERKAUFDATUM")
         f2_kunden_id: int = f2_verkauf_entry.get("KUNDEN_ID")
@@ -46,7 +46,6 @@ class Bestellung:
             f2_kunden_id) if f2_kunden_id else self.get_dummy_kunde_id()
         f2_mitarbeiter_id: int = f2_verkauf_entry.get("MITARBEITER_ID")
         com_mitarbeiter_id: int = self._get_com_mitarbeiterid_by_f2_mitarbeiterid(f2_mitarbeiter_id)
-        # warenkorb_id: int = self._get_warenkorb(com_kunden_id).__getitem__(0).get("WARENKORB_ID")
         warenkorb_id: int = next((elem.get("WARENKORB_ID") for elem in self.comb_warenkoerbe if
                                   elem.get("KUNDE_ID") == com_kunden_id), None)
         new_bestellung_id: int = self.combined_con.insert_bestellung(warenkorb_id=warenkorb_id,
@@ -114,18 +113,14 @@ class Bestellung:
     def _calculate_menge_from_gewicht(self, menge: float) -> float:
         return menge / 2
 
-    def _get_new_productid(self, old_id: int) -> int:
-        # TODO neue produktid holen
-        pass
+    def _get_new_productid(self, f2_product_id: int) -> int:
+        return util.search_for_id(self.product_id_allcoation, f2_product_id)
 
-    def _get_com_kundenid_by_f2_kundenid(self, f2_kunden_id: int):
-        # TODO neue kundenid holen
-        return 0
+    def _get_com_kundenid_by_f2_kundenid(self, f2_kunden_id: int) -> int:
+        return util.search_for_id(self.kunden_id_allcoation, f2_kunden_id)
 
-    def _get_com_mitarbeiterid_by_f2_mitarbeiterid(self, f2_kunden_id: int):
-        # TODO neue mitarbeiterid holen
-        return 0
+    def _get_com_mitarbeiterid_by_f2_mitarbeiterid(self, f2_kunden_id: int) -> int:
+        return util.search_for_id(self.mitarbeiter_id_allcoation, f2_kunden_id)
 
-    def get_dummy_kunde_id(self):
-        # TODO statische Filial2 Dummy-kunden id herausfinden
-        return 0
+    def get_dummy_kunde_id(self) -> int:
+        return 6435
