@@ -83,21 +83,21 @@ class CategoryTransformer:
         # CSV: {'product_class_id': '1', 'product_subcategory': 'Nüsse', 'product_category': 'Spezialität', 'product_department': 'Erzeugnis', 'product_family': 'Food'}
         pass
 
-    def _query_subkategorie_by_name(self, english_subkategorie_name: str) -> list:
+    def _query_subkategorie_by_name(self, german_subkategorie_name: str) -> list:
         try:
-            return self.db_master.select_produktkategorie_where_bezeichnung(english_subkategorie_name)
+            return self.db_master.select_produktkategorie_where_bezeichnung(german_subkategorie_name)
         except cx_Oracle.Error as error:
             print('Database error occurred:')
             print(error)
             sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
-    def _is_subkategorie_mappable(self, english_subkategorie_name: str) -> bool:
+    def _is_subkategorie_mappable(self, german_subkategorie_name: str) -> bool:
         """
         Assesses whether a subcategory from Filiale2 can be unambiguously mapped to a subcategory from Onlineshop.
-        :param english_subkategorie_name: The english name of a subcategory that is assessed.
+        :param german_subkategorie_name: The english name of a subcategory that is assessed.
         :return: True if there is exactly one possible mapping, else False
         """
-        selected_entries = self.db_master.select_produktkategorie_where_bezeichnung(english_subkategorie_name)
+        selected_entries = self.db_master.select_produktkategorie_where_bezeichnung(german_subkategorie_name)
         return True if len(selected_entries) == 1 else False
 
     def _exists_subkategorie(self, english_subkategorie_name: str) -> bool:
@@ -126,7 +126,7 @@ class CategoryTransformer:
             try:
                 translated_name: str = self.category_translator.translate(
                     german_subkategorie_name=subkategorie_entry.get("BEZEICHNUNG"))
-                if not self._is_subkategorie_mappable(english_subkategorie_name=translated_name):
+                if not self._is_subkategorie_mappable(german_subkategorie_name=translated_name):
                     if not self._exists_subkategorie(english_subkategorie_name=translated_name):
                         new_id: int = self.db_master.insert_subcategory(subcat_name=translated_name)
                         self._write_id_allocation_to_file([new_id, subkategorie_entry.get("PRODUKTKATEGORIE_ID")])

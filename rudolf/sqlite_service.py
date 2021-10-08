@@ -25,7 +25,7 @@ class SQLiteService:
                 (table_id, new_id, old_id) = cursor.fetchone()
                 return new_id
             except TypeError:
-                raise NoCombIDFoundForF2IDException()
+                raise NoCombIDFoundForF2IDException(old_id)
 
     def _setup(self):
         try:

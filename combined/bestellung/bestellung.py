@@ -13,6 +13,10 @@ class Bestellung:
     def __init__(self):
         self.f2_con = DB_F2()
         self.combined_con = DB_MASTER()
+
+    def _get_data_basis(self) -> None:
+        # TODO try/catch
+        self.f2_sales: list[dict] = self.f2_con.select_all_sales()
         self.f2_rechnungsdaten: list[dict] = self.f2_con.select_all_rechnung()
         self.f2_bondaten: list[dict] = self.f2_con.select_all_bons()
         self.f2_lieferschein: list[dict] = self.f2_con.select_all_lieferschein()
@@ -28,8 +32,7 @@ class Bestellung:
 
     def verkauf_to_bestellung(self):
         try:
-            f2_sales: list[dict] = self.f2_con.select_all_sales()
-            for sale in f2_sales:
+            for sale in self.f2_sales:
                 new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
                 self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
                 self._create_bestellposition(new_bestellung_id=new_bestellung_id, verkauf=sale)

@@ -4,7 +4,7 @@ from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 from rudolf.sqlite_service import SQLiteService
 
 
-class Lager:
+class Lagerplatz:
     def __init__(self):
         self.con_f2 = F2DBService()
         self.con_master = CombDBService()
@@ -44,4 +44,4 @@ class Lager:
 
 if __name__ == "__main__":
     # create object
-    Lager()  # .start()
+    Lagerplatz()  # .start()

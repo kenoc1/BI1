@@ -34,7 +34,6 @@ class OracleService:
             newest_id_wrapper = cursor.var(cx_Oracle.STRING)
             cursor.execute(sql, [newest_id_wrapper])
             newest_id = newest_id_wrapper.getvalue()
-            self.con.commit()
             return int(newest_id[0])
 
     def _insert(self, sql_statement: str) -> None:
@@ -143,24 +142,24 @@ class CombDBService(OracleService):
 
     def insert_mitarbeiter(self, anrede: str, vorname: str, nachname, email: str, gehalt: float, eintrittsdatum: str,
                            adresse_id: int) -> int:
-        sql = "insert into MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID " \
+        sql = "insert into MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID) " \
               "VALUES ('{}','{}', '{}', '{}', {}, TO_DATE('{}','yyyy-mm-dd'), {})" \
             .format(anrede, vorname, nachname, email, gehalt, eintrittsdatum, adresse_id)
         return self._insert_and_return_id(sql, "MITARBEITER_ID")
 
     def insert_mitarbeiter_provision(self, mitarbeiter_id: int, provisionssatz: float) -> int:
-        sql = "insert into PROVISION(MITARBEITER_ID, PROVISIONSSATZ) values({},{}})" \
+        sql = "insert into PROVISION(MITARBEITER_ID, PROVISIONSSATZ) values({},{})" \
             .format(mitarbeiter_id, provisionssatz)
         return self._insert_and_return_id(sql, "PROVISION_ID")
 
     def insert_mitarbeiter_funktion(self, mitarbeiter_id: int, funktion_id: int) -> int:
-        sql = "insert into PROVISION(MITARBEITER_ID, FUNKTION_ID) values({},{}})" \
+        sql = "insert into ZUWEISUNG_MITARBEITER_FUNKTION(MITARBEITER_ID, FUNKTION_ID) values({},{})" \
             .format(mitarbeiter_id, funktion_id)
         return self._insert_and_return_id(sql, "ZUWEISUNG_MITARBEITER_FUNKTION_ID")
 
     def insert_lagerplatz(self, lager_id: int, produkt_id: int, regal_reihe: int, regal_spalte: int, akt_menge: int,
                           regal_zeile: int) -> int:
-        sql = "insert into PROVISION(LAGER_ID, PRODUKT_ID, REGAL_REIHE, REGAL_SPALTE, AKT_MENGE, REGAL_ZEILE) " \
+        sql = "insert into LAGERPLATZ(LAGER_ID, PRODUKT_ID, REGAL_REIHE, REGAL_SPALTE, AKT_MENGE, REGAL_ZEILE) " \
               " values ({}, {}, {}, {}, {}, {})" \
             .format(lager_id, produkt_id, regal_reihe, regal_spalte, akt_menge, regal_zeile)
         return self._insert_and_return_id(sql, "LAGERPLATZ_ID")
@@ -178,8 +177,8 @@ class CombDBService(OracleService):
         return self._insert_and_return_id(sql, "KUNDE_ADRESSE_ID")
 
     def insert_warenkorb(self, kunden_id: int, gesamtpreis: float) -> int:
-        sql = "INSERT INTO WARENKORB(KUNDE_ID, GESAMTPREIS)  " \
-              "VALUES ({}, {}))".format(kunden_id, gesamtpreis)
+        sql = "INSERT INTO WARENKORB(KUNDE_ID, GESAMTPREIS) " \
+              "VALUES ({}, {})".format(kunden_id, gesamtpreis)
         return self._insert_and_return_id(sql, "WARENKORB_ID")
 
     # --------------------Datenherkunft--------------------
