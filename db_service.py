@@ -3,9 +3,8 @@ from random import randint
 
 import cx_Oracle
 
-import config
-import cx_Oracle
 import combined.string_equality_tester as string_equality_tester
+import config
 
 
 class DB_F2:
@@ -1133,7 +1132,7 @@ class DB_MASTER:
 
     def insert_bestellposition(self, bestellungid: int, produktid: int, menge: int):
         sql = (
-            "insert into ZAHLUNGSART_BESTELLUNG(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
+            "insert into BESTELLPOSITION(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
             "values(:bestellungid, :produktid, :menge) ")
         with self.con_master.cursor() as cursor:
             cursor.execute(sql, [bestellungid, produktid, menge])
