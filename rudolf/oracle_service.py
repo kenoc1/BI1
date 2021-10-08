@@ -1,7 +1,6 @@
 import cx_Oracle
 
 import config
-from rudolf import util
 
 
 class OracleService:
@@ -55,7 +54,7 @@ class F2DBService(OracleService):
     def select_all_produktkategorien(self) -> list[dict]:
         return self._select_all_dict("PRODUKTKATEGORIE")
 
-    def select_all_addresses(self) -> list[dict]:
+    def select_all_addresses_join(self) -> list[dict]:
         sql = "SELECT ADRESSE.STRASSE, ADRESSE.NUMMER, ORTSKENNZAHL.ORTSKENNZAHL, ORT.NAME, LAND.BEZEICHNUNG, " \
               "ADRESSE.ADRESS_ID FROM ADRESSE, ORTSKENNZAHL, ORT, LAND " \
               "WHERE ADRESSE.ORTSKENNZAHL_ID = ORTSKENNZAHL.ORTSKENNZAHL_ID " \
@@ -72,6 +71,12 @@ class F2DBService(OracleService):
     def select_all_mitarbeiter(self) -> list[dict]:
         return self._select_all_dict("MITARBEITER")
 
+    def select_all_mitarbeiter_join_funktion(self) -> list[dict]:
+        sql = "SELECT * FROM MITARBEITER m " \
+              "JOIN ZUWEISUNG_MITARBEITER_FUNKTION  z ON m.MITARBEITER_ID = z.MITARBEITER_ID " \
+              "JOIN FUNKTION  f ON z.FUNKTIONS_ID = f.FUNKTIONS_ID "
+        return self._select_dict(sql)
+
 
 class CombDBService(OracleService):
 
@@ -79,6 +84,18 @@ class CombDBService(OracleService):
         super().__init__(config.DB_CON_USER_COMBINED, config.DB_CON_PW_COMBINED, config.DB_CON_DSN_COMBINED)
 
     # --------------------Selects--------------------
+
+    def select_all_funktionen(self) -> list[dict]:
+        return self._select_all_dict("FUNKTION")
+
+    def select_all_addresses(self) -> list[dict]:
+        return self._select_all_dict("ADRESSE")
+
+    def select_all_lieferanten(self) -> list[dict]:
+        return self._select_all_dict("LIEFERANT")
+
+    def select_all_mitarbeiter(self) -> list[dict]:
+        return self._select_all_dict("MITARBEITER")
 
     def select_produktkategorie_where_bezeichnung(self, bezeichnung: str) -> list[dict]:
         sql = "select * from PRODUKT_SUBKATEGORIE WHERE BEZEICHNUNG = '{}'".format(bezeichnung)
@@ -88,12 +105,6 @@ class CombDBService(OracleService):
         sql = "select * from ADRESSE where STRASSE='{}' and PLZ='{}' AND ORT='{}' AND HAUSNUMMER='{}'".format(strasse,
                                                                                                               plz, ort,
                                                                                                               hausnummer)
-        return self._select_dict(sql)
-
-    def exists_hersteller_by_description(self, supplier_name: str) -> list[dict]:
-        supplier_name = util.uniform_string(supplier_name)
-        sql = "select * from LIEFERANT WHERE LOWER(REPLACE(LIEFERANT_NAME, ' ','')) = '{}'" \
-            .format(supplier_name)
         return self._select_dict(sql)
 
     # --------------------Inserts--------------------
@@ -118,10 +129,22 @@ class CombDBService(OracleService):
             .format(bezeichnung)
         return self._insert_and_return_id(sql, "FUNKTION_ID")
 
-    def insert_mitarbeiter(self, bezeichnung: str):
-        sql = "insert into MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID values('{}')" \
-            .format(bezeichnung)
-        return self._insert_and_return_id(sql, "FUNKTION_ID")
+    def insert_mitarbeiter(self, anrede: str, vorname: str, nachname, email: str, gehalt: float, eintrittsdatum: str,
+                           adresse_id: int):
+        sql = "insert into MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID " \
+              "VALUES ('{}','{}', '{}', '{}', {}, TO_DATE('{}','yyyy-mm-dd'), {})" \
+            .format(anrede, vorname, nachname, email, gehalt, eintrittsdatum, adresse_id)
+        return self._insert_and_return_id(sql, "MITARBEITER_ID")
+
+    def insert_mitarbeiter_provision(self, mitarbeiter_id: int, provisionssatz: float):
+        sql = "insert into PROVISION(MITARBEITER_ID, PROVISIONSSATZ) values({},{}})" \
+            .format(mitarbeiter_id, provisionssatz)
+        return self._insert_and_return_id(sql, "PROVISION_ID")
+
+    def insert_mitarbeiter_funktion(self, mitarbeiter_id: int, funktion_id: int):
+        sql = "insert into PROVISION(MITARBEITER_ID, FUNKTION_ID) values({},{}})" \
+            .format(mitarbeiter_id, funktion_id)
+        return self._insert_and_return_id(sql, "ZUWEISUNG_MITARBEITER_FUNKTION_ID")
 
     # --------------------Datenherkunft--------------------
 
@@ -140,6 +163,17 @@ class CombDBService(OracleService):
               "{})".format(lieferant_id, datenherkunft_id)
         self._insert(sql)
 
+    def insert_funktion_datenherkunft(self, funktion_id: int, datenherkunft_id: int) -> None:
+        sql = "insert into DATENHERKUNFT_FUNKTION(FUNKTION_ID, DATENHERKUNFT_ID) values ({}, " \
+              "{})".format(funktion_id, datenherkunft_id)
+        self._insert(sql)
+
+    def insert_mitarbeiter_datenherkunft(self, mitarbeiter_id: int, datenherkunft_id: int):
+        sql = "insert into DATENHERKUNFT_MITARBEITER(MITARBEITER_ID, DATENHERKUNFT_ID) values ({}, " \
+              "{})".format(mitarbeiter_id, datenherkunft_id)
+        self._insert(sql)
+
 
 if __name__ == "__main__":
-    print(CombDBService().exists_hersteller_by_description("Freshly"))
+    print(F2DBService().select_all_mitarbeiter_join_funktion())
+    # print(CombDBService().exists_hersteller_by_description("Freshly"))

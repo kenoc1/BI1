@@ -1,5 +1,6 @@
 from rudolf import config
 from rudolf.oracle_service import F2DBService, CombDBService
+from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 from rudolf.sqlite_service import SQLiteService
 from rudolf.util import compare_strings
 
@@ -12,9 +13,10 @@ class Address:
         self.con_rudolf = SQLiteService()
         self._get_data_basis()
 
-    def _get_data_basis(self)  -> None:
+    def _get_data_basis(self) -> None:
         # TODO try/catch
-        self.f2_addresses_join: list[dict] = self.con_f2.select_all_addresses()
+        self.f2_addresses_join: list[dict] = self.con_f2.select_all_addresses_join()
+        self.comb_addresses: list[dict] = self.con_master.select_all_addresses()
 
     def start(self):
         for address in self.f2_addresses_join:
@@ -42,15 +44,19 @@ class Address:
             # TODO manual auswahl zwischen eintraegen
             pass
 
-    def _get_matching_addresses_if_exists(self, address_to_check: dict) -> list[dict]:
-        return [address for address in self.f2_addresses_join
-                if compare_strings(address.get("STRASSE"), address_to_check.get("STRASSE"))
-                and compare_strings(address.get("ORTSKENNZAHL"), address_to_check.get("ORTSKENNZAHL"))
-                and compare_strings(address.get("NUMMER"), address_to_check.get("NUMMER"))
-                and compare_strings(address.get("NAME"), address_to_check.get("NAME"))]
+    def _get_matching_addresses_if_exists(self, f2_address: dict) -> list[dict]:
+        return [comb_address for comb_address in self.comb_addresses
+                if compare_strings(comb_address.get("STRASSE"), f2_address.get("STRASSE"))
+                and compare_strings(comb_address.get("ORTSKENNZAHL"), f2_address.get("ORTSKENNZAHL"))
+                and compare_strings(comb_address.get("NUMMER"), f2_address.get("NUMMER"))
+                and compare_strings(comb_address.get("NAME"), f2_address.get("NAME"))]
 
     def _is_address_already_transferred(self, old_address: int) -> bool:
-        return len(self.con_rudolf.select_where_old_id(table_name=config.ADDRESS_DB_TABLE, old_id=old_address)) != 0
+        try:
+            self.con_rudolf.select_where_old_id(table_name=config.ADDRESS_DB_TABLE, old_id=old_address)
+            return True
+        except NoCombIDFoundForF2IDException:
+            return False
 
 
 if __name__ == "__main__":

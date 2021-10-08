@@ -1,6 +1,8 @@
 from rudolf import config
 from rudolf.oracle_service import F2DBService, CombDBService
+from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 from rudolf.sqlite_service import SQLiteService
+from rudolf.util import compare_strings
 
 
 class Supplier:
@@ -12,10 +14,11 @@ class Supplier:
 
     def _get_data_basis(self) -> None:
         # TODO try/catch
-        self.all_hersteller: list[dict] = self.db_f2.select_all_hersteller()
+        self.f2_all_hersteller: list[dict] = self.db_f2.select_all_hersteller()
+        self.comb_all_hersteller: list[dict] = self.db_master.select_all_lieferanten()
 
     def start(self):
-        for hersteller in self.all_hersteller:
+        for hersteller in self.f2_all_hersteller:
             # TODO try/catch
             if not self._is_hersteller_already_transferred(hersteller.get("HERSTELLER_ID")):
                 self._insert_hersteller_into_lieferant(hersteller)
@@ -39,11 +42,16 @@ class Supplier:
             # TODO manual check
             pass
 
-    def _get_matching_hersteller_if_exists(self, hersteller_name: str):
-        return self.db_master.exists_hersteller_by_description(hersteller_name)
+    def _get_matching_hersteller_if_exists(self, f2_supplier_name: str):
+        return [comb_supplier for comb_supplier in self.comb_all_hersteller
+                if compare_strings(comb_supplier.get("STRASSE"), f2_supplier_name)]
 
     def _is_hersteller_already_transferred(self, f2_hersteller_id: int) -> bool:
-        return len(self.db_rudolf.select_where_old_id(config.LIEFERANT_HERSTELLER_TABLE, f2_hersteller_id)) > 0
+        try:
+            self.db_rudolf.select_where_old_id(config.LIEFERANT_HERSTELLER_TABLE, f2_hersteller_id)
+            return True
+        except NoCombIDFoundForF2IDException:
+            return False
 
 
 if __name__ == "__main__":
