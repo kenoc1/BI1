@@ -17,6 +17,7 @@ class Address:
         # TODO try/catch
         self.f2_addresses_join: list[dict] = self.con_f2.select_all_addresses_join()
         self.comb_addresses: list[dict] = self.con_master.select_all_addresses()
+        print(self.f2_addresses_join)
 
     def start(self):
         for address in self.f2_addresses_join:
@@ -27,7 +28,7 @@ class Address:
     def _insert_addresses(self, address: dict):
         matching_addresses: list[dict] = self._get_matching_addresses_if_exists(address)
         if len(matching_addresses) == 1:
-            combined_address_id = matching_addresses.__getitem__(0).get("ADRESS_ID")
+            combined_address_id = matching_addresses.__getitem__(0).get("ADRESSE_ID")
             self.con_master.insert_address_datenherkunft(combined_address_id, config.SOURCE_F2)
             self.con_rudolf.insert_id_allocation(config.ADDRESS_DB_TABLE, combined_address_id, address.get("ADRESS_ID"))
         elif len(matching_addresses) == 0:
@@ -47,9 +48,9 @@ class Address:
     def _get_matching_addresses_if_exists(self, f2_address: dict) -> list[dict]:
         return [comb_address for comb_address in self.comb_addresses
                 if compare_strings(comb_address.get("STRASSE"), f2_address.get("STRASSE"))
-                and compare_strings(comb_address.get("ORTSKENNZAHL"), f2_address.get("ORTSKENNZAHL"))
-                and compare_strings(comb_address.get("NUMMER"), f2_address.get("NUMMER"))
-                and compare_strings(comb_address.get("NAME"), f2_address.get("NAME"))]
+                and compare_strings(comb_address.get("PLZ"), f2_address.get("ORTSKENNZAHL"))
+                and compare_strings(comb_address.get("HAUSNUMMER"), f2_address.get("NUMMER"))
+                and compare_strings(comb_address.get("ORT"), f2_address.get("NAME"))]
 
     def _is_address_already_transferred(self, f2_address_id: int) -> bool:
         try:
@@ -62,4 +63,4 @@ class Address:
 if __name__ == "__main__":
     # create object
     addressMerge = Address()
-    addressMerge.start()
+    # addressMerge.start()
