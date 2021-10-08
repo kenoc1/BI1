@@ -77,6 +77,10 @@ class F2DBService(OracleService):
               "JOIN FUNKTION  f ON z.FUNKTIONS_ID = f.FUNKTIONS_ID "
         return self._select_dict(sql)
 
+    def select_all_lagerplaetze_join_produkt(self) -> list[dict]:
+        sql = "select * from LAGER_EINHEIT LF2,ZUWEISUNG_PRODUKT_LAGERPLATZ ZF2 WHERE LF2.LAGERPLATZ_ID = ZF2.LAGERPLATZ_ID"
+        return self._select_dict(sql)
+
 
 class CombDBService(OracleService):
 
@@ -146,6 +150,13 @@ class CombDBService(OracleService):
             .format(mitarbeiter_id, funktion_id)
         return self._insert_and_return_id(sql, "ZUWEISUNG_MITARBEITER_FUNKTION_ID")
 
+    def insert_lagerplatz(self, lager_id: int, produkt_id: int, regal_reihe: int, regal_spalte: int, akt_menge: int,
+                          regal_zeile: int):
+        sql = "insert into PROVISION(LAGER_ID, PRODUKT_ID, REGAL_REIHE, REGAL_SPALTE, AKT_MENGE, REGAL_ZEILE) " \
+              " values ({}, {}, {}, {}, {}, {})" \
+            .format(lager_id, produkt_id, regal_reihe, regal_spalte, akt_menge, regal_zeile)
+        return self._insert_and_return_id(sql, "LAGERPLATZ_ID")
+
     # --------------------Datenherkunft--------------------
 
     def insert_subcategory_datenherkunft(self, subcat_id: int, datenherkunft_id: int) -> None:
@@ -175,5 +186,5 @@ class CombDBService(OracleService):
 
 
 if __name__ == "__main__":
-    print(F2DBService().select_all_mitarbeiter_join_funktion())
+    print(F2DBService().select_all_lagerplaetze_join_produkt())
     # print(CombDBService().exists_hersteller_by_description("Freshly"))

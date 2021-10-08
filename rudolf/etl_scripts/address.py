@@ -51,9 +51,9 @@ class Address:
                 and compare_strings(comb_address.get("NUMMER"), f2_address.get("NUMMER"))
                 and compare_strings(comb_address.get("NAME"), f2_address.get("NAME"))]
 
-    def _is_address_already_transferred(self, old_address: int) -> bool:
+    def _is_address_already_transferred(self, f2_address_id: int) -> bool:
         try:
-            self.con_rudolf.select_where_old_id(table_name=config.ADDRESS_DB_TABLE, old_id=old_address)
+            self.con_rudolf.select_where_old_id(table_name=config.ADDRESS_DB_TABLE, old_id=f2_address_id)
             return True
         except NoCombIDFoundForF2IDException:
             return False

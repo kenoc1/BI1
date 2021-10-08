@@ -1,5 +1,5 @@
 from rudolf import config
-from rudolf.etl_scripts.AnredenFinder import AnredenFinder
+from rudolf.etl_scripts.anreden_finder import AnredenFinder
 from rudolf.oracle_service import F2DBService, CombDBService
 from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 from rudolf.sqlite_service import SQLiteService
@@ -64,10 +64,10 @@ class Worker:
                 and comb_worker.get("ADRESSE_ID") ==
                 self.con_rudolf.select_where_old_id(config.WORKER_TABLE, f2_mitarbeiter.get("ADRESS_ID"))]
 
-    def _is_mitarbeiter_already_transferred(self, worker_id: int) -> bool:
+    def _is_mitarbeiter_already_transferred(self, old_worker_id: int) -> bool:
         try:
             self.con_rudolf.select_where_old_id(table_name=config.WORKER_TABLE,
-                                                old_id=worker_id)
+                                                old_id=old_worker_id)
             return True
         except NoCombIDFoundForF2IDException:
             return False
