@@ -44,7 +44,7 @@ class Supplier:
 
     def _get_matching_hersteller_if_exists(self, f2_supplier_name: str):
         return [comb_supplier for comb_supplier in self.comb_all_hersteller
-                if compare_strings(comb_supplier.get("STRASSE"), f2_supplier_name)]
+                if compare_strings(comb_supplier.get("LIEFERANT_NAME"), f2_supplier_name)]
 
     def _is_hersteller_already_transferred(self, f2_hersteller_id: int) -> bool:
         try:
