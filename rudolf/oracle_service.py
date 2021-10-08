@@ -81,6 +81,9 @@ class F2DBService(OracleService):
         sql = "select * from LAGER_EINHEIT LF2,ZUWEISUNG_PRODUKT_LAGERPLATZ ZF2 WHERE LF2.LAGERPLATZ_ID = ZF2.LAGERPLATZ_ID"
         return self._select_dict(sql)
 
+    def select_all_kunden(self) -> list[dict]:
+        return self._select_all_dict("KUNDE")
+
 
 class CombDBService(OracleService):
 
@@ -111,6 +114,11 @@ class CombDBService(OracleService):
                                                                                                               hausnummer)
         return self._select_dict(sql)
 
+    def select_all_kunden_join_adresse_where_rechnungsadresse(self) -> list[dict]:
+        sql = "select * from KUNDE k JOIN KUNDE_ADRESSE a ON k.KUNDE_ID = a.KUNDE_ID WHERE a.ADRESSART = 'Rechnungsadresse'"
+        return self._select_dict(sql)
+        # return self._select_all_dict("KUNDE")
+
     # --------------------Inserts--------------------
 
     def insert_subcategory(self, subcat_name: str) -> int:
@@ -128,34 +136,51 @@ class CombDBService(OracleService):
             .format(adresse_id, lieferant_name, email)
         return self._insert_and_return_id(sql, "LIEFERANT_ID")
 
-    def insert_funktion(self, bezeichnung: str):
+    def insert_funktion(self, bezeichnung: str) -> int:
         sql = "insert into FUNKTION(BEZEICHNUNG) values('{}')" \
             .format(bezeichnung)
         return self._insert_and_return_id(sql, "FUNKTION_ID")
 
     def insert_mitarbeiter(self, anrede: str, vorname: str, nachname, email: str, gehalt: float, eintrittsdatum: str,
-                           adresse_id: int):
+                           adresse_id: int) -> int:
         sql = "insert into MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID " \
               "VALUES ('{}','{}', '{}', '{}', {}, TO_DATE('{}','yyyy-mm-dd'), {})" \
             .format(anrede, vorname, nachname, email, gehalt, eintrittsdatum, adresse_id)
         return self._insert_and_return_id(sql, "MITARBEITER_ID")
 
-    def insert_mitarbeiter_provision(self, mitarbeiter_id: int, provisionssatz: float):
+    def insert_mitarbeiter_provision(self, mitarbeiter_id: int, provisionssatz: float) -> int:
         sql = "insert into PROVISION(MITARBEITER_ID, PROVISIONSSATZ) values({},{}})" \
             .format(mitarbeiter_id, provisionssatz)
         return self._insert_and_return_id(sql, "PROVISION_ID")
 
-    def insert_mitarbeiter_funktion(self, mitarbeiter_id: int, funktion_id: int):
+    def insert_mitarbeiter_funktion(self, mitarbeiter_id: int, funktion_id: int) -> int:
         sql = "insert into PROVISION(MITARBEITER_ID, FUNKTION_ID) values({},{}})" \
             .format(mitarbeiter_id, funktion_id)
         return self._insert_and_return_id(sql, "ZUWEISUNG_MITARBEITER_FUNKTION_ID")
 
     def insert_lagerplatz(self, lager_id: int, produkt_id: int, regal_reihe: int, regal_spalte: int, akt_menge: int,
-                          regal_zeile: int):
+                          regal_zeile: int) -> int:
         sql = "insert into PROVISION(LAGER_ID, PRODUKT_ID, REGAL_REIHE, REGAL_SPALTE, AKT_MENGE, REGAL_ZEILE) " \
               " values ({}, {}, {}, {}, {}, {})" \
             .format(lager_id, produkt_id, regal_reihe, regal_spalte, akt_menge, regal_zeile)
         return self._insert_and_return_id(sql, "LAGERPLATZ_ID")
+
+    def insert_kunde(self, anrede: str, vorname: str, nachname: str, email: str, geburtsdatum: str) -> int:
+        sql = "INSERT INTO KUNDE(ANREDE, VORNAME, NACHNAME, EMAIL, GEBURTSDATUM) " \
+              "VALUES ('{}','{}','{}', '{}', TO_DATE('{}','yyyy-mm-dd'))" \
+            .format(anrede, vorname, nachname, email, geburtsdatum)
+        return self._insert_and_return_id(sql, "KUNDE_ID")
+
+    def insert_kunde_adresse(self, adress_id: int, kunden_id: int, adressart: str) -> int:
+        sql = "INSERT INTO KUNDE_ADRESSE(ADRESSE_ID, KUNDE_ID, ADRESSART) VALUES ({}, {}, '{}')".format(adress_id,
+                                                                                                        kunden_id,
+                                                                                                        adressart)
+        return self._insert_and_return_id(sql, "KUNDE_ADRESSE_ID")
+
+    def insert_warenkorb(self, kunden_id: int, gesamtpreis: float) -> int:
+        sql = "INSERT INTO WARENKORB(KUNDE_ID, GESAMTPREIS)  " \
+              "VALUES ({}, {}))".format(kunden_id, gesamtpreis)
+        return self._insert_and_return_id(sql, "WARENKORB_ID")
 
     # --------------------Datenherkunft--------------------
 
@@ -179,12 +204,17 @@ class CombDBService(OracleService):
               "{})".format(funktion_id, datenherkunft_id)
         self._insert(sql)
 
-    def insert_mitarbeiter_datenherkunft(self, mitarbeiter_id: int, datenherkunft_id: int):
+    def insert_mitarbeiter_datenherkunft(self, mitarbeiter_id: int, datenherkunft_id: int) -> None:
         sql = "insert into DATENHERKUNFT_MITARBEITER(MITARBEITER_ID, DATENHERKUNFT_ID) values ({}, " \
               "{})".format(mitarbeiter_id, datenherkunft_id)
         self._insert(sql)
 
+    def insert_kunde_datenherkunft(self, kunden_id: int, datenherkunft_id: int) -> None:
+        sql = "insert into DATENHERKUNFT_KUNDE(KUNDE_ID, DATENHERKUNFT_ID) values ({}, " \
+              "{})".format(kunden_id, datenherkunft_id)
+        self._insert(sql)
+
 
 if __name__ == "__main__":
-    print(F2DBService().select_all_lagerplaetze_join_produkt())
-    # print(CombDBService().exists_hersteller_by_description("Freshly"))
+    # print(F2DBService().select_all_kunden())
+    print(CombDBService().select_all_kunden_join_adresse_where_rechnungsadresse())
