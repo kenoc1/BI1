@@ -24,11 +24,11 @@ class Bestellung:
         self.comb_warenkoerbe: list[dict] = self.combined_con.select_all_warenkoerbe()
         self.f2_gewichtsbasiert_im_verkauf = self.f2_con.select_all_gewichtsbasiert_verkauf()
         self.f2_stueckzahlbasiert_im_verkauf = self.f2_con.select_all_stueckzahlbasiert_verkauf()
-        self.product_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
+        self.product_id_allocation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.PRODUCTS_CON_FILE_NAME)
-        self.mitarbeiter_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
+        self.mitarbeiter_id_allocation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.MITARBEITER_CON_FILE_NAME)
-        self.kunden_id_allcoation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
+        self.kunden_id_allocation = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(
             file_name=config.KUNDEN_CON_FILE_NAME)
 
     def verkauf_to_bestellung(self):
@@ -115,13 +115,13 @@ class Bestellung:
         return menge / 2
 
     def _get_new_productid(self, f2_product_id: int) -> int:
-        return util.search_for_id(self.product_id_allcoation, f2_product_id)
+        return int(util.search_for_id(self.product_id_allocation, f2_product_id))
 
     def _get_com_kundenid_by_f2_kundenid(self, f2_kunden_id: int) -> int:
-        return util.search_for_id(self.kunden_id_allcoation, f2_kunden_id)
+        return util.search_for_id(self.kunden_id_allocation, f2_kunden_id)
 
     def _get_com_mitarbeiterid_by_f2_mitarbeiterid(self, f2_kunden_id: int) -> int:
-        return util.search_for_id(self.mitarbeiter_id_allcoation, f2_kunden_id)
+        return util.search_for_id(self.mitarbeiter_id_allocation, f2_kunden_id)
 
     def get_dummy_kunde_id(self) -> int:
         return 6435

@@ -1133,7 +1133,7 @@ class DB_MASTER:
     def insert_bestellposition(self, bestellungid: int, produktid: int, menge: int):
         sql = (
             "insert into BESTELLPOSITION(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
-            "values(:bestellungid, :produktid, :menge) ")
+            "values(:produktid, :bestellungid, :menge) ")
         with self.con_master.cursor() as cursor:
             cursor.execute(sql, [bestellungid, produktid, menge])
             self.con_master.commit()
