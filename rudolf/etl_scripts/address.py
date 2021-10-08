@@ -48,6 +48,7 @@ class Address:
                                                                   bundesland=address.get("BEZEICHNUNG"))
             self._con_master.insert_address_datenherkunft(new_address_id, config.SOURCE_F2)
             self._con_rudolf.insert_id_allocation(config.ADDRESS_DB_TABLE, new_address_id, address.get("ADRESS_ID"))
+            print("hinzugeguef")
         else:
             # TODO manual auswahl zwischen eintraegen
             pass
