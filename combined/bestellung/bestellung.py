@@ -13,6 +13,7 @@ class Bestellung:
     def __init__(self):
         self.f2_con = DB_F2()
         self.combined_con = DB_MASTER()
+        self._get_data_basis()
 
     def _get_data_basis(self) -> None:
         # TODO try/catch
@@ -36,7 +37,7 @@ class Bestellung:
                 new_bestellung_id: int = self._create_bestellung(f2_verkauf_entry=sale)
                 self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
                 self._create_bestellposition(new_bestellung_id=new_bestellung_id, verkauf=sale)
-                print("Crated Bestellung: {}".format(str(sale)))
+                print("Created Bestellung: {}".format(str(sale)))
         except cx_Oracle.Error as error:
             print('Database error occurred:')
             print(error)
@@ -100,7 +101,7 @@ class Bestellung:
     def _create_bestellposition(self, verkauf: dict, new_bestellung_id: int):
         gewichtsbasierte_produkte: list[dict] = [elem for elem in self.f2_gewichtsbasiert_im_verkauf if
                                                  elem.get("VERKAUFS_ID") == verkauf.get("VERKAUFS_ID")]
-        [eintrag.update({"ANZAHL_MENGE": self._calculate_menge_from_gewicht(eintrag.get("GEWICHT"))}) for eintrag in
+        [eintrag.update({"ANZAHL_PRODUKTE": self._calculate_menge_from_gewicht(eintrag.get("GEWICHT"))}) for eintrag in
          gewichtsbasierte_produkte]
         stueckbasierte_produkte: list[dict] = [elem for elem in self.f2_stueckzahlbasiert_im_verkauf if
                                                elem.get("VERKAUFS_ID") == verkauf.get("VERKAUFS_ID")]
@@ -108,7 +109,7 @@ class Bestellung:
             self.combined_con.insert_bestellposition(bestellungid=new_bestellung_id,
                                                      produktid=self._get_new_productid(
                                                          produkt_im_verkauf.get("PRODUKT_ID")),
-                                                     menge=produkt_im_verkauf.get("ANZAHL_MENGE"))
+                                                     menge=produkt_im_verkauf.get("ANZAHL_PRODUKTE"))
 
     def _calculate_menge_from_gewicht(self, menge: float) -> float:
         return menge / 2
@@ -151,4 +152,4 @@ class Bestellung:
 
 
 if __name__ == "__main__":
-    b = Bestellung().verkauf_to_bestellung()
+    Bestellung().verkauf_to_bestellung()
