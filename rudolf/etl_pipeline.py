@@ -15,15 +15,10 @@ class ETLPipeline:
         WorkerPositions().start()
         Worker().start()
         # Lager # MANUELL
-        # Kategorien # MANUELL
+        # TODO Kategorien # MANUELL
         Customer().start()
         # Zahlungsart MANUELL
+        # TODO Produkt
         Lagerplatz().start()
-        # Bestellung
-        # Lieferschein
-        # Rechnung
-        # Bon
-        # zahlungsart_bestellung
-        # Bestellposition
-
-        pass
+        # TODO Zwischenhaendler
+        # TODO Bestellung
