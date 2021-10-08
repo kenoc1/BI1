@@ -4,8 +4,9 @@ def uniform_string(string: str) -> str:
     return in_lowercase
 
 
-def compare_strings(first: str, second: str) -> bool:
-    return uniform_string(first) == uniform_string(second)
+def compare_strings(first, second) -> bool:
+    return uniform_string(str(first)) == uniform_string(str(second))
+
 
 if __name__ == "__main__":
     pass
