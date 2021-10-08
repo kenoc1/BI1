@@ -35,6 +35,7 @@ ALLOCATION_CSV_DICT = ROOT_DIR / Path("data/allocation_csvs/")
 CSV_FILES_DICT = ROOT_DIR / Path("data/csv-files")
 MANUAL_CSV_DICT = ROOT_DIR / Path("data/manual_check/")
 VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"
+RUDOLF_DB_PATH = ROOT_DIR / Path("rudolf-db.db")
 
 ADDRESS_DB_TABLE = "adresse"
 LIEFERANT_HERSTELLER_TABLE = "lieferant_hersteller"

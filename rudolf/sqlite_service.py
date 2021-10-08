@@ -7,7 +7,7 @@ from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 class SQLiteService:
 
     def __init__(self):
-        self.con = sl.connect('rudolf-db.db')
+        self.con = sl.connect(config.RUDOLF_DB_PATH)
         self._setup()
 
     def insert_id_allocation(self, table_name: str, new_id: int, old_id: int) -> None:
