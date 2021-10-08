@@ -1135,7 +1135,7 @@ class DB_MASTER:
             "insert into BESTELLPOSITION(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
             "values(:produktid, :bestellungid, :menge) ")
         with self.con_master.cursor() as cursor:
-            cursor.execute(sql, [bestellungid, produktid, menge])
+            cursor.execute(sql, [produktid, bestellungid, menge])
             self.con_master.commit()
 
     def insert_einkauf(self, datum: str, lieferantid: int, mitarbeiterid: int, datenherkunftid: int) -> int:
