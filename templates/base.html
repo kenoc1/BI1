@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--    <link rel="apple-touch-icon" sizes="180x180"-->
+    <!--          href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">-->
+    <!--    <link rel="icon" type="image/png" sizes="32x32"-->
+    <!--          href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">-->
+    <!--    <link rel="icon" type="image/png" sizes="16x16"-->
+    <!--          href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">-->
+    <!--    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">-->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--    {#    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">#}-->
+    <!--    {#    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}">#}-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="/static/logo/javaScript.js" type="application/javascript"></script>
+</head>
+
+<body class="hidden-sn mdb-skin">
+<nav class="navbar navbar-dark sticky-top d-flex justify-content-between bg-dark">
+    <div class="col" align="left">
+        <a class="navbar-brand" href="/"> <img src="../static/img/6.png" height="60"
+                                               class="d-inline-block align-top" alt="Hi">
+        </a>
+    </div>
+    <div class="col" align="center">
+        <a href="/"><h1 class="text-light">RUDOLF</h1></a>
+    </div>
+    <!--    <div class="col-sm-2 mr-0" align="center">-->
+
+    <!--    </div>-->
+    <div class="col" align="right">
+        <div class="dropdown">
+            <button class="btn btn-outline-light dropdown-toggle" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false" id="dropdownMenuButton">
+                <span data-feather="home"></span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="/">Hauptseite</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/">ETL-Prozess</a>
+                <a class="dropdown-item" href="/analysis">Analyse</a>
+                <!--                <a class="dropdown-item" href="/logout">Abmelden</a>-->
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+
+<table style="width: 100%;">
+    <tr>
+        <td style="width: 5%;"></td>
+        <td style="width: 90%;">{% block body %} {% endblock %}</td>
+        <td style="width: 5%;"></td>
+    </tr>
+</table>
+
+
+<!-- Footer -->
+<footer class="text-center text-lg-start bg-dark text-muted mt-3 fixed-bottom">
+    <!-- Copyright -->
+    <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+        © 2021 <a class="text-reset fw-bold" href="https://www.ibs-ol.de/">IBS Oldenburg</a>
+    </div>
+</footer>
+</body>
+<script>
+    feather.replace()
+</script>
+</html>
