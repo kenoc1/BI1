@@ -10,7 +10,6 @@ class TestAddress(unittest.TestCase):
 
     def setUp(self) -> None:
         self.address_class = Address()
-        self.address_class._init_db_connections()
         self.address_class._con_f2 = NonCommitF2DBService()
         self.address_class._con_master = NonCommitCombDBService()
 

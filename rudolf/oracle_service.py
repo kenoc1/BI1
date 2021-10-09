@@ -83,6 +83,24 @@ class F2DBService(OracleService):
     def select_all_kunden(self) -> list[dict]:
         return self._select_all_dict("KUNDE")
 
+    def select_all_sales(self):
+        return self._select_all_dict("VERKAUF")
+
+    def select_all_rechnung(self):
+        return self._select_all_dict("RECHNUNG")
+
+    def select_all_lieferschein(self):
+        return self._select_all_dict("LIEFERSCHEIN")
+
+    def select_all_bons(self):
+        return self._select_all_dict("BON")
+
+    def select_all_gewichtsbasiert_verkauf(self):
+        return self._select_all_dict("GEWICHTBASIERTES_PRODUKT_IM_VERKAUF")
+
+    def select_all_stueckzahlbasiert_verkauf(self):
+        return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_VERKAUF")
+
 
 class CombDBService(OracleService):
 
@@ -116,7 +134,9 @@ class CombDBService(OracleService):
     def select_all_kunden_join_adresse_where_rechnungsadresse(self) -> list[dict]:
         sql = "select * from KUNDE k JOIN KUNDE_ADRESSE a ON k.KUNDE_ID = a.KUNDE_ID WHERE a.ADRESSART = 'Rechnungsadresse'"
         return self._select_dict(sql)
-        # return self._select_all_dict("KUNDE")
+
+    def select_all_warenkoerbe(self):
+        return self._select_all_dict("WARENKORB")
 
     # --------------------Inserts--------------------
 
@@ -180,6 +200,43 @@ class CombDBService(OracleService):
         sql = "INSERT INTO WARENKORB(KUNDE_ID, GESAMTPREIS) " \
               "VALUES ({}, {})".format(kunden_id, gesamtpreis)
         return self._insert_and_return_id(sql, "WARENKORB_ID")
+
+    # TODO TEST
+    def insert_bestellung(self, warenkorb_id: int, status: str, bestelldatum, datenherkunft: int,
+                          mitarbeiter_id: int) -> int:
+        sql = ("insert into BESTELLUNG(WARENKORB_ID, STATUS, BESTELLDATUM, DATENHERKUNFT_ID, MITARBEITER_ID) "
+               "values({}, '{}', TO_DATE('{}','yyyy-mm-dd'), {}, {})").format(warenkorb_id, status, bestelldatum,
+                                                                              datenherkunft, mitarbeiter_id)
+        return self._insert_and_return_id(sql, "BESTELLUNG_ID")
+
+    def insert_bestellung_to_zahlungsart(self, bestellungid: int, zahlungsart_id: int):
+        sql = ("insert into ZAHLUNGSART_BESTELLUNG(BESTELLUNG_ID , ZAHLUNGSART_ID) "
+               "values({}, {}) ").format(bestellungid, zahlungsart_id)
+        self._insert(sql)
+
+    def insert_rechnung(self, bestellungid: int, rechnungsdatum, summe_netto: float, summe_brutto: float):
+        sql = ("insert into RECHNUNG(BESTELLUNG_ID, RECHNUNGSDATUM, SUMME_NETTO, SUMME_BRUTTO) "
+               "values({}, TO_DATE('{}','yyyy-mm-dd'), {}, {})") \
+            .format(bestellungid, rechnungsdatum, summe_netto, summe_brutto)
+        return self._insert_and_return_id(sql, "RECHNUNG_ID")
+
+    def insert_bon(self, bestellungid: int, gegebenesgeld: float, rueckgeld: float, summe_netto: float,
+                   summe_brutto: float):
+        sql = ("insert into BON(BESTELLUNG_ID, GEGEBENES_GELD, RUECKGELD,SUMME_NETTO, SUMME_BRUTTO) "
+               "values({}, {}, {}, {}, {})") \
+            .format(bestellungid, gegebenesgeld, rueckgeld, summe_netto, summe_brutto)
+        return self._insert_and_return_id(sql, "BON_ID")
+
+    def insert_lieferschein(self, bestellungid: int, lieferkosten: float, lieferdatum):
+        sql = ("insert into LIEFERSCHEIN(BESTELLUNG_ID, LIEFERKOSTEN , LIEFERDATUM) "
+               "values({}, {}, TO_DATE('{}','yyyy-mm-dd'))").format(bestellungid, lieferkosten, lieferdatum)
+        return self._insert_and_return_id(sql, "LIEFERSCHEIN_ID")
+
+    def insert_bestellposition(self, bestellungid: int, produktid: int, menge: int):
+        sql = (
+            "insert into BESTELLPOSITION(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
+            "values({}, {}, {})").format(produktid, bestellungid, menge)
+        self._insert(sql)
 
     # --------------------Datenherkunft--------------------
 

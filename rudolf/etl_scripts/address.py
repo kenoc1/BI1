@@ -8,10 +8,9 @@ from rudolf.util import compare_strings
 class Address:
 
     def __init__(self):
-        pass
+        self._init_db_connections()
 
     def init(self):
-        self._init_db_connections()
         self._get_data_basis()
 
     def _init_db_connections(self):

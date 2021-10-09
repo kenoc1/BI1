@@ -1,4 +1,5 @@
 from rudolf.etl_scripts.address import Address
+from rudolf.etl_scripts.bestellung import Bestellung
 from rudolf.etl_scripts.customer import Customer
 from rudolf.etl_scripts.lagerplatz import Lagerplatz
 from rudolf.etl_scripts.worker import Worker
@@ -11,14 +12,33 @@ class ETLPipeline:
         pass
 
     def start(self):
-        Address().start()
+        # Adresse
+        address = Address()
+        address.init()
+        address.start()
+        # Funktion
         WorkerPositions().start()
+        # Mitarbeiter
         Worker().start()
+
         # Lager # MANUELL
-        # TODO Kategorien # MANUELL
+        # Kategorien # MANUELL
+
+        # Kunde
         Customer().start()
+
         # Zahlungsart MANUELL
+
+        # Produkt
         # TODO Produkt
+
+        # Lagerplatz
         Lagerplatz().start()
+
+        # Zwischenhaendler
         # TODO Zwischenhaendler
-        # TODO Bestellung
+
+        # Bestellung
+        bestellung = Bestellung()
+        bestellung.init()
+        bestellung.start()
