@@ -33,6 +33,7 @@ class Adresse:
 
     def _insert_addresses(self, address: dict) -> None:
         matching_addresses: list[dict] = self._get_matching_addresses_if_exists(address)
+        print(address)
         if len(matching_addresses) == 1:
             combined_address_id = matching_addresses.__getitem__(0).get("ADRESSE_ID")
             self._con_master.insert_address_datenherkunft(combined_address_id, config.SOURCE_F2)

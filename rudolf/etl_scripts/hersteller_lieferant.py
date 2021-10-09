@@ -24,6 +24,7 @@ class HerstellerLieferant:
                 self._insert_hersteller_into_lieferant(hersteller)
 
     def _insert_hersteller_into_lieferant(self, hersteller: dict):
+        print(hersteller)
         address_id = config.DUMMY_ADDRESS
         hersteller_name = hersteller["BEZEICHNUNG"]
         mail = config.DUMMY_MAIL

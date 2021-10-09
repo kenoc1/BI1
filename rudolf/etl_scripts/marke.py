@@ -27,6 +27,7 @@ class Marke:
                 self._insert_marke(marke)
 
     def _insert_marke(self, marke: dict) -> None:
+        print(marke)
         supplier_id = self._get_new_supplier_id(marke["HERSTELLER_ID"])
         brand_name = marke["BEZEICHNUNG"]
         new_marke_id = self._db_master.insert_marke(supplier_id=supplier_id, brand_name=brand_name)

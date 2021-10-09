@@ -32,14 +32,15 @@ class MitarbeiterFunktion:
 
     def _insert_funktion(self, position: dict) -> None:
         matching_position_entries: list[dict] = self._get_matching_positions_if_exists(position)
+        print(matching_position_entries)
         if len(matching_position_entries) == 1:
             combined_position_id = matching_position_entries.__getitem__(0).get("FUNKTION_ID")
-            self.con_master.insert_funktion_datenherkunft(combined_position_id, position.get("FUNKTIONS_ID"))
+            self.con_master.insert_funktion_datenherkunft(combined_position_id, config.SOURCE_F2)
             self.con_rudolf.insert_id_allocation(config.WORKER_POSITION_TABLE, combined_position_id,
                                                  position.get("FUNKTIONS_ID"))
         elif len(matching_position_entries) == 0:
             new_position_id: int = self.con_master.insert_funktion(position.get("BEZEICHNUNG"))
-            self.con_master.insert_funktion_datenherkunft(new_position_id, position.get("FUNKTIONS_ID"))
+            self.con_master.insert_funktion_datenherkunft(new_position_id, config.SOURCE_F2)
             self.con_rudolf.insert_id_allocation(config.WORKER_POSITION_TABLE, new_position_id,
                                                  position.get("FUNKTIONS_ID"))
         else:
@@ -57,3 +58,10 @@ class MitarbeiterFunktion:
             return True
         except NoCombIDFoundForF2IDException:
             return False
+
+
+if __name__ == "__main__":
+    m = MitarbeiterFunktion()
+    m.init()
+    print(m._is_position_already_transferred(34))
+    # m.start()

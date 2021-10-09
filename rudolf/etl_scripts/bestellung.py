@@ -41,14 +41,13 @@ class Bestellung:
                     self._create_verkaufsdokumente(new_bestellung_id=new_bestellung_id)
                     self._create_bestellposition(new_bestellung_id=new_bestellung_id, verkauf=sale)
                     print("Created Bestellung: {}".format(str(sale)))
-                else:
-                    print("Exists already")
         except cx_Oracle.Error as error:
             print('Database error occurred:')
             print(error)
             sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
     def _create_bestellung(self, f2_verkauf_entry: dict) -> int:
+        print(f2_verkauf_entry)
         verkaufsdatum = f2_verkauf_entry.get("VERKAUFDATUM")
         f2_kunden_id: int = f2_verkauf_entry.get("KUNDEN_ID")
         com_kunden_id: int = self._con_rudolf.select_where_old_id(config.KUNDEN_TABLE,

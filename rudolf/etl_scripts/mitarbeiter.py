@@ -35,6 +35,7 @@ class Mitarbeiter:
         # {'MITARBEITER_ID': 258, 'VORNAME': 'John', 'NACHNAME': 'Lamb', 'ADRESS_ID': 4615, 'GEHALT': 5380.57,
         # 'PROVISIONSSATZ': 0.37, 'FUNKTIONS_ID': 35, 'BEZEICHNUNG': 'Einkäufer'}
         matching_mitarbeiter_entries: list[dict] = self._get_matching_workers_if_exists(mitarbeiter)
+        print(mitarbeiter)
         if len(matching_mitarbeiter_entries) == 1:
             combined_mitarbeiter_id = matching_mitarbeiter_entries.__getitem__(0).get("MITARBEITER_ID")
             self.con_master.insert_mitarbeiter_provision(combined_mitarbeiter_id, mitarbeiter.get("PROVISIONSSATZ"))
@@ -53,7 +54,7 @@ class Mitarbeiter:
                 adresse_id=self.con_rudolf.select_where_old_id(
                     table_name=config.ADDRESS_TABLE,
                     old_id=int(mitarbeiter.get("ADRESS_ID")))
-                )
+            )
             self.con_master.insert_mitarbeiter_provision(new_mitarbeiter_id, mitarbeiter.get("PROVISIONSSATZ"))
             self.con_master.insert_mitarbeiter_datenherkunft(new_mitarbeiter_id, config.SOURCE_F2)
             self.con_master.insert_mitarbeiter_funktion(new_mitarbeiter_id, mitarbeiter.get("FUNKTIONS_ID"))

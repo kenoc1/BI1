@@ -32,6 +32,7 @@ class Kunde:
                 self._insert_customers(customer)
 
     def _insert_customers(self, f2_customer: dict):
+        print(f2_customer)
         matching_customers: list[dict] = self._get_matching_customers_if_exists(f2_customer)
         if len(matching_customers) == 1:
             combined_kunden_id = matching_customers.__getitem__(0).get("KUNDE_ID")

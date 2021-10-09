@@ -30,6 +30,7 @@ class Einkauf:
 
     def insert_einkauf(self, einkauf: dict) -> None:
         if not self._is_einkauf_empty(einkauf):
+            print(einkauf)
             new_einkauf_id: int = self._insert_einkauf(einkauf)
             self._write_id_allocation_to_rudolf_db(new_einkauf_id, einkauf.get("EINKAUFS_ID"))
             self._insert_einkauf_produkt(f2_einkauf=einkauf, comb_einkauf_id=new_einkauf_id)

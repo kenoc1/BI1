@@ -27,6 +27,7 @@ class Preishistorie:
                 self._insert_preis(preis)
 
     def _insert_preis(self, preis: dict) -> None:
+        print(preis)
         f2_product_id = preis["PRODUKT_ID"]
         product_id = self._get_new_product_id(f2_product_id)
         price = preis["BETRAG"]

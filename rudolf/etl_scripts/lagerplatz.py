@@ -28,6 +28,7 @@ class Lagerplatz:
                 self._insert_lagerplaetze(lagerplatz)
 
     def _insert_lagerplaetze(self, lager: dict):
+        print(lager)
         #  {'LAGERPLATZ_ID': 2553, 'REGAL_NUMMER': 103, 'REGALZEILE': 0, 'REGALSPALTE': 1, 'REGALBREITE': 12.0, 'REGALTIEFE': 20.0, 'REGALHÖHE': 16.0, 'TYP': 'Lagerflaeche', 'PRODUKT_ID': 2905}
         new_lagerplatz_id: int = self.con_master.insert_lagerplatz(
             lager_id=config.F2_VERKAUFSFLAECHE_LAGER_ID if lager.get(

@@ -29,6 +29,7 @@ class Zwischenhaendler:
                 self.merge_zwischenhaendler(lieferant)
 
     def merge_zwischenhaendler(self, lieferant: dict) -> None:
+        print(lieferant)
         new_address_id: int = self._get_new_address_id(f2_address_id=lieferant.get("ADRESS_ID"))
         comb_zwischenhaendler_id: int = self.combined_con.insert_zwischenhaendler(name=lieferant.get("NAME"),
                                                                                   email=lieferant.get("EMAIL"),
