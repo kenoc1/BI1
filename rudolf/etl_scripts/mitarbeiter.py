@@ -51,7 +51,7 @@ class Mitarbeiter:
                 gehalt=mitarbeiter.get("GEHALT"),
                 eintrittsdatum="3333-01-01",
                 adresse_id=self.con_rudolf.select_where_old_id(
-                    table_name=config.ADDRESS_DB_TABLE,
+                    table_name=config.ADDRESS_TABLE,
                     old_id=int(mitarbeiter.get("ADRESS_ID")))
                 )
             self.con_master.insert_mitarbeiter_provision(new_mitarbeiter_id, mitarbeiter.get("PROVISIONSSATZ"))

@@ -49,14 +49,14 @@ class Kunde:
             self.con_rudolf.insert_id_allocation(config.KUNDEN_TABLE, new_kunden_id, f2_customer.get("KUNDEN_ID"))
             if f2_customer.get("RECHNUNGS_ADRESSE_ID"):
                 comb_adresse_id_for_rechnung: int = \
-                    self.con_rudolf.select_where_old_id(config.ADDRESS_DB_TABLE,
+                    self.con_rudolf.select_where_old_id(config.ADDRESS_TABLE,
                                                         f2_customer.get("RECHNUNGS_ADRESSE_ID"))
                 self.con_master.insert_kunde_adresse(adress_id=comb_adresse_id_for_rechnung,
                                                      kunden_id=new_kunden_id,
                                                      adressart="Rechnungsadresse")
             if f2_customer.get("LIEFER_ADRESSE_ID"):
                 comb_adresse_id_for_liefer: int = \
-                    self.con_rudolf.select_where_old_id(config.ADDRESS_DB_TABLE, f2_customer.get("LIEFER_ADRESSE_ID"))
+                    self.con_rudolf.select_where_old_id(config.ADDRESS_TABLE, f2_customer.get("LIEFER_ADRESSE_ID"))
                 self.con_master.insert_kunde_adresse(adress_id=comb_adresse_id_for_liefer,
                                                      kunden_id=new_kunden_id,
                                                      adressart="Lieferadresse")
@@ -70,7 +70,7 @@ class Kunde:
                 if compare_strings(comb_customer.get("VORNAME"), f2_customer.get("VORNAME"))
                 and compare_strings(comb_customer.get("NACHNAME"), f2_customer.get("NACHNAME"))
                 and comb_customer.get("ADRESSE_ID") ==
-                self.con_rudolf.select_where_old_id(config.ADDRESS_DB_TABLE, f2_customer.get("RECHNUNGS_ADRESSE_ID"))]
+                self.con_rudolf.select_where_old_id(config.ADDRESS_TABLE, f2_customer.get("RECHNUNGS_ADRESSE_ID"))]
 
     def _is_customer_already_transferred(self, f2_kunden_id: int) -> bool:
         try:

@@ -38,7 +38,7 @@ class Lagerplatz:
             regal_zeile=lager.get("REGALSPALTE"),
             # TODO ist das richtig so? wurde das nicht inzwischen anders besprochen?
             akt_menge=-100000)
-        self.con_rudolf.insert_id_allocation(config.ADDRESS_DB_TABLE, new_lagerplatz_id, lager.get("LAGERPLATZ_ID"))
+        self.con_rudolf.insert_id_allocation(config.ADDRESS_TABLE, new_lagerplatz_id, lager.get("LAGERPLATZ_ID"))
 
     def _is_lagerplatz_already_transferred(self, f2_lagerplatz_id: int) -> bool:
         try:

@@ -1,5 +1,6 @@
 from rudolf.etl_scripts.adresse import Adresse
 from rudolf.etl_scripts.bestellung import Bestellung
+from rudolf.etl_scripts.einkauf import Einkauf
 from rudolf.etl_scripts.kunde import Kunde
 from rudolf.etl_scripts.lagerplatz import Lagerplatz
 from rudolf.etl_scripts.marke import Marke
@@ -7,6 +8,7 @@ from rudolf.etl_scripts.mitarbeiter import Mitarbeiter
 from rudolf.etl_scripts.mitarbeiter_funktion import MitarbeiterFunktion
 from rudolf.etl_scripts.preishistorie import Preishistorie
 from rudolf.etl_scripts.produkt import Produkt
+from rudolf.etl_scripts.zwischenhaendler import Zwischenhaendler
 
 
 class ETLPipeline:
@@ -18,11 +20,13 @@ class ETLPipeline:
         # Adresse
         address = Adresse()
         address.init()
+
         address.start()
         # Funktion
         funktion = MitarbeiterFunktion()
         funktion.init()
         funktion.start()
+
         # Mitarbeiter
         mitarbeiter = Mitarbeiter()
         mitarbeiter.init()
@@ -59,7 +63,14 @@ class ETLPipeline:
         lagerplatz.start()
 
         # Zwischenhaendler
-        # TODO Zwischenhaendler
+        zwischenhaendler = Zwischenhaendler()
+        zwischenhaendler.init()
+        zwischenhaendler.start()
+
+        # Einkauf
+        einkauf = Einkauf()
+        einkauf.init()
+        einkauf.start()
 
         # Bestellung
         bestellung = Bestellung()

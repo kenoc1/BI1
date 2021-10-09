@@ -35,7 +35,7 @@ class Adresse:
         if len(matching_addresses) == 1:
             combined_address_id = matching_addresses.__getitem__(0).get("ADRESSE_ID")
             self._con_master.insert_address_datenherkunft(combined_address_id, config.SOURCE_F2)
-            self._con_rudolf.insert_id_allocation(config.ADDRESS_DB_TABLE, combined_address_id,
+            self._con_rudolf.insert_id_allocation(config.ADDRESS_TABLE, combined_address_id,
                                                   address.get("ADRESS_ID"))
         elif len(matching_addresses) == 0:
             # TODO manual nachfrage fuer land
@@ -46,7 +46,7 @@ class Adresse:
                                                                   hausnummer=address.get("NUMMER"),
                                                                   bundesland=address.get("BEZEICHNUNG"))
             self._con_master.insert_address_datenherkunft(new_address_id, config.SOURCE_F2)
-            self._con_rudolf.insert_id_allocation(config.ADDRESS_DB_TABLE, new_address_id, address.get("ADRESS_ID"))
+            self._con_rudolf.insert_id_allocation(config.ADDRESS_TABLE, new_address_id, address.get("ADRESS_ID"))
             print("hinzugeguef")
         else:
             # TODO manual auswahl zwischen eintraegen
@@ -61,7 +61,7 @@ class Adresse:
 
     def _is_address_already_transferred(self, f2_address_id: int) -> bool:
         try:
-            self._con_rudolf.select_where_old_id(table_name=config.ADDRESS_DB_TABLE, old_id=f2_address_id)
+            self._con_rudolf.select_where_old_id(table_name=config.ADDRESS_TABLE, old_id=f2_address_id)
             return True
         except NoCombIDFoundForF2IDException:
             return False

@@ -132,6 +132,18 @@ class F2DBService(OracleService):
     def select_all_preise(self):
         return self._select_all_dict("PREIS")
 
+    def select_all_einkaeufe(self):
+        return self._select_all_dict("EINKAUF")
+
+    def select_all_einkaeufe_gewichtsbasiert(self):
+        return self._select_all_dict("GEWICHTBASIERTES_PRODUKT_IM_EINKAUF")
+
+    def select_all_einkaeufe_stueckbasiert(self):
+        return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_EINKAUF")
+
+    def select_all_lieferant(self):
+        return self._select_all_dict("LIEFERANT")
+
 
 class CombDBService(OracleService):
 
@@ -299,6 +311,24 @@ class CombDBService(OracleService):
                "values({},{},'{}',TO_DATE('{}','yyyy-mm-dd'))").format(product_id, price, typ, start_date)
         self._insert(sql)
 
+    # TODO TEST
+    def insert_einkauf(self, datum: str, lieferantid: int, mitarbeiterid: int, datenherkunftid: int) -> int:
+        sql = ("insert into EINKAUF (EINKAUFSDATUM, ZWISCHENHAENDLER_ID, MITARBEITER_ID, DATENHERKUNFT_ID)"
+               "values(TO_DATE('{}','yyyy-mm-dd'), {}, {}, {})") \
+            .format(datum, lieferantid, mitarbeiterid, datenherkunftid)
+        return self._insert_and_return_id(sql, "EINKAUF_ID")
+
+    # TODO TEST
+    def insert_einkauf_produkt(self, einkaufid: int, produktid: int, menge: int) -> int:
+        sql = ("insert into EINKAUF_PRODUKT (EINKAUF_ID, PRODUKT_ID, MENGE)"
+               "values({}, {}, {})").format(einkaufid, produktid, menge)
+        return self._insert_and_return_id(sql, "EINKAUF_PRODUKT_ID")
+
+    def insert_zwischenhaendler(self, name: str, email: str, nname: str, vname: str, adresseid: int) -> int:
+        sql = ("insert into ZWISCHENHAENDLER (NAME, EMAIL, NNAME_ANSPRECHPARTNER, VNAME_ANSPRECHPARTNER, ADRESSE_ID)"
+               "values('{}', '{}', '{}', '{}', {})").format(name, email, nname, vname, adresseid)
+        return self._insert_and_return_id(sql, "ZWISCHENHAENDLER_ID")
+
     # --------------------Datenherkunft--------------------
 
     def insert_subcategory_datenherkunft(self, subcat_id: int, datenherkunft_id: int) -> None:
@@ -329,6 +359,11 @@ class CombDBService(OracleService):
     def insert_kunde_datenherkunft(self, kunden_id: int, datenherkunft_id: int) -> None:
         sql = "insert into DATENHERKUNFT_KUNDE(KUNDE_ID, DATENHERKUNFT_ID) values ({}, " \
               "{})".format(kunden_id, datenherkunft_id)
+        self._insert(sql)
+
+    def insert_datenherkunft_zwischenhaendler(self, zwischenhaendler_id: int, datenherkunft_id: int):
+        sql = ("insert into DATENHERKUNFT_ZWISCHENHAENDLER(ZWISCHENHAENDLER_ID, DATENHERKUNFT_ID) "
+               "values({}, {}) ").format(zwischenhaendler_id, datenherkunft_id)
         self._insert(sql)
 
 

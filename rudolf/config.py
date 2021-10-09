@@ -41,7 +41,7 @@ VORNAMEN_GENDER_CSV = CSV_FILES_DICT / "vornamen_gender.csv"
 RUDOLF_DB_PATH = ROOT_DIR / Path("rudolf-db.db")
 RUDOLF_TEST_DB_PATH = ROOT_DIR / Path("test-rudolf-db.db")
 
-ADDRESS_DB_TABLE = "adresse"
+ADDRESS_TABLE = "adresse"
 LIEFERANT_HERSTELLER_TABLE = "lieferant_hersteller"
 WORKER_POSITION_TABLE = "funktion"
 WORKER_TABLE = "mitarbeiter"
@@ -52,3 +52,5 @@ BESTELLUNG_TABLE = "bestellung"
 SUBKATEGORIE_TABLE = "subkategorien"
 MARKE_TABLE = "marke"
 PREIS_TABLE = "preis"
+ZWHAENDLER_TABLE = "zwischenhaendler"
+EINKAUF_TABLE = "einkauf"
