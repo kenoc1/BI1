@@ -101,6 +101,37 @@ class F2DBService(OracleService):
     def select_all_stueckzahlbasiert_verkauf(self):
         return self._select_all_dict("STUECKZAHLBASIERTES_PRODUKT_IM_VERKAUF")
 
+    def select_all_produkte(self):
+        return self._select_all_dict("PRODUKT")
+
+    def select_hersteller_id_where_marke_id(self, brand_id: str):
+        with self.con.cursor() as cursor:
+            cursor.execute("""select HERSTELLER_ID from MARKE WHERE MARKE_ID = :brand_id""",
+                           brand_id=brand_id)
+            row = cursor.fetchone()
+        if row:
+            return int(row[0])
+
+    def select_produktkategorie_id_where_produkt_id(self, product_id: int) -> int:
+        with self.con.cursor() as cursor:
+            cursor.execute(
+                f"select PRODUKTKATEGORIE_ID from ZUWEISUNG_PRODUKT_PRODUKTKATEGORIE WHERE PRODUKT_ID = :id",
+                id=product_id)
+            rows = cursor.fetchall()
+            if rows:
+                return rows[0][0]
+
+    def select_current_preis_where_product_id_and_typ(self, product_id: int, verkaufs_typ: str):
+        sql = "select * from PREIS where PRODUKT_ID = {} and TYP = '{}' and GUELTIGKEITS_ENDE is null".format(
+            product_id, verkaufs_typ)
+        return self._select_dict(sql)
+
+    def select_all_marken(self):
+        return self._select_all_dict("MARKE")
+
+    def select_all_preise(self):
+        return self._select_all_dict("PREIS")
+
 
 class CombDBService(OracleService):
 
@@ -137,6 +168,9 @@ class CombDBService(OracleService):
 
     def select_all_warenkoerbe(self):
         return self._select_all_dict("WARENKORB")
+
+    def select_all_produkte(self):
+        return self._select_all_dict("PRODUKT")
 
     # --------------------Inserts--------------------
 
@@ -209,17 +243,20 @@ class CombDBService(OracleService):
                                                                               datenherkunft, mitarbeiter_id)
         return self._insert_and_return_id(sql, "BESTELLUNG_ID")
 
+    # TODO TEST
     def insert_bestellung_to_zahlungsart(self, bestellungid: int, zahlungsart_id: int):
         sql = ("insert into ZAHLUNGSART_BESTELLUNG(BESTELLUNG_ID , ZAHLUNGSART_ID) "
                "values({}, {}) ").format(bestellungid, zahlungsart_id)
         self._insert(sql)
 
+    # TODO TEST
     def insert_rechnung(self, bestellungid: int, rechnungsdatum, summe_netto: float, summe_brutto: float):
         sql = ("insert into RECHNUNG(BESTELLUNG_ID, RECHNUNGSDATUM, SUMME_NETTO, SUMME_BRUTTO) "
                "values({}, TO_DATE('{}','yyyy-mm-dd'), {}, {})") \
             .format(bestellungid, rechnungsdatum, summe_netto, summe_brutto)
         return self._insert_and_return_id(sql, "RECHNUNG_ID")
 
+    # TODO TEST
     def insert_bon(self, bestellungid: int, gegebenesgeld: float, rueckgeld: float, summe_netto: float,
                    summe_brutto: float):
         sql = ("insert into BON(BESTELLUNG_ID, GEGEBENES_GELD, RUECKGELD,SUMME_NETTO, SUMME_BRUTTO) "
@@ -227,15 +264,39 @@ class CombDBService(OracleService):
             .format(bestellungid, gegebenesgeld, rueckgeld, summe_netto, summe_brutto)
         return self._insert_and_return_id(sql, "BON_ID")
 
+    # TODO TEST
     def insert_lieferschein(self, bestellungid: int, lieferkosten: float, lieferdatum):
         sql = ("insert into LIEFERSCHEIN(BESTELLUNG_ID, LIEFERKOSTEN , LIEFERDATUM) "
                "values({}, {}, TO_DATE('{}','yyyy-mm-dd'))").format(bestellungid, lieferkosten, lieferdatum)
         return self._insert_and_return_id(sql, "LIEFERSCHEIN_ID")
 
+    # TODO TEST
     def insert_bestellposition(self, bestellungid: int, produktid: int, menge: int):
         sql = (
             "insert into BESTELLPOSITION(PRODUKT_ID, BESTELLUNG_ID , MENGE) "
             "values({}, {}, {})").format(produktid, bestellungid, menge)
+        self._insert(sql)
+
+    # TODO TEST
+    def insert_product_only_required_fields(self, supplier_id, product_class_id, product_name, sku, ean, discount,
+                                            size_fit,
+                                            purchasing_price, selling_price, mwst, brand_id, source_system) -> int:
+        sql = ("insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, EAN, SKU, "
+               "ANGEBOTSRABATT, EINHEITSGROESSE, EINKAUFSPREIS, LISTENVERKAUFSPREIS, MWST_SATZ, DATENHERKUNFT_ID, MARKE_ID) "
+               "values({},{},'{}', {}, {}, {}, {}, {}, {}, {}, {}, {})") \
+            .format(supplier_id, product_class_id, product_name, ean, sku, discount, size_fit, purchasing_price,
+                    selling_price, mwst, source_system, brand_id)
+        return self._insert_and_return_id(sql, "PRODUKT_ID")
+
+    # TODO TEST
+    def insert_marke(self, supplier_id, brand_name) -> int:
+        sql = ("insert into MARKE(LIEFERANT_ID, BEZEICHNUNG)"
+               "values({}, '{}')").format(supplier_id, brand_name)
+        return self._insert_and_return_id(sql, "MARKE_ID")
+
+    def insert_product_price_history(self, product_id, price, typ, start_date):
+        sql = ("insert into PREISHISTORIE(PRODUKT_ID, BETRAG, TYP, START_TIMESTAMP) "
+               "values({},{},'{}',TO_DATE('{}','yyyy-mm-dd'))").format(product_id, price, typ, start_date)
         self._insert(sql)
 
     # --------------------Datenherkunft--------------------

@@ -1,6 +1,6 @@
 import unittest
 
-from rudolf.etl_scripts.address import Address
+from rudolf.etl_scripts.adresse import Adresse
 from rudolf.tests.mock_sqlite_service import MockSQLiteService
 from rudolf.tests.non_commit_oracle_service import NonCommitCombDBService, NonCommitF2DBService
 
@@ -9,7 +9,7 @@ from rudolf.tests.non_commit_oracle_service import NonCommitCombDBService, NonCo
 class TestAddress(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.address_class = Address()
+        self.address_class = Adresse()
         self.address_class._con_f2 = NonCommitF2DBService()
         self.address_class._con_master = NonCommitCombDBService()
 

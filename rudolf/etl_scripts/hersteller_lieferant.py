@@ -5,7 +5,7 @@ from rudolf.sqlite_service import SQLiteService
 from rudolf.util import compare_strings
 
 
-class Supplier:
+class HerstellerLieferant:
     def __init__(self):
         self.db_f2 = F2DBService()
         self.db_master = CombDBService()

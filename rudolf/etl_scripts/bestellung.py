@@ -32,7 +32,7 @@ class Bestellung:
         self.f2_gewichtsbasiert_im_verkauf = self.f2_con.select_all_gewichtsbasiert_verkauf()
         self.f2_stueckzahlbasiert_im_verkauf = self.f2_con.select_all_stueckzahlbasiert_verkauf()
 
-    def start(self):
+    def start(self) -> None:
         try:
             for sale in self.f2_sales:
                 if not self._is_bestellung_already_transferred(sale.get("VERKAUFS_ID")):
@@ -48,7 +48,7 @@ class Bestellung:
             print(error)
             sys.exit("Datenbankverbindung erzeugt Fehler, Skript wird gestoppt!")
 
-    def _create_bestellung(self, f2_verkauf_entry: dict):
+    def _create_bestellung(self, f2_verkauf_entry: dict) -> int:
         verkaufsdatum = f2_verkauf_entry.get("VERKAUFDATUM")
         f2_kunden_id: int = f2_verkauf_entry.get("KUNDEN_ID")
         com_kunden_id: int = self._con_rudolf.select_where_old_id(config.KUNDEN_TABLE,
@@ -66,7 +66,7 @@ class Bestellung:
                                               f2_verkauf_entry.get("VERKAUFS_ID"))
         return new_bestellung_id
 
-    def _create_verkaufsdokumente(self, new_bestellung_id: int):
+    def _create_verkaufsdokumente(self, new_bestellung_id: int) -> None:
         bon_element: dict = next((elem for elem in self.f2_bondaten if
                                   elem.get("VERKAUFS_ID") == new_bestellung_id), None)
         if bon_element:
@@ -118,7 +118,7 @@ class Bestellung:
     def _calculate_menge_from_gewicht(menge: float) -> float:
         return menge / 2
 
-    def _is_bestellung_already_transferred(self, f2_verkauf_id: int):
+    def _is_bestellung_already_transferred(self, f2_verkauf_id: int) -> bool:
         try:
             self._con_rudolf.select_where_old_id(table_name=config.BESTELLUNG_TABLE, old_id=f2_verkauf_id)
             return True

@@ -114,10 +114,17 @@ class SQLiteService:
                                 f2_id INTEGER UNIQUE
                             );
                         """)
+                self.con.execute("""
+                            CREATE TABLE if not exists preis (
+                                preis_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                comb_id INTEGER,
+                                f2_id INTEGER UNIQUE
+                            );
+                        """)
         except sl.OperationalError as oe:
             print("DB Error")
             print(oe)
 
 
 if __name__ == "__main__":
-    print(SQLiteService().select_where_old_id(config.ADDRESS_DB_TABLE, 6781))  # 6781
+    SQLiteService().insert_id_allocation(config.PREIS_TABLE, None, 0)

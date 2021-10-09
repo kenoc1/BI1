@@ -5,15 +5,15 @@ from rudolf.sqlite_service import SQLiteService
 from rudolf.util import compare_strings
 
 
-class Address:
+class Adresse:
 
     def __init__(self):
         self._init_db_connections()
 
-    def init(self):
+    def init(self) -> None:
         self._get_data_basis()
 
-    def _init_db_connections(self):
+    def _init_db_connections(self) -> None:
         # TODO try/catch
         self._con_f2 = F2DBService()
         self._con_master = CombDBService()
@@ -24,13 +24,13 @@ class Address:
         self._f2_addresses_join: list[dict] = self._con_f2.select_all_addresses_join()
         self._comb_addresses: list[dict] = self._con_master.select_all_addresses()
 
-    def start(self):
+    def start(self) -> None:
         for address in self._f2_addresses_join:
             # TODO try/catch
             if not self._is_address_already_transferred(address.get("ADRESS_ID")):
                 self._insert_addresses(address)
 
-    def _insert_addresses(self, address: dict):
+    def _insert_addresses(self, address: dict) -> None:
         matching_addresses: list[dict] = self._get_matching_addresses_if_exists(address)
         if len(matching_addresses) == 1:
             combined_address_id = matching_addresses.__getitem__(0).get("ADRESSE_ID")

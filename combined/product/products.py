@@ -1,8 +1,9 @@
-from db_service import DB_F2, DB_MASTER
-import key_allocation_saver
 import key_allocation_reader
-import util
+import key_allocation_saver
+
 import config
+import util
+from db_service import DB_F2, DB_MASTER
 
 
 # --- OS PRODUKT---
@@ -63,10 +64,6 @@ class Products:
         self.con_sup = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.SUPPLIER_CON_FILE_NAME)
         self.con_brand = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.BRAND_CON_FILE_NAME)
         self.con_products = key_allocation_reader.read_f2_to_comb_id_allocation_from_file(config.PRODUCTS_CON_FILE_NAME)
-        # testing
-        # print(self.db_master.product_present_check_with_sku("22576443552", 19))
-        # print(self._get_new_supplier_id(33))
-        # print(self._get_new_product_class_id(1))
 
     @staticmethod
     def _convert_mwst(mwst: float):

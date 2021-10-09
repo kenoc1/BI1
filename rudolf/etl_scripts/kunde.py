@@ -6,13 +6,19 @@ from rudolf.sqlite_service import SQLiteService
 from rudolf.util import compare_strings
 
 
-class Customer:
+class Kunde:
 
     def __init__(self):
+        self._init_db_connections()
+
+    def init(self) -> None:
+        self._get_data_basis()
+
+    def _init_db_connections(self) -> None:
+        # TODO try/catch
         self.con_f2 = F2DBService()
         self.con_master = CombDBService()
         self.con_rudolf = SQLiteService()
-        self._get_data_basis()
 
     def _get_data_basis(self) -> None:
         # TODO try/catch
@@ -80,5 +86,5 @@ class Customer:
 
 if __name__ == "__main__":
     # create object
-    customer_obj = Customer()
+    customer_obj = Kunde()
     # addressMerge.start()
