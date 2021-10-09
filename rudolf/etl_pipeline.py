@@ -1,3 +1,5 @@
+import socketio
+
 from rudolf.etl_scripts.adresse import Adresse
 from rudolf.etl_scripts.bestellung import Bestellung
 from rudolf.etl_scripts.einkauf import Einkauf
@@ -14,14 +16,20 @@ from rudolf.etl_scripts.zwischenhaendler import Zwischenhaendler
 class ETLPipeline:
 
     def __init__(self):
-        pass
+        self.sio = socketio.Client()
+
+    def connect(self):
+        self.sio.connect('http://localhost:8080')
+
+    def test(self):
+        self.sio.emit('update_progress', {"name": "Adressen", "status": 0})
 
     def start(self):
         # Adresse
         address = Adresse()
         address.init()
-
         address.start()
+
         # Funktion
         funktion = MitarbeiterFunktion()
         funktion.init()
@@ -32,7 +40,7 @@ class ETLPipeline:
         mitarbeiter.init()
         mitarbeiter.start()
 
-        # Lager # MANUELL
+        # Lager # MANUELL (muss eigentlich nicht wirklich)
         # Kategorien # MANUELL
 
         # Kunde
@@ -76,3 +84,6 @@ class ETLPipeline:
         bestellung = Bestellung()
         bestellung.init()
         bestellung.start()
+
+    def _send_progress_update(self, data):
+        self.socket_client.emit('update_progress', data)

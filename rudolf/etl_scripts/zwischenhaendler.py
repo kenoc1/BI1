@@ -29,7 +29,6 @@ class Zwischenhaendler:
                 self.merge_zwischenhaendler(lieferant)
 
     def merge_zwischenhaendler(self, lieferant: dict) -> None:
-        # TODO was, wenn zwhaendler auf datendatz abbildbar
         new_address_id: int = self._get_new_address_id(f2_address_id=lieferant.get("ADRESS_ID"))
         comb_zwischenhaendler_id: int = self.combined_con.insert_zwischenhaendler(name=lieferant.get("NAME"),
                                                                                   email=lieferant.get("EMAIL"),
@@ -55,6 +54,4 @@ class Zwischenhaendler:
 
 
 if __name__ == "__main__":
-    zwischenhaendler_merger = Zwischenhaendler()
-    # zwischenhaendler_merger.merge_zwischenhaendler()
-    # zwischenhaendler_merger.merge_einkauf()
+    pass

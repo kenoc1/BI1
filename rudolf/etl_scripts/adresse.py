@@ -24,11 +24,12 @@ class Adresse:
         self._f2_addresses_join: list[dict] = self._con_f2.select_all_addresses_join()
         self._comb_addresses: list[dict] = self._con_master.select_all_addresses()
 
-    def start(self) -> None:
+    def start(self) -> bool:
         for address in self._f2_addresses_join:
             # TODO try/catch
             if not self._is_address_already_transferred(address.get("ADRESS_ID")):
                 self._insert_addresses(address)
+        return True
 
     def _insert_addresses(self, address: dict) -> None:
         matching_addresses: list[dict] = self._get_matching_addresses_if_exists(address)
