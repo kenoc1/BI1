@@ -319,6 +319,7 @@ class CombDBService(OracleService):
         return self._insert_and_return_id(sql, "EINKAUF_ID")
 
     # TODO TEST
+    # TODO ORA-01830: Datumsformatstruktur endet vor Umwandlung der gesamten Eingabezeichenfolge
     def insert_einkauf_produkt(self, einkaufid: int, produktid: int, menge: int) -> int:
         sql = ("insert into EINKAUF_PRODUKT (EINKAUF_ID, PRODUKT_ID, MENGE)"
                "values({}, {}, {})").format(einkaufid, produktid, menge)
