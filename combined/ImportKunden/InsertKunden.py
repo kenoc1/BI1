@@ -17,19 +17,27 @@ class InsertKunden:
         with self.con_master.cursor() as cursor:
             if (kunden_liste):
                 for kunde in kunden_liste:
-                    if (self.kunde_existiert(kunde)):
-                        # Kunde ist schon vorhanden, nur Eintrag in die Zwischentabelle
-                        print('Kunde mit der ID ', kunde.id_combined, 'existiert bereits, wird übersprungen.')
-                        cursor.execute(
-                            f"""INSERT INTO DATENHERKUNFT_KUNDE(KUNDE_ID, DATENHERKUNFT_ID) VALUES({kunde.id_combined}, 2)""")
-                        self.con_master.commit()
-                        csv_kunden_liste.append([kunde.id_combined, kunde.id_filiale])
-                        print("Bestehender Kunde wurde eingefügt")
+                    if (self.kunde_existiert_in_OS(kunde)):
+                        if(kunde.datenherkunft_id == 2):
+                            # Kunde war schon in der Filiale 2 vorhanden, wurde also bereits inserted
+                            print('Kunde mit der ID ', kunde.id_combined, 'wurde bereits inserted, wird übersprungen.')
+                        else:
+                            # Kunde ist schon vorhanden, nur Eintrag in die Zwischentabelle
+                            print('Kunde mit der ID ', kunde.id_combined, 'existiert bereits im Schema, Datenherkunft + Geburtsdatum wird ergänzt.')
+                            cursor.execute(
+                                f"""INSERT INTO DATENHERKUNFT_KUNDE(KUNDE_ID, DATENHERKUNFT_ID) VALUES({kunde.id_combined}, 2)""")
+                            self.con_master.commit()
+                            cursor.execute(
+                                f"""ALTER TABLE KUNDE K SET K.GEBURTSDATUM = TO_DATE('{self.datetime_zu_date(kunde.geburtsdatum)}','yyyy-mm-dd') WHERE K.KUNDE_ID = {kunde.id_combined}""")
+                            self.con_master.commit()
+                            csv_kunden_liste.append([kunde.id_combined, kunde.id_filiale])
                     else:
                         try:
                             # Kunde existiert noch nicht, muss eingefügt werden
                             cursor.execute(
-                                f"""INSERT INTO KUNDE(ANREDE, VORNAME, NACHNAME, EMAIL, GEBURTSDATUM) VALUES ('{kunde.anrede}','{kunde.vorname}','{kunde.nachname}', '{kunde.email}', TO_DATE('{self.datetime_zu_date(kunde.geburtsdatum)}','yyyy-mm-dd'))""")
+                                f"""INSERT INTO KUNDE(ANREDE, VORNAME, NACHNAME, EMAIL, GEBURTSDATUM) 
+                                VALUES ('{kunde.anrede}','{kunde.vorname}','{kunde.nachname}', '{kunde.email}', 
+                                TO_DATE('{self.datetime_zu_date(kunde.geburtsdatum)}','yyyy-mm-dd'))""")
                             self.con_master.commit()
                             # Neue ID zum Kunden hinzufügen
                             kunde.id_combined = self.get_combined_Id(kunde)
@@ -66,13 +74,13 @@ class InsertKunden:
 
     # Prüft, ob die Kunden schon in der Datenbank vorhanden sind
     # Name = Name, Vorname = Vorname, Adress_Id = Adress_Id (muss gemappt sein, also schon die neue ID!)
-    def kunde_existiert(self, kunde):
+    def kunde_existiert_in_OS(self, kunde):
         try:
             with self.con_master.cursor() as cursor:
                 kunde_existiert = False
                 # Vorname und Name prüfen
                 cursor.execute(
-                    f"""SELECT K.KUNDE_ID FROM KUNDE K WHERE K.VORNAME = '{kunde.vorname}' AND K.NACHNAME = '{kunde.nachname}'""")
+                    f"""SELECT K.KUNDE_ID, K. FROM KUNDE K WHERE K.VORNAME = '{kunde.vorname}' AND K.NACHNAME = '{kunde.nachname}'""")
                 dataset = cursor.fetchall()
                 if (dataset):
                     # Vor- und Nachname sind bereits vorhanden, Rechnungsadresse prüfen
@@ -81,8 +89,13 @@ class InsertKunden:
                     dataset = cursor.fetchall()
                 if (dataset):
                     # Rechnungsadresse passt auch, also existiert Kunde
-                    kunde_existiert = True
                     kunde.set_id_combined(dataset[0][0])
+                    kunde_existiert = True
+                    # Prüfen, ob Kunde bereits eingefügt wurde, dann ist Datenherkunft = 2
+                    cursor.execute(
+                        f"""SELECT DH.DATENHERKUNFT_ID FROM DATENHERKUNFT_KUNDE DH WHERE KA.KUNDE_ID = '{kunde.id_combined}'""")
+                    datenherkunft_tupel = cursor.fetchall()
+                    kunde.set_datenherkunft_id(datenherkunft_tupel[0][0])
                 return kunde_existiert
 
         except cx_Oracle.Error as error:
