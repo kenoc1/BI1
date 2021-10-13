@@ -48,17 +48,13 @@ class ImportKunden:
     # Erzeugt aus den zuvor importierten Kunden_Tupeln eine Liste von Kunden_Objekten mit den entsprechenden Attributen
     def get_kunden_objekte(self):
         self.select_kunden()
-
-        dummy_mail = 'Keine E-Mail'
         for tupel in self.kunden_tupel:
             kunde = Kunde()
-            # Anrede herausfinden
             kunde.set_id_filiale(tupel[0])
             kunde.set_vorname(tupel[1])
             kunde.set_anrede(self.anreden_finder.finde_Anrede(kunde.vorname))
             kunde.set_nachname(tupel[2])
             kunde.set_geburtsdatum(tupel[3])
-            kunde.set_email(dummy_mail)
             kunde.set_rechnungsadresse_id(self.getCombinedAdressId(tupel[4]))
             kunde.set_lieferadresse_id(self.getCombinedAdressId(tupel[5]))
             self.kunden_objekte.append(kunde)
