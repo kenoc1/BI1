@@ -290,7 +290,7 @@ class CombDBService(OracleService):
         self._insert(sql)
 
     # TODO TEST
-    def insert_product_only_required_fields(self, supplier_id, product_class_id, product_name, sku, ean, discount,
+    def insert_product_only_required_fields(self, supplier_id, product_class_id, product_name, ean, sku, discount,
                                             size_fit,
                                             purchasing_price, selling_price, mwst, brand_id, source_system) -> int:
         sql = ("insert into PRODUKT(LIEFERANT_ID, PRODUKTKLASSE_ID, PROUKT_NAME, EAN, SKU, "
