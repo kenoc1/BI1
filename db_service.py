@@ -34,6 +34,9 @@ class DB_F2:
     def select_all_workers(self):
         return self._select_all_dict("MITARBEITER")
 
+    def select_all_verkauf(self):
+        return self._select_all_dict("VERKAUF")
+
     def select_all_delivery_notes(self):
         return self._select_all_dict("LIEFERSCHEIN")
 

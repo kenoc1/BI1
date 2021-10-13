@@ -67,14 +67,17 @@ class Bestellung:
 
     def _create_verkaufsdokumente(self, new_bestellung_id: int) -> None:
         bon_element: dict = next((elem for elem in self.f2_bondaten if
-                                  elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                  self._con_rudolf.select_where_old_id(config.BESTELLUNG_TABLE,
+                                                                       elem.get("VERKAUFS_ID")) == new_bestellung_id),
+                                 None)
         if bon_element:
             self._create_bon(bon_element, new_bestellung_id)
             self.combined_con.insert_bestellung_to_zahlungsart(bestellungid=new_bestellung_id,
                                                                zahlungsart_id=41 if bon_element.get(
                                                                    "ZAHLUNGSART") == "Bar" else 3)
         rechnung_element: dict = next((elem for elem in self.f2_rechnungsdaten if
-                                       elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                       self._con_rudolf.select_where_old_id(config.BESTELLUNG_TABLE, elem.get(
+                                           "VERKAUFS_ID")) == new_bestellung_id), None)
 
         if rechnung_element:
             self._create_rechnung(rechnung_element, new_bestellung_id)
@@ -82,7 +85,8 @@ class Bestellung:
                                                                zahlungsart_id=2)
 
         lieferschein_element: dict = next((elem for elem in self.f2_lieferschein if
-                                           elem.get("VERKAUFS_ID") == new_bestellung_id), None)
+                                           self._con_rudolf.select_where_old_id(config.BESTELLUNG_TABLE, elem.get(
+                                               "VERKAUFS_ID")) == new_bestellung_id), None)
         if lieferschein_element:
             self._create_lieferschein(lieferschein_element, new_bestellung_id)
 
