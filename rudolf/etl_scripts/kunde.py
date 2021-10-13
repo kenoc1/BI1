@@ -1,4 +1,4 @@
-from rudolf import config
+from rudolf import config, util
 from rudolf.etl_scripts.anreden_finder import AnredenFinder
 from rudolf.oracle_service import F2DBService, CombDBService
 from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
@@ -45,7 +45,7 @@ class Kunde:
                 vorname=f2_customer.get("VORNAME"),
                 nachname=f2_customer.get("NACHNAME"),
                 email=config.DUMMY_MAIL,
-                geburtsdatum=self._datetime_to_date_string(f2_customer.get("GEBURTSDATUM")))
+                geburtsdatum=util.datetime_to_date_string(f2_customer.get("GEBURTSDATUM")))
             self.con_master.insert_kunde_datenherkunft(new_kunden_id, config.SOURCE_F2)
             self.con_rudolf.insert_id_allocation(config.KUNDEN_TABLE, new_kunden_id, f2_customer.get("KUNDEN_ID"))
             if f2_customer.get("RECHNUNGS_ADRESSE_ID"):
@@ -79,10 +79,6 @@ class Kunde:
             return True
         except NoCombIDFoundForF2IDException:
             return False
-
-    @staticmethod
-    def _datetime_to_date_string(datetime) -> str:
-        return str(datetime).split()[0]
 
 
 if __name__ == "__main__":

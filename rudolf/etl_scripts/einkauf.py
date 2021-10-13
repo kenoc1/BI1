@@ -1,4 +1,6 @@
-from rudolf import config
+import datetime
+
+from rudolf import config, util
 from rudolf.oracle_service import F2DBService, CombDBService
 from rudolf.rudolf_exceptions import NoCombIDFoundForF2IDException
 from rudolf.sqlite_service import SQLiteService
@@ -51,7 +53,8 @@ class Einkauf:
     def _insert_einkauf(self, einkauf: dict) -> int:
         comb_lieferant_id: int = self._get_new_lieferant_id(f2_lieferant_id=einkauf.get("LIEFERANT_ID"))
         comb_mitarbeiter_id: int = self._get_new_mitarbeiter_id(f2_mitarbeiter_id=einkauf.get("MITARBEITER_ID"))
-        return self.combined_con.insert_einkauf(einkauf.get("EINKAUFSDATUM"), comb_lieferant_id, comb_mitarbeiter_id, 2)
+        print(einkauf)
+        return self.combined_con.insert_einkauf(util.datetime_to_date_string(einkauf.get("EINKAUFSDATUM")), comb_lieferant_id, comb_mitarbeiter_id, 2)
 
     def _insert_einkauf_produkt(self, f2_einkauf: dict, comb_einkauf_id: int) -> None:
         gewichtsbasiert: list[dict] = [gb_ek for gb_ek in self.f2_gewichtsbasiert_einkauf if
@@ -70,7 +73,7 @@ class Einkauf:
         return self.rudolf_con.select_where_old_id(table_name=config.PRODUKTE_TABLE, old_id=f2_product_id)
 
     def _get_new_lieferant_id(self, f2_lieferant_id: int) -> int:
-        return self.rudolf_con.select_where_old_id(table_name=config.LIEFERANT_HERSTELLER_TABLE, old_id=f2_lieferant_id)
+        return self.rudolf_con.select_where_old_id(table_name=config.ZWHAENDLER_TABLE, old_id=f2_lieferant_id)
 
     def _get_new_mitarbeiter_id(self, f2_mitarbeiter_id: int) -> int:
         return self.rudolf_con.select_where_old_id(table_name=config.WORKER_TABLE, old_id=f2_mitarbeiter_id)
