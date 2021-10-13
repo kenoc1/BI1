@@ -53,29 +53,32 @@
     </div>
 </div>
 <script type="text/javascript" charset="utf-8">
-    async function start() {
+    function start() {
         var socket = io();
-        await socket.emit('start_adresse', async function (data) {
+        socket.emit('start_adresse', function (data) {
             document.getElementById("progress-table").innerHTML = data
-            await socket.emit('start_funktion', async function (data) {
+            socket.emit('start_funktion', function (data) {
                 document.getElementById("progress-table").innerHTML = data
-                await socket.emit('start_mitarbeiter', async function (data) {
+                socket.emit('start_mitarbeiter', function (data) {
+                    alert("Fügen Sie Lager manuell ein, falls neue hinzugekommen sind")
+                    alert("Fügen Sie Kategorien manuell ein, falls neue hinzugekommen sind")
                     document.getElementById("progress-table").innerHTML = data
-                    await socket.emit('start_kunde', async function (data) {
+                    alert("Fügen Sie Zahlungsarten manuell ein, falls neue hinzugekommen sind")
+                    socket.emit('start_kunde', function (data) {
                         document.getElementById("progress-table").innerHTML = data
-                        await socket.emit('start_marke', async function (data) {
+                        socket.emit('start_marke', function (data) {
                             document.getElementById("progress-table").innerHTML = data
-                            await socket.emit('start_produkt', async function (data) {
+                            socket.emit('start_produkt', function (data) {
                                 document.getElementById("progress-table").innerHTML = data
-                                await socket.emit('start_preishistorie', async function (data) {
+                                socket.emit('start_preishistorie', function (data) {
                                     document.getElementById("progress-table").innerHTML = data
-                                    await socket.emit('start_lagerplatz', async function (data) {
+                                    socket.emit('start_lagerplatz', function (data) {
                                         document.getElementById("progress-table").innerHTML = data
-                                        await socket.emit('start_zwhaendler', async function (data) {
+                                        socket.emit('start_zwhaendler', function (data) {
                                             document.getElementById("progress-table").innerHTML = data
-                                            await socket.emit('start_einkauf', async function (data) {
+                                            socket.emit('start_einkauf', function (data) {
                                                 document.getElementById("progress-table").innerHTML = data
-                                                await socket.emit('start_bestellung', function (data) {
+                                                socket.emit('start_bestellung', function (data) {
                                                     document.getElementById("progress-table").innerHTML = data
                                                 })
                                             })
