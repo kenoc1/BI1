@@ -1,8 +1,10 @@
 import cx_Oracle
 import config
+from combined import key_allocation_saver
 from combined.ImportKunden.AnredenFinder import AnredenFinder
 from combined.key_allocation_reader import read_f2_to_comb_id_allocation_to_file
 from util import search_for_id
+
 
 
 class Mitarbeiter_Merge:
@@ -18,58 +20,12 @@ class Mitarbeiter_Merge:
                                             dsn=config.DB_CON_DSN_COMBINED, encoding="UTF-8")
         print("Database version:", self.con_master.version)
 
-
-    #def addProvisionTable(self):
-        # add new Table "Provision" im Combined DB
-     #   try:
-      #      with self.con_master.cursor() as cursor:
-       #         cursor.execute("""create table Provision ("Provison_ID" NUMBER constraint TABLE_NAME_PK primary key,
-	      #                                                      "Provisionssatz" NUMBER(5,2))""")
-        #        self.con_master.commit()
-        # add FOREIGN KEY to Provision to Mitarbeiter
-        #    with self.con_master.cursor() as cursor:
-         #       cursor.execute("""ALTER TABLE Provision
-           #                         ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-            #    self.con_master.commit()
-        # add Zuweisung Prvocion_Mitarbeiter
-            #with self.con_master.cursor() as cursor:
-             #  cursor.execute("""create table Zuweisung_Provision_Mitarbeiter ("Provison_ID" NUMBER constraint TABLE_NAME_PK primary key,
-              #                                                                  "Mitarbeiter_ID" number constraint TABLE_NAME_PK primary key)""")
-               #self.con_master.commit()
-        # add FOREIGN KEY to Zuweisung_Provision_Mitarbeiter
-            #with self.con_master.cursor() as cursor:
-             #   cursor.execute("""ALTER TABLE Zuweisung_Provision_Mitarbeiter
-              #                              ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-               #                             ADD FOREIGN KEY (Provision_ID) REFERENCES Provision (Provision_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-                #self.con_master.commit()
-
-        #except cx_Oracle.Error as error:
-         #   print('Error occurred:')
-          #  print(error)
-
-#    def addFunktionTable(self):
-#        # add new Table Funktion
-#        try:
-#            with self.con_master.cursor() as cursor:
-#               cursor.execute("""create table Funktion ("Funktion_ID" NUMBER constraint TABLE_NAME_PK primary key,
-#	                                                            "BEZEICHNUNG" VARCHAR2(128) )""")
-#               self.con_master.commit()
-#            with self.con_master.cursor() as cursor:
-#                cursor.execute("""CREATE TABLE Zuweisung_Mitarbeiter_Funktion (Mitarbeiter_ID Number NOT NULL,
-#                                                               Funktion_ID VARCHAR2 NOT NULL,
-#                                                               PRIMARY KEY (Mitarbeiter_ID, Funktion_ID))""")
-#                # add FOREIGN KEY to Funktion to Mitarbeiter
-#                self.con_master.commit()
-#            with self.con_master.cursor() as cursor:
-#                cursor.execute("""ALTER TABLE Zuweisung_Mitarbeiter_Funktion
-#                                    ADD FOREIGN KEY (Mitarbeiter_ID) REFERENCES Mitarbeiter (Mitarbeiter_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-#                                    ADD FOREIGN KEY (Funktion_ID) REFERENCES Funktion (Funktion_ID) ON DELETE CASCADE ON UPDATE CASCADE""")
-#                self.con_master.commit()
-#        except cx_Oracle.Error as error:
-#            print('Error occurred:')
-#            print(error)
-
-
+    def generiere_mitarbeiter_csv(self, mitarbeiter_liste):
+        id_mapping = []
+        for mitarbeiter in mitarbeiter_liste:
+            id_mapping.append([mitarbeiter[0], mitarbeiter[1]])
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(id_mapping,
+                                                                   "../../data/allocation_csvs/mitarbeiter.csv")
 
     def findAdressId(self, alte_adress_id):
         test = read_f2_to_comb_id_allocation_to_file("addresse.csv")
@@ -81,29 +37,14 @@ class Mitarbeiter_Merge:
             # get alle Mitarbeiter in F2
             with self.con_f2.cursor() as cursor:
                 cursor.execute(
-                    """select Vorname, Nachname, Adress_ID, GEHALT
-                        from MITARBEITER
-                        order by Adress_ID""")
+                    """select MITARBEITER_ID, VORNAME, NACHNAME, ADRESS_ID, GEHALT, PROVISIONSSATZ
+                        from MITARBEITER""")
                 MitarbeiterList = cursor.fetchall()
-                for i in MitarbeiterList:
-                    print (i)
                 return MitarbeiterList
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
 
-    def getProvisionF2(self):
-        try:
-            # get alle Provision in F2
-            with self.con_f2.cursor() as cursor:
-                cursor.execute(
-                    """select Mitarbeiter_ID, PROVISIONSSATZ
-                        from MITARBEITER""")
-                ProvisionList = cursor.fetchall()
-                return ProvisionList
-        except cx_Oracle.Error as error:
-            print('Error occurred:')
-            print(error)
 
     def getFunktionF2(self):
         try:
@@ -113,89 +54,130 @@ class Mitarbeiter_Merge:
                     """select BEZEICHNUNG
                         from FUNKTION""")
                 FunktionList = cursor.fetchall()
-                for i in FunktionList:
-                    print(i)
                 return FunktionList
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
 
-    def getZuweisungFunktionMitarbeiterF2(self):
+    def getZuweisungFunktionMitarbeiterF2(self, mitarbeiterListe):
+        return_array = []
         try:
             # get alle ZuweisungFunktionenMitarbeiter in F2
             with self.con_f2.cursor() as cursor:
-                cursor.execute(
-                    """select FUNKTIONS_ID, MITARBEITER_ID
-                        from ZUWEISUNG_MITARBEITER_FUNKTION""")
-                ZuweisungFunktionMitarbeiterList = cursor.fetchall()
-                for i in ZuweisungFunktionMitarbeiterList:
-                    print(i)
-                return ZuweisungFunktionMitarbeiterList
+                for mitarbeiter in mitarbeiterListe:
+                    sql = f"""select FUNKTIONS_ID
+                            from ZUWEISUNG_MITARBEITER_FUNKTION
+                            where MITARBEITER_ID = {mitarbeiter[0]}"""
+                    cursor.execute(sql)
+
+                    funktionsid = cursor.fetchall()
+                    if (funktionsid):
+                        mitarbeiter = list(mitarbeiter)
+                        mitarbeiter.append(funktionsid[0][0])
+                        return_array.append(mitarbeiter)
+            return return_array
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
 
     def insertFunktionen(self):
-        FunktionList = object.getFunktionF2()
+        FunktionList = self.getFunktionF2()
         try:
             with self.con_master.cursor() as cursor:
-               for funktion in FunktionList:
-                    #print(funktion)
-                    cursor.execute(f"""INSERT INTO FUNKTION(BEZEICHNUNG)
-                                    VALUE {funktion}""")
-            self.con_master.commit()
+                for funktion in FunktionList:
+                    funktionBezeichnung = funktion[0]
+                    cursor.execute(f"""INSERT INTO FUNKTION(BEZEICHNUNG) VALUES ('{funktionBezeichnung}')""")
+                    self.con_master.commit()
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
 
-
-    def insertProvision(self):
-        ProvisionListe = object.getProvisionF2()
+    def mitarbeiter_existiert(self, mitarbeiter):
         try:
             with self.con_master.cursor() as cursor:
-                for Provision in ProvisionListe:
-                    #print(Provision[1])
-                    cursor.execute(f"""INSERT INTO Provision(Provisionssatz)
-                                   VALUE ({Provision[1]})""")
-            self.con_master.commit()
+                mitarbeiter_existiert = False
+                # Vorname und Name und Adresse prüfen
+                mitarbeiterAdresse = self.findAdressId(mitarbeiter[3])
+                cursor.execute(
+                    f"""SELECT MITARBEITER_ID FROM MITARBEITER WHERE VORNAME = '{mitarbeiter[1]}' AND NACHNAME = '{mitarbeiter[2]}' AND ADRESS_ID = '{mitarbeiterAdresse}'""")
+                dataset = cursor.fetchall()
+                if (dataset):
+                    mitarbeiter[6] = dataset[0][0]
+                    mitarbeiter_existiert = True
+                return mitarbeiter_existiert
+
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
-
 
     def insertMitarbeiter(self):
-        MitarbeiterList = object.getMitarbeiterF2()
+        csv_mitarbeiter_liste = []
+        MitarbeiterList = self.getZuweisungFunktionMitarbeiterF2(self.getMitarbeiterF2())
+        print(len(MitarbeiterList))
         try:
-            with self.con_master.cursor() as cursor:
-               for Mitarbeiter in MitarbeiterList:
-                    vorname = Mitarbeiter[0]
-                    nachname = Mitarbeiter[1]
-                    adressId = self.findAdressId(Mitarbeiter[2])
-                    gehalt = Mitarbeiter[3]
+            for Mitarbeiter in MitarbeiterList:
+                print(Mitarbeiter)
+                if (self.mitarbeiter_existiert(Mitarbeiter)):
+                    print('Mitarbeiter mit der ID ', Mitarbeiter[6], 'existiert bereits, wird übersprungen.')
+                    cursor.execute(
+                        f"""INSERT INTO DATENHERKUNFT_MITARBEITER(MITARBEITER_ID, DATENHERKUNFT_ID) VALUES({Mitarbeiter[6]}, 2)""")
+                    self.con_master.commit()
+                    cursor.execute(
+                        f"""INSERT INTO PROVISION(MITARBEITER_ID, PROVISIONSSATZ) VALUES({Mitarbeiter[6]},{Mitarbeiter[5]})""")
+                    self.con_master.commit()
+                    cursor.execute(
+                        f"""INSERT INTO ZUWEISUNG_MITARBEITER_FUNKTION(MITARBEITER_ID, FUNKTION_ID) VALUES({Mitarbeiter[6]},{Mitarbeiter[7]})""")
+                    self.con_master.commit()
+                    csv_mitarbeiter_liste.append([Mitarbeiter[6], Mitarbeiter[0]])
+                    print("Bestehender Mitarbeiter wurde eingefügt")
+                else:
+                    vorname = Mitarbeiter[1]
+                    nachname = Mitarbeiter[2]
+                    adressId = int(self.findAdressId(Mitarbeiter[3]))
+                    print(adressId)
+                    gehalt = Mitarbeiter[4]
+                    email = config.DUMMY_MAIL
                     eintrittsdatum = "3333-01-01"
-                   # print (vorname, nachname, adressId,gehalt, eintrittsdatum)
-                    cursor.execute(f"""INSERT INTO Mitarbeiter(Anrede, Vorname, Nachname, Email, Gehalt, EINTRITTSDATUM)
-                                            VALUE ({AnredenFinder(vorname)},{vorname}, {nachname}, {adressId}, {gehalt}, {eintrittsdatum})""")
-            self.con_master.commit()
+                    anredeFinder = AnredenFinder()
+                    anrede = anredeFinder.finde_Anrede(vorname)
+                    sql = f"""INSERT INTO MITARBEITER(ANREDE, VORNAME, NACHNAME, EMAIL, GEHALT, EINTRITTSDATUM, ADRESSE_ID)
+                                            VALUES ('{anrede}','{vorname}', '{nachname}', '{email}', {gehalt}, TO_DATE('{eintrittsdatum}','yyyy-mm-dd'), {adressId})
+                                            returning MITARBEITER_ID into :python_var"""
+                    print(sql)
+                    with self.con_master.cursor() as cursor:
+                        newest_id_wrapper = cursor.var(cx_Oracle.STRING)
+                        cursor.execute(sql,
+                                       [newest_id_wrapper])
+                        mitarbeiter_ID = newest_id_wrapper.getvalue()
+                        self.con_master.commit()
+                    with self.con_master.cursor() as cursor:
+                        cursor.execute(
+                            f"""INSERT INTO DATENHERKUNFT_MITARBEITER(MITARBEITER_ID, DATENHERKUNFT_ID) VALUES({mitarbeiter_ID[0]}, 2)""")
+                        self.con_master.commit()
+                    if Mitarbeiter[5]:
+                        with self.con_master.cursor() as cursor:
+                            cursor.execute(
+                                f"""INSERT INTO PROVISION(MITARBEITER_ID, PROVISIONSSATZ) VALUES({mitarbeiter_ID[0]},{Mitarbeiter[5]})""")
+                            self.con_master.commit()
+                    with self.con_master.cursor() as cursor:
+                        cursor.execute(
+                            f"""INSERT INTO ZUWEISUNG_MITARBEITER_FUNKTION(MITARBEITER_ID, FUNKTION_ID) VALUES({mitarbeiter_ID[0]},{Mitarbeiter[6]})""")
+                        self.con_master.commit()
+                    csv_mitarbeiter_liste.append([int(mitarbeiter_ID[0]), int(Mitarbeiter[0])])
         except cx_Oracle.Error as error:
             print('Error occurred:')
             print(error)
+        print('exit')
+        key_allocation_saver.save_f2_to_comb_id_allocation_to_file(csv_mitarbeiter_liste,
+                                                                   "../../data/allocation_csvs/mitarbeiter.csv")
+       # self.generiere_mitarbeiter_csv(csv_mitarbeiter_liste)
 
-#Frage ZuweisungFunktionMitarbeiter
-#Frage ZuweisungProvisionMitarbeiter
+    def start(self):
+        object = Mitarbeiter_Merge()
+        object.insertFunktionen()
+        object.insertMitarbeiter()
 
-object = Mitarbeiter_Merge()
-#templiste = object.addFunktionTable()
-#templiste = object.addProvisionTable()
-#GetMitarbeiterListe = object.getMitarbeiterF2()
-#GetFunktionListe = object.getFunktionF2()
-#GetZuweisungFuktionMitarbeiterListe = object.getZuweisungFunktionMitarbeiterF2()
-#templiste = object.insertProvision(object.getProvisionF2())
-#templiste = object.insertFunktionen()
-#insertMitarbeitertest = object.insertMitarbeiter()
-#insertProvisiontest = object.insertProvision()
-#insertFunktionentest = object.insertFunktionen()
-#print (GetMitarbeiterListe)
-#print (GetFunktionListe)
-#print (GetZuweisungFuktionMitarbeiterListe)
+
+object2 = Mitarbeiter_Merge()
+object2.start()
 

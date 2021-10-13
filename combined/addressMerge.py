@@ -64,9 +64,12 @@ class AddressMerge:
             try:
                 # alter the table DATENHERKUNG_ADRESSE
                 with self.con_master.cursor() as cursor:
-                    cursor.execute(
-                    f"""INSERT INTO DATENHERKUNFT_ADRESSE (DATENHERKUNFT_ID, ADRESSE_ID) VALUES(2, {combined_address_id})""")
-                    self.con_master.commit()
+                    if self.datenherkunft_exists(combined_address_id):
+                        pass
+                    else:
+                        cursor.execute(
+                        f"""INSERT INTO DATENHERKUNFT_ADRESSE (DATENHERKUNFT_ID, ADRESSE_ID) VALUES(2, {combined_address_id})""")
+                        self.con_master.commit()
             except cx_Oracle.Error as error:
                 print('Error occurred:')
                 print(error)
@@ -136,6 +139,20 @@ class AddressMerge:
             print('Error occurred:')
             print(error)
         return 0
+
+    def datenherkunft_exists(self, combined_address_id):
+        try:
+            # search for address in database and return id
+            with self.con_master.cursor() as cursor:
+                cursor.execute(f"""SELECT COUNT(ADRESSE_ID) FROM DATENHERKUNFT_ADRESSE WHERE ADRESSE_ID={combined_address_id} AND DATENHERKUNFT_ID=2""")
+                result = cursor.fetchone()
+                if result[0] > 0:
+                    return True
+
+        except cx_Oracle.Error as error:
+            print('Error occurred:')
+            print(error)
+        return False
 
 # create object
 addressMerge = AddressMerge()
