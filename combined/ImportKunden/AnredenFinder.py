@@ -15,8 +15,8 @@ class AnredenFinder:
 
             # for every row, write the name and gender in map
             for row in csvReader:
-                dict1 = {row[0].upper(): row[1]}
-                self.geschlechts_map.append(dict1)
+                pair = {row[0].upper(): row[1]}
+                self.geschlechts_map.append(pair)
 
     def finde_geschlecht(self, nameToTest):
         nameToTest = nameToTest.upper()
